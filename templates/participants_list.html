@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>등록된 참가자 목록</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .participant-card {
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .participant-card h3 { margin-top: 0; }
+        a { display: inline-block; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>등록된 참가자 목록</h1>
+    {% if participants %}
+        {% for participant in participants %}
+        <div class="participant-card">
+            <h3>{{ participant.name }}</h3>
+            <p><strong>성별:</strong> {{ participant.gender }}</p>
+            <p><strong>MBTI:</strong> {{ participant.mbti if participant.mbti else 'N/A' }}</p>
+            <p><strong>학교/학과:</strong> {{ participant.school if participant.school else 'N/A'}} / {{ participant.major if participant.major else 'N/A'}}</p>
+            <p><strong>나이:</strong> {{ participant.age if participant.age else 'N/A'}}</p>
+            <p><strong>개발 경험:</strong> {{ participant.dev_exp }}</p>
+            <p><strong>취미:</strong> {{ participant.hobbies | join(', ') if participant.hobbies else 'N/A' }}</p>
+            <p><strong>TMI:</strong> {{ participant.tmi if participant.tmi else 'N/A' }}</p>
+            <p><strong>해외 생활:</strong> {{ participant.overseas_exp }}
+                {% if participant.overseas_details and participant.overseas_details.duration %}
+                    (기간: {{ participant.overseas_details.duration }}, 대륙: {{ participant.overseas_details.continent }})
+                {% endif %}
+            </p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>아직 등록된 참가자가 없습니다.</p>
+    {% endif %}
+    <p><a href="/register">새 참가자 등록하기</a></p>
+    <p><a href="/">홈으로 돌아가기</a></p>
+</body>
+</html>

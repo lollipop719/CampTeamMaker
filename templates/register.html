@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>캠프 참가자 등록</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        form { max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="number"], select, textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .form-group { margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <h1>캠프 참가자 등록</h1>
+    <form method="POST" action="/register">
+        <div class="form-group">
+            <label for="name">이름:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="gender">성별:</label>
+            <select id="gender" name="gender" required>
+                <option value="">선택</option>
+                <option value="남">남성</option>
+                <option value="여">여성</option>
+                <option value="기타">기타</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="mbti">MBTI:</label>
+            <input type="text" id="mbti" name="mbti" placeholder="예: ENFP" maxlength="4">
+        </div>
+
+        <div class="form-group">
+            <label for="school">학교:</label>
+            <input type="text" id="school" name="school">
+        </div>
+
+        <div class="form-group">
+            <label for="major">학과:</label>
+            <input type="text" id="major" name="major">
+        </div>
+
+        <div class="form-group">
+            <label for="age">나이:</label>
+            <input type="number" id="age" name="age" min="10" max="99">
+        </div>
+
+        <div class="form-group">
+            <label for="dev_exp">개발 경험:</label>
+            <select id="dev_exp" name="dev_exp" required>
+                <option value="">선택</option>
+                <option value="상">상 (프로젝트 경험 많음)</option>
+                <option value="중">중 (간단한 프로젝트 경험)</option>
+                <option value="하">하 (개발 경험 거의 없음)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="hobbies">취미 (쉼표로 구분):</label>
+            <input type="text" id="hobbies" name="hobbies" placeholder="예: 독서, 코딩, 운동">
+        </div>
+
+        <div class="form-group">
+            <label for="tmi">TMI (자유롭게 작성):</label>
+            <textarea id="tmi" name="tmi" rows="4"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="overseas_exp">해외 생활 경험:</label>
+            <select id="overseas_exp" name="overseas_exp" onchange="toggleOverseasDetails()">
+                <option value="무">무</option>
+                <option value="유">유</option>
+            </select>
+        </div>
+
+        <div id="overseas_details" style="display: none;">
+            <div class="form-group">
+                <label for="overseas_duration">기간:</label>
+                <input type="text" id="overseas_duration" name="overseas_duration" placeholder="예: 1년, 6개월">
+            </div>
+            <div class="form-group">
+                <label for="overseas_continent">대륙:</label>
+                <input type="text" id="overseas_continent" name="overseas_continent" placeholder="예: 유럽, 북미">
+            </div>
+        </div>
+
+        <script>
+            function toggleOverseasDetails() {
+                const overseasExp = document.getElementById('overseas_exp').value;
+                const detailsDiv = document.getElementById('overseas_details');
+                if (overseasExp === '유') {
+                    detailsDiv.style.display = 'block';
+                } else {
+                    detailsDiv.style.display = 'none';
+                }
+            }
+            // Initial call to set correct display based on default value
+            toggleOverseasDetails();
+        </script>
+
+        <input type="submit" value="참가자 등록하기">
+    </form>
+</body>
+</html>
