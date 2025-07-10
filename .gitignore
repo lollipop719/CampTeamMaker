@@ -1,0 +1,17 @@
+# Python virtual environment
+venv/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+
+# Database file for SQLite (if you use it locally)
+*.sqlite
+*.sqlite3
+
+# VS Code files (optional, but often useful)
+.vscode/
+
+# Operating System files
+.DS_Store
+Thumbs.db
