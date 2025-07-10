@@ -42,9 +42,13 @@ def register_submit():
         "school": request.form.get('school', ''),
         "major": request.form.get('major', ''),
         "age": int(request.form.get('age', 0)) if request.form.get('age') else None, # Convert to int, handle empty
-        "dev_exp": request.form['dev_exp'],
+        # "region": request.form.get('region', ''), # ADDED
+        "dev_exp": request.form.get('dev_exp', ''), # CHANGED: Now a string input
+        "intern_exp": request.form.get('intern_exp', ''), # ADDED
+        "immersion_exp": request.form.get('immersion_exp', ''), # ADDED
+        "club_exp": request.form.get('club_exp', ''), # ADDED
         "hobbies": [h.strip() for h in request.form.get('hobbies', '').split(',') if h.strip()], # Split by comma into list
-        "tmi": request.form.get('tmi', ''),
+        # "tmi": request.form.get('tmi', ''), # REMOVED: TMI field
         "overseas_exp": request.form.get('overseas_exp', '무'),
     }
 

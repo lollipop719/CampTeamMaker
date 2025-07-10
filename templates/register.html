@@ -68,24 +68,34 @@
             <input type="number" id="age" name="age" min="10" max="99">
         </div>
 
+        <!-- <div class="form-group">
+            <label for="region">지역:</label>
+            <input type="text" id="region" name="region" placeholder="예: 서울, 부산, 대전">
+        </div> -->
+
         <div class="form-group">
-            <label for="dev_exp">개발 경험:</label>
-            <select id="dev_exp" name="dev_exp" required>
-                <option value="">선택</option>
-                <option value="상">상 (프로젝트 경험 많음)</option>
-                <option value="중">중 (간단한 프로젝트 경험)</option>
-                <option value="하">하 (개발 경험 거의 없음)</option>
-            </select>
+            <label for="dev_exp">개발 경험 (상, 중, 하 또는 상세 설명):</label>
+            <input type="text" id="dev_exp" name="dev_exp" placeholder="예: 상, React 프로젝트 2개 경험">
+        </div>
+
+        <div class="form-group">
+            <label for="intern_exp">인턴 경험 (자세히):</label>
+            <textarea id="intern_exp" name="intern_exp" rows="3" placeholder="예: ㈜ABC에서 프론트엔드 인턴 3개월"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="immersion_exp">몰입해본 경험 (자세히):</label>
+            <textarea id="immersion_exp" name="immersion_exp" rows="3" placeholder="예: 데이터 분석 경진대회에서 24시간 몰입하여 우승"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="club_exp">동아리 경험 (자세히):</label>
+            <textarea id="club_exp" name="club_exp" rows="3" placeholder="예: 학교 코딩 동아리 '알고리즘 마스터즈' 활동, 총무 담당"></textarea>
         </div>
 
         <div class="form-group">
             <label for="hobbies">취미 (쉼표로 구분):</label>
             <input type="text" id="hobbies" name="hobbies" placeholder="예: 독서, 코딩, 운동">
-        </div>
-
-        <div class="form-group">
-            <label for="tmi">TMI (자유롭게 작성):</label>
-            <textarea id="tmi" name="tmi" rows="4"></textarea>
         </div>
 
         <div class="form-group">

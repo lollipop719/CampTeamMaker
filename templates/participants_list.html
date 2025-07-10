@@ -27,9 +27,13 @@
             <p><strong>MBTI:</strong> {{ participant.mbti if participant.mbti else 'N/A' }}</p>
             <p><strong>학교/학과:</strong> {{ participant.school if participant.school else 'N/A'}} / {{ participant.major if participant.major else 'N/A'}}</p>
             <p><strong>나이:</strong> {{ participant.age if participant.age else 'N/A'}}</p>
-            <p><strong>개발 경험:</strong> {{ participant.dev_exp }}</p>
+            <!-- <p><strong>지역:</strong> {{ participant.region if participant.region else 'N/A' }}</p> {# ADDED #} -->
+            <p><strong>개발 경험:</strong> {{ participant.dev_exp if participant.dev_exp else 'N/A' }}</p> {# CHANGED: Removed select-specific display #}
+            <p><strong>인턴 경험:</strong> {{ participant.intern_exp if participant.intern_exp else 'N/A' }}</p> {# ADDED #}
+            <p><strong>몰입해본 경험:</strong> {{ participant.immersion_exp if participant.immersion_exp else 'N/A' }}</p> {# ADDED #}
+            <p><strong>동아리 경험:</strong> {{ participant.club_exp if participant.club_exp else 'N/A' }}</p> {# ADDED #}
             <p><strong>취미:</strong> {{ participant.hobbies | join(', ') if participant.hobbies else 'N/A' }}</p>
-            <p><strong>TMI:</strong> {{ participant.tmi if participant.tmi else 'N/A' }}</p>
+            {# <p><strong>TMI:</strong> {{ participant.tmi if participant.tmi else 'N/A' }}</p> REMOVED #}
             <p><strong>해외 생활:</strong> {{ participant.overseas_exp }}
                 {% if participant.overseas_details and participant.overseas_details.duration %}
                     (기간: {{ participant.overseas_details.duration }}, 대륙: {{ participant.overseas_details.continent }})
