@@ -1,0 +1,88 @@
+ .profile-photo-container {
+    text-align: center; /* Centers the image horizontally */
+    margin-bottom: 20px; /* Adds some space below the image */
+}
+
+.profile-photo {
+    width: 150px;   /* Set a fixed width for the photo */
+    height: 150px;  /* Set a fixed height to make it square */
+    object-fit: cover; /* Ensures the image covers the area without distortion, cropping if necessary */
+    border-radius: 50%; /* Makes the image circular */
+    border: 2px solid #ddd; /* Optional: adds a subtle border */
+    display: block; /* Makes it a block element to respect text-align: center */
+    margin-left: auto; /* Centers the block element */
+    margin-right: auto; /* Centers the block element */
+}
+
+.participant-info-card {
+    /* Add styles for the overall card if you have one, e.g. */
+    width: 80%; /* Adjust as needed */
+    margin: 20px auto; /* Center the card itself */
+    padding: 20px;
+    border: 1px solid #eee;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    background-color: #fff;
+}
+
+.participant-details {
+    /* Styles for the text details below the photo */
+    text-align: center; /* Center the text details as well */
+}
+
+.participant-card {
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #eee;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    background-color: #fff;
+}
+
+.category-info {
+    font-size: 0.9em;
+    color: #777;
+    margin-top: 5px;
+    /* Remove padding-left and text-indent as they are causing the issue */
+    /* padding-left: 125px; */
+    /* text-indent: -120px; */
+}
+
+.category-info strong {
+    color: #777; /* Keep the color specific to these labels */
+    /* The min-width and display properties from .participant-card strong will apply */
+}
+
+.toggle-reason-btn {
+    margin-left: 10px;
+    padding: 4px 8px;
+    background-color: #6c757d; /* A neutral color */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: background-color 0.2s ease;
+}
+
+.toggle-reason-btn:hover {
+    background-color: #5a6268;
+}
+
+.reason-text {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    border-left: 2px solid #ccc;
+    padding-left: 10px;
+    color: #666;
+    font-style: italic;
+    margin-top: 5px;
+    margin-bottom: 0; /* collapsed */
+    transition: max-height 0.3s ease, opacity 0.3s ease, margin-bottom 0.3s ease;
+}
+
+.reason-text.show {
+    max-height: 200px;  /* enough to show */
+    opacity: 1;
+    margin-bottom: 15px;
+}

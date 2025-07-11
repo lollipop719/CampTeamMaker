@@ -3,135 +3,305 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>캠프 참가자 등록</title>
+    <title>새 참가자 등록</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        form { max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="number"], select, textarea {
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        h1 { text-align: center; color: #333; }
+        form {
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background-color: #fdfdfd;
+        }
+        .form-section h2 {
+            margin-top: 0;
+            color: #555;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #444;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="url"],
+        input[type="file"], /* Added for photo upload */
+        select,
+        textarea {
             width: calc(100% - 22px);
             padding: 10px;
             margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
         }
-        input[type="submit"] {
-            background-color: #4CAF50;
+        select[multiple] { /* Style for multi-select */
+            height: auto;
+            min-height: 120px; /* Adjust as needed to show multiple options */
+        }
+        select {
+            width: 100%;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        input[type="radio"] {
+            margin-right: 5px;
+        }
+        .radio-group label {
+            display: inline-block;
+            margin-right: 15px;
+            font-weight: normal;
+        }
+        .help-text {
+            font-size: 0.9em;
+            color: #777;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .required-asterisk {
+            color: red;
+            margin-left: 3px;
+        }
+        button[type="submit"] {
+            background-color: #28a745;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 25px;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 1.1em;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
         }
-        input[type="submit"]:hover {
-            background-color: #45a049;
+        button[type="submit"]:hover {
+            background-color: #218838;
         }
-        .form-group { margin-bottom: 15px; }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    <h1>캠프 참가자 등록</h1>
-    <form method="POST" action="/register">
-        <div class="form-group">
-            <label for="name">이름:</label>
-            <input type="text" id="name" name="name" required>
-        </div>
-
-        <div class="form-group">
-            <label for="gender">성별:</label>
-            <select id="gender" name="gender" required>
-                <option value="">선택</option>
-                <option value="남">남성</option>
-                <option value="여">여성</option>
-                <option value="기타">기타</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="mbti">MBTI:</label>
-            <input type="text" id="mbti" name="mbti" placeholder="예: ENFP" maxlength="4">
-        </div>
-
-        <div class="form-group">
-            <label for="school">학교:</label>
-            <input type="text" id="school" name="school">
-        </div>
-
-        <div class="form-group">
-            <label for="major">학과:</label>
-            <input type="text" id="major" name="major">
-        </div>
-
-        <div class="form-group">
-            <label for="age">나이:</label>
-            <input type="number" id="age" name="age" min="10" max="99">
-        </div>
-
-        <!-- <div class="form-group">
-            <label for="region">지역:</label>
-            <input type="text" id="region" name="region" placeholder="예: 서울, 부산, 대전">
-        </div> -->
-
-        <div class="form-group">
-            <label for="dev_exp">개발 경험 (상, 중, 하 또는 상세 설명):</label>
-            <input type="text" id="dev_exp" name="dev_exp" placeholder="예: 상, React 프로젝트 2개 경험">
-        </div>
-
-        <div class="form-group">
-            <label for="intern_exp">인턴 경험 (자세히):</label>
-            <textarea id="intern_exp" name="intern_exp" rows="3" placeholder="예: ㈜ABC에서 프론트엔드 인턴 3개월"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="immersion_exp">몰입해본 경험 (자세히):</label>
-            <textarea id="immersion_exp" name="immersion_exp" rows="3" placeholder="예: 데이터 분석 경진대회에서 24시간 몰입하여 우승"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="club_exp">동아리 경험 (자세히):</label>
-            <textarea id="club_exp" name="club_exp" rows="3" placeholder="예: 학교 코딩 동아리 '알고리즘 마스터즈' 활동, 총무 담당"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="hobbies">취미 (쉼표로 구분):</label>
-            <input type="text" id="hobbies" name="hobbies" placeholder="예: 독서, 코딩, 운동">
-        </div>
-
-        <div class="form-group">
-            <label for="overseas_exp">해외 생활 경험:</label>
-            <select id="overseas_exp" name="overseas_exp" onchange="toggleOverseasDetails()">
-                <option value="무">무</option>
-                <option value="유">유</option>
-            </select>
-        </div>
-
-        <div id="overseas_details" style="display: none;">
+    <h1>새 참가자 등록</h1>
+    <form method="POST" action="/register" enctype="multipart/form-data">
+        <div class="form-section">
+            <h2>기본 정보</h2>
             <div class="form-group">
-                <label for="overseas_duration">기간:</label>
-                <input type="text" id="overseas_duration" name="overseas_duration" placeholder="예: 1년, 6개월">
+                <label for="name">이름<span class="required-asterisk">*</span>:</label>
+                <input type="text" id="name" name="name" required>
             </div>
+
             <div class="form-group">
-                <label for="overseas_continent">대륙:</label>
-                <input type="text" id="overseas_continent" name="overseas_continent" placeholder="예: 유럽, 북미">
+                <label for="contact">연락처 (000-0000-0000)<span class="required-asterisk">*</span>:</label>
+                <input type="tel" id="contact" name="contact" pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}" placeholder="010-1234-5678" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">이메일<span class="required-asterisk">*</span>:</label>
+                <input type="email" id="email" name="email" placeholder="example@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="university">대학교<span class="required-asterisk">*</span>:</label>
+                <select id="university" name="university" required>
+                    <option value="">대학교 선택</option>
+                    <option value="연세대학교">연세대학교</option>
+                    <option value="고려대학교">고려대학교</option>
+                    <option value="한양대학교">한양대학교</option>
+                    <option value="카이스트">카이스트</option>
+                    <option value="이화여자대학교">이화여자대학교</option>
+                    <option value="숙명여자대학교">숙명여자대학교</option>
+                    <option value="전남대학교">전남대학교</option>
+                    <option value="부산대학교">부산대학교</option>
+                    <option value="디지스트">디지스트</option>
+                    <option value="지스트">지스트</option>
+                    <option value="유니스트">유니스트</option>
+                    <option value="포스텍">포스텍</option>
+                    <option value="성균관대학교">성균관대학교</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="major">전공<span class="required-asterisk">*</span>:</label>
+                <input type="text" id="major" name="major" required placeholder="예: 컴퓨터공학, 경영학">
+            </div>
+
+            <div class="form-group">
+                <label for="high_school_type">출신고등학교<span class="required-asterisk">*</span>:</label>
+                <select id="high_school_type" name="high_school_type" required>
+                    <option value="">고등학교 유형 선택</option>
+                    <option value="일반고">일반고</option>
+                    <option value="과고">과고</option>
+                    <option value="영재학교">영재학교</option>
+                    <option value="외고">외고</option>
+                    <option value="자율형사립고">자율형사립고</option>
+                    <option value="해외고">해외고</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="student_id">학번<span class="required-asterisk">*</span>:</label>
+                <input type="number" id="student_id" name="student_id" required min="1">
+            </div>
+
+            <div class="form-group">
+                <label for="semester">학기<span class="required-asterisk">*</span>:</label>
+                <input type="number" id="semester" name="semester" required min="1">
+            </div>
+
+            <div class="form-group">
+                <label for="age">나이<span class="required-asterisk">*</span>:</label>
+                <input type="number" id="age" name="age" required min="18" max="99">
+            </div>
+
+            <div class="form-group">
+                <label>성별<span class="required-asterisk">*</span>:</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="gender" value="남자" required> 남자</label>
+                    <label><input type="radio" name="gender" value="여자" required> 여자</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>병역사항<span class="required-asterisk">*</span>:</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="military_service" value="병역필" required> 병역필</label>
+                    <label><input type="radio" name="military_service" value="미필" required> 미필</label>
+                    <label><input type="radio" name="military_service" value="면제" required> 면제</label>
+                    <label><input type="radio" name="military_service" value="해당없음" required> 해당없음</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>현재 졸업학기 및 휴학 여부<span class="required-asterisk">*</span>:</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="graduation_leave" value="졸업학기" required> 졸업학기</label>
+                    <label><input type="radio" name="graduation_leave" value="휴학중" required> 휴학중</label>
+                    <label><input type="radio" name="graduation_leave" value="해당없음" required> 해당없음</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>재수여부<span class="required-asterisk">*</span>:</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="re_exam" value="현역/조기졸업" required> 현역/조기졸업</label>
+                    <label><input type="radio" name="re_exam" value="재수/반수" required> 재수/반수</label>
+                    <label><input type="radio" name="re_exam" value="삼수이상" required> 삼수이상</label>
+                    <label><input type="radio" name="re_exam" value="기타(검정고시,편입 등)" required> 기타(검정고시,편입 등)</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="major_cs_courses">주요 전산과목:</label><br>
+                {% set major_subjects_options = ['디지탈시스템 및 실험', '문제해결기법', '이산구조', '지능 로봇 설계 및 프로그래밍', '프로그래밍의 이해', '데이타구조', '데이타베이스 개론', 
+                '소프트웨어 공학개론', '시스템 프로그래밍', '알고리즘 개론', '운영체제 및 실험', '전산기조직', '전산망개론', '전산학 프로젝트', '프로그래밍 언어'] %}
+                {% for option in major_subjects_options %}
+                    <input type="checkbox"
+                           id="major_cs_course_{{ loop.index }}"
+                           name="major_cs_courses"
+                           value="{{ option }}"
+                           {% if participant and option in participant.major_cs_courses %}checked{% endif %}>
+                    <label for="major_cs_course_{{ loop.index }}">{{ option }}</label><br>
+                {% endfor %}
             </div>
         </div>
 
-        <script>
-            function toggleOverseasDetails() {
-                const overseasExp = document.getElementById('overseas_exp').value;
-                const detailsDiv = document.getElementById('overseas_details');
-                if (overseasExp === '유') {
-                    detailsDiv.style.display = 'block';
-                } else {
-                    detailsDiv.style.display = 'none';
-                }
-            }
-            // Initial call to set correct display based on default value
-            toggleOverseasDetails();
-        </script>
+        <div class="form-section">
+            <h2>대학생활</h2>
+            <div class="form-group">
+                <label for="passion_vacation">가장 열정적으로 보냈던 방학과 그 이유:</label>
+                <textarea id="passion_vacation" name="passion_vacation" rows="4"></textarea>
+            </div>
 
-        <input type="submit" value="참가자 등록하기">
+            <div class="form-group">
+                <label for="active_club">활발하게 활동한 동아리:</label>
+                <textarea id="active_club" name="active_club" rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="leave_period_work">휴학했다면 그 기간과 기간 중에 한 일:</label>
+                <textarea id="leave_period_work" name="leave_period_work" rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="intern_exp_details">인턴 경험이 있다면 그 기간과 어디에서 어떤 업무를 했나요?:</label>
+                <textarea id="intern_exp_details" name="intern_exp_details" rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="personal_project_details">학과 프로젝트 이외에 본인이 별도의 프로그램이나 앱을 개발한 경험이 있다면, 간략히 프로젝트 내용을 설명해 주세요.:</label>
+                <textarea id="personal_project_details" name="personal_project_details" rows="4"></textarea>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>기타</h2>
+            <div class="form-group">
+                <label for="profile_photo">본인 사진 업로드 (선택):</label>
+                <input type="file" id="profile_photo" name="profile_photo" accept="image/*">
+                <span class="help-text">얼굴이 잘 나온 사진을 업로드해주세요.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="self_video_url">60초 본인 동영상 URL (필수)<span class="required-asterisk">*</span>:</label>
+                <input type="url" id="self_video_url" name="self_video_url" placeholder="예: https://youtube.com/my_video" required>
+                <span class="help-text">YouTube, Vimeo 등 동영상 링크를 입력해주세요.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="overseas_life">1년 이상 해외생활을 했다면, 그 기간과 어디에서 무엇을 했나요? (200자 이하):</label>
+                <textarea id="overseas_life" name="overseas_life" rows="3" maxlength="200"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="awards_competitions">공모전 및 대회 수상 경력이 있으면 적어주세요. (200자 이하):</label>
+                <textarea id="awards_competitions" name="awards_competitions" rows="3" maxlength="200"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="unique_hobby">남들과 다른 특별한 취미가 있으면 적어주세요. (200자 이하):</label>
+                <textarea id="unique_hobby" name="unique_hobby" rows="3" maxlength="200"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="application_motive">지원 동기 (200자 이하):</label>
+                <textarea id="application_motive" name="application_motive" rows="3" maxlength="200"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="additional_comments">추가로 더 하고 싶은 이야기가 있으면 적어주세요. (200자 이하):</label>
+                <textarea id="additional_comments" name="additional_comments" rows="3" maxlength="200"></textarea>
+            </div>
+        </div>
+
+        <button type="submit">참가자 등록하기</button>
     </form>
+    <a href="/" class="back-link">홈으로 돌아가기</a>
 </body>
 </html>

@@ -5,40 +5,326 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>등록된 참가자 목록</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .participant-card {
-            border: 1px solid #eee;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            background-color: #f9f9f9;
+        html, body, * {
+            box-sizing: border-box;
         }
-        .participant-card h3 { margin-top: 0; }
-        a { display: inline-block; margin-top: 20px; }
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        h1 { text-align: center; color: #333; margin-bottom: 25px; }
+        .participant-card {
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: relative;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto 24px auto;
+            overflow-x: auto;
+        }
+        .participant-card h3 {
+            margin-top: 0;
+            color: #007bff;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .participant-card p {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+        .participant-card strong {
+            color: #555;
+            min-width: 120px; /* Align labels */
+            display: inline-block;
+        }
+        .category-info {
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 5px;
+            padding-left: 125px; /* Indent to align with values */
+            text-indent: -120px; /* Compensate for indent */
+        }
+        .category-info strong {
+            color: #777;
+        }
+        .actions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .actions a, .actions button {
+            margin-left: 8px;
+            padding: 8px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s ease;
+        }
+        .actions a {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+        .actions a:hover {
+            background-color: #0056b3;
+        }
+        .actions button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+        }
+        .actions button:hover {
+            background-color: #c82333;
+        }
+        .section-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            color: #333;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 5px;
+        }
+        /* Style for confirmation dialog */
+        .confirm-dialog {
+            display: none; /* Hidden by default */
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            padding: 25px;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .confirm-dialog button {
+            padding: 10px 20px;
+            margin: 10px 10px 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .confirm-dialog button:first-of-type {
+            background-color: #28a745;
+            color: white;
+        }
+        .confirm-dialog button:first-of-type:hover {
+            background-color: #218838;
+        }
+        .confirm-dialog button:last-of-type {
+            background-color: #6c757d;
+            color: white;
+        }
+        .confirm-dialog button:last-of-type:hover {
+            background-color: #5a6268;
+        }
+        .overlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        /* Toast Notification Styles */
+        .toast-notification {
+            visibility: hidden;
+            min-width: 300px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 18px;
+            position: fixed;
+            z-index: 1001;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 30px;
+            font-size: 18px;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.5s linear;
+        }
+
+        .toast-notification.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .video-embed-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            background: #000;
+            margin-top: 10px;
+        }
+        .video-embed-container iframe,
+        .video-embed-container object,
+        .video-embed-container embed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .profile-photo-container {
+            margin-bottom: 10px;
+        }
+        .profile-photo-container img {
+            max-width: 250px;
+            height: auto;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            display: block;
+            margin-top: 5px;
+        }
+        .participant-info-card {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 32px;
+            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .participant-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+        }
+        .profile-photo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 180px;
+            max-width: 220px;
+        }
+        .reason-text {
+            display: none;
+            margin-left: 8px;
+        }
+        .reason-text.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
+    <div class="participants-list-wrapper" style="width:100vw;overflow-x:auto;">
     <h1>등록된 참가자 목록</h1>
     {% if participants %}
         {% for participant in participants %}
         <div class="participant-card">
-            <h3>{{ participant.name }}</h3>
-            <p><strong>성별:</strong> {{ participant.gender }}</p>
-            <p><strong>MBTI:</strong> {{ participant.mbti if participant.mbti else 'N/A' }}</p>
-            <p><strong>학교/학과:</strong> {{ participant.school if participant.school else 'N/A'}} / {{ participant.major if participant.major else 'N/A'}}</p>
-            <p><strong>나이:</strong> {{ participant.age if participant.age else 'N/A'}}</p>
-            <!-- <p><strong>지역:</strong> {{ participant.region if participant.region else 'N/A' }}</p> {# ADDED #} -->
-            <p><strong>개발 경험:</strong> {{ participant.dev_exp if participant.dev_exp else 'N/A' }}</p> {# CHANGED: Removed select-specific display #}
-            <p><strong>인턴 경험:</strong> {{ participant.intern_exp if participant.intern_exp else 'N/A' }}</p> {# ADDED #}
-            <p><strong>몰입해본 경험:</strong> {{ participant.immersion_exp if participant.immersion_exp else 'N/A' }}</p> {# ADDED #}
-            <p><strong>동아리 경험:</strong> {{ participant.club_exp if participant.club_exp else 'N/A' }}</p> {# ADDED #}
-            <p><strong>취미:</strong> {{ participant.hobbies | join(', ') if participant.hobbies else 'N/A' }}</p>
-            {# <p><strong>TMI:</strong> {{ participant.tmi if participant.tmi else 'N/A' }}</p> REMOVED #}
-            <p><strong>해외 생활:</strong> {{ participant.overseas_exp }}
-                {% if participant.overseas_details and participant.overseas_details.duration %}
-                    (기간: {{ participant.overseas_details.duration }}, 대륙: {{ participant.overseas_details.continent }})
-                {% endif %}
+            <div class="actions">
+                <a href="{{ url_for('edit_participant', participant_id=participant._id) }}">수정</a>
+                <button onclick="confirmDelete('{{ participant._id }}', '{{ participant.name }}')">삭제</button>
+            </div>
+
+            <div class="participant-info-card">
+                <div class="participant-details">
+                    <h3>{{ participant.name }}</h3>
+                    <p><strong>연락처:</strong> {{ participant.contact if participant.contact else 'N/A' }}</p>
+                    <p><strong>이메일:</strong> {{ participant.email if participant.email else 'N/A' }}</p>
+                    <p><strong>대학교:</strong> {{ participant.university if participant.university else 'N/A' }}</p>
+                    <p><strong>전공:</strong> {{ participant.major if participant.major else 'N/A' }}</p>
+                    <p><strong>출신고등학교:</strong> {{ participant.high_school_type if participant.high_school_type else 'N/A' }}</p>
+                    <p><strong>학번:</strong> {{ participant.student_id if participant.student_id else 'N/A' }}</p>
+                    <p><strong>학기:</strong> {{ participant.semester if participant.semester else 'N/A' }}</p>
+                    <p><strong>나이:</strong> {{ participant.age if participant.age else 'N/A' }}</p>
+                    <p><strong>성별:</strong> {{ participant.gender if participant.gender else 'N/A' }}</p>
+                    <p><strong>병역사항:</strong> {{ participant.military_service if participant.military_service else 'N/A' }}</p>
+                    <p><strong>졸업학기/휴학여부:</strong> {{ participant.graduation_leave if participant.graduation_leave else 'N/A' }}</p>
+                    <p><strong>재수여부:</strong> {{ participant.re_exam if participant.re_exam else 'N/A' }}</p>
+                    <p><strong>주요 전산과목:</strong>
+                        {% if participant.major_cs_courses %}
+                            {{ participant.major_cs_courses | join(', ') }}
+                        {% else %}
+                            선택된 과목 없음
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="profile-photo-container">
+                    {% if participant.profile_photo_filename %}
+                        <img src="{{ url_for('uploaded_file', filename=participant.profile_photo_filename) }}" alt="Profile Photo" class="profile-photo">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/default_profile.png') }}" alt="Default Profile Photo" class="profile-photo">
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="section-header">대학생활</div>
+            <p><strong>열정적 방학:</strong> {{ participant.passion_vacation if participant.passion_vacation else 'N/A' }}</p>
+            <p><strong>활동 동아리:</strong> {{ participant.active_club if participant.active_club else 'N/A' }}</p>
+            <p><strong>휴학 기간/활동:</strong> {{ participant.leave_period_work if participant.leave_period_work else 'N/A' }}</p>
+            <p><strong>인턴 경험 상세:</strong> {{ participant.intern_exp_details if participant.intern_exp_details else 'N/A' }}</p>
+            <p><strong>개인 프로젝트:</strong> {{ participant.personal_project_details if participant.personal_project_details else 'N/A' }}</p>
+
+            <div class="section-header">기타</div>
+
+            {% if participant.self_video_url %}
+            <p><strong>본인 동영상 URL:</strong> <a href="{{ participant.self_video_url }}" target="_blank">{{ participant.self_video_url }}</a></p>
+            {% set video_url = participant.self_video_url %}
+            {% if 'youtube.com/' in video_url or 'youtu.be/' in video_url %}
+                {% set video_id = video_url.split('v=')[-1].split('&')[0] if 'v=' in video_url else video_url.split('/')[-1].split('?')[0] %}
+                <div class="video-embed-container">
+                    <iframe src="https://www.youtube.com/embed/{{ video_id }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            {% elif 'vimeo.com/' in video_url %}
+                {% set video_id = video_url.split('vimeo.com/')[-1].split('?')[0] %}
+                <div class="video-embed-container">
+                    <iframe src="https://player.vimeo.com/video/{{ video_id }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            {% else %}
+                <p><em>(임베드할 수 없는 동영상 URL 형식입니다. 링크를 클릭하여 시청해주세요.)</em></p>
+            {% endif %}
+            {% else %}
+            <p><strong>본인 동영상 URL:</strong> N/A</p>
+            {% endif %}
+            <p><strong>해외 생활:</strong> {{ participant.overseas_life if participant.overseas_life else 'N/A' }}</p>
+            <p><strong>수상 경력:</strong> {{ participant.awards_competitions if participant.awards_competitions else 'N/A' }}</p>
+            <p><strong>특별한 취미:</strong> {{ participant.unique_hobby if participant.unique_hobby else 'N/A' }}</p>
+            <p><strong>지원 동기:</strong> {{ participant.application_motive if participant.application_motive else 'N/A' }}</p>
+            <p><strong>추가 코멘트:</strong> {{ participant.additional_comments if participant.additional_comments else 'N/A' }}</p>
+
+            <div class="section-header">점수 분석</div>
+
+            <p>
+                <strong>개발 점수:</strong> {{ participant.dev_score if participant.dev_score is not none else 'N/A' }}
+                <button class="toggle-reason-btn" data-target="dev-reason-{{ loop.index }}">이유 보기</button>
             </p>
+            <p class="reason-text" id="dev-reason-{{ loop.index }}">
+                {{ participant.dev_score_reason if participant.dev_score_reason else 'N/A' }}
+            </p>
+
+            <p>
+                <strong>개성 점수:</strong> {{ participant.personality_score if participant.personality_score is not none else 'N/A' }}
+                <button class="toggle-reason-btn" data-target="personality-reason-{{ loop.index }}">이유 보기</button>
+            </p>
+            <p class="reason-text" id="personality-reason-{{ loop.index }}">
+                {{ participant.personality_score_reason if participant.personality_score_reason else 'N/A' }}
+            </p>
+
+            <p>
+                <strong>열정 점수:</strong> {{ participant.passion_score if participant.passion_score is not none else 'N/A' }}
+                <button class="toggle-reason-btn" data-target="passion-reason-{{ loop.index }}">이유 보기</button>
+            </p>
+            <p class="reason-text" id="passion-reason-{{ loop.index }}">
+                {{ participant.passion_score_reason if participant.passion_score_reason else 'N/A' }}
+            </p>
+
+            <p><strong>평균 점수:</strong> {{ participant.avg_score if participant.avg_score is not none else 'N/A' }}</p>
         </div>
         {% endfor %}
     {% else %}
@@ -46,5 +332,137 @@
     {% endif %}
     <p><a href="/register">새 참가자 등록하기</a></p>
     <p><a href="/">홈으로 돌아가기</a></p>
+    <p><a href="/categorize_participants">참가자 분류 실행 (Gemini API 호출)</a></p>
+    </div>
+    <div id="overlay" class="overlay"></div>
+    <div id="confirmDeleteDialog" class="confirm-dialog">
+        <p><span id="deleteParticipantName"></span> 님을 정말 삭제하시겠습니까?</p>
+        <button onclick="deleteParticipant()">예</button>
+        <button onclick="hideConfirmDialog()">아니오</button>
+    </div>
+
+    <div id="toastNotification" class="toast-notification"></div>
+
+    <form id="deleteForm" method="POST" style="display: none;">
+        <input type="hidden" name="participant_id" id="deleteParticipantId">
+    </form>
+
+    <script>
+        let participantIdToDelete = null;
+
+        function confirmDelete(id, name) {
+            participantIdToDelete = id;
+            document.getElementById('deleteParticipantName').textContent = name;
+            document.getElementById('confirmDeleteDialog').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function hideConfirmDialog() {
+            document.getElementById('confirmDeleteDialog').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+            participantIdToDelete = null;
+        }
+
+        function deleteParticipant() {
+            if (participantIdToDelete) {
+                const form = document.getElementById('deleteForm');
+                document.getElementById('deleteParticipantId').value = participantIdToDelete;
+
+                fetch('/delete_participant/' + participantIdToDelete, {
+                    method: 'POST',
+                    body: new FormData(form)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => { throw new Error(text); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    hideConfirmDialog();
+                    if (data.status === 'success') {
+                        showToast(data.message);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        showToast(data.message || '삭제 실패', 'error');
+                    }
+                })
+                .catch(error => {
+                    hideConfirmDialog();
+                    console.error('Error during fetch:', error);
+                    showToast('네트워크 오류 또는 서버 응답 오류', 'error');
+                    if (error instanceof Error && error.message.startsWith('{')) {
+                        try {
+                            const errorJson = JSON.parse(error.message);
+                            showToast(errorJson.message || '알 수 없는 서버 오류', 'error');
+                        } catch (e) {
+                            showToast('네트워크 오류 또는 서버 오류: ' + error.message, 'error');
+                        }
+                    }
+                });
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toastNotification');
+            if (!toast) {
+                console.error("Toast notification element not found!");
+                return;
+            }
+            toast.textContent = message;
+            toast.className = 'toast-notification show';
+
+            if (type === 'error') {
+                toast.style.backgroundColor = '#dc3545';
+            } else if (type === 'warning') {
+                toast.style.backgroundColor = '#ffc107';
+            }
+            else {
+                toast.style.backgroundColor = '#4CAF50';
+            }
+
+            setTimeout(() => {
+                if (toast.className.includes('show')) {
+                    toast.className = toast.className.replace('show', '');
+                }
+                setTimeout(() => {
+                    toast.style.backgroundColor = '';
+                }, 500);
+            }, 2000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleButtons = document.querySelectorAll('.toggle-reason-btn');
+
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.dataset.target;
+                    const reasonElement = document.getElementById(targetId);
+
+                    if (reasonElement) {
+                        if (reasonElement.classList.contains('show')) {
+                            // Hide
+                            reasonElement.classList.remove('show');
+                            button.textContent = '이유 보기';
+                        } else {
+                            // Show
+                            reasonElement.classList.add('show');
+                            button.textContent = '이유 숨기기';
+                        }
+                    }
+                });
+            });
+
+            // Existing URL parameter toast handling
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+            const message = urlParams.get('message');
+            if (status && message) {
+                showToast(decodeURIComponent(message), status);
+            }
+        });
+    </script>
 </body>
 </html>

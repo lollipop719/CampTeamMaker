@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>참가자 정보 수정</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        h1 { text-align: center; color: #333; }
+        form {
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background-color: #fdfdfd;
+        }
+        .form-section h2 {
+            margin-top: 0;
+            color: #555;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #444;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="url"],
+        input[type="file"], /* Added for photo upload */
+        select,
+        textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        select[multiple] { /* Style for multi-select */
+            height: auto;
+            min-height: 120px; /* Adjust as needed to show multiple options */
+        }
+        select {
+            width: 100%;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        input[type="radio"] {
+            margin-right: 5px;
+        }
+        .radio-group label {
+            display: inline-block;
+            margin-right: 15px;
+            font-weight: normal;
+        }
+        .help-text {
+            font-size: 0.9em;
+            color: #777;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .required-asterisk {
+            color: red;
+            margin-left: 3px;
+        }
+        button[type="submit"], input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            display: inline-block;
+            margin-right: 10px;
+            box-sizing: border-box;
+        }
+        button[type="submit"]:hover, input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .cancel-button {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1.1em;
+            display: inline-block;
+            box-sizing: border-box;
+        }
+        .cancel-button:hover {
+            background-color: #5a6268;
+        }
+        .video-embed-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            background: #000;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        .video-embed-container iframe,
+        .video-embed-container object,
+        .video-embed-container embed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .profile-photo-container {
+            margin-bottom: 10px;
+        }
+        .profile-photo-container img {
+            max-width: 150px;
+            height: auto;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            display: block;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>참가자 정보 수정</h1>
+    <form method="POST" action="{{ url_for('edit_participant', participant_id=participant._id) }}" enctype="multipart/form-data">
+        <input type="hidden" name="participant_id" value="{{ participant._id }}">
+
+        <div class="form-section">
+            <h2>기본 정보</h2>
+            <div class="form-group">
+                <label for="name">이름<span class="required-asterisk">*</span>:</label>
+                <input type="text" id="name" name="name" value="{{ participant.name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="contact">연락처 (000-0000-0000)<span class="required-asterisk">*</span>:</label>
+                <input type="tel" id="contact" name="contact" pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}" placeholder="010-1234-5678" value="{{ participant.contact if participant.contact else '' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">이메일<span class="required-asterisk">*</span>:</label>
+                <input type="email" id="email" name="email" placeholder="example@example.com" value="{{ participant.email if participant.email else '' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="university">대학교<span class="required-asterisk">*</span>:</label>
+                <select id="university" name="university" required>
+                    <option value="">대학교 선택</option>
+                    <option value="연세대학교" {% if participant.university == '연세대학교' %}selected{% endif %}>연세대학교</option>
+                    <option value="고려대학교" {% if participant.university == '고려대학교' %}selected{% endif %}>고려대학교</option>
+                    <option value="한양대학교" {% if participant.university == '한양대학교' %}selected{% endif %}>한양대학교</option>
+                    <option value="카이스트" {% if participant.university == '카이스트' %}selected{% endif %}>카이스트</option>
+                    <option value="이화여자대학교" {% if participant.university == '이화여자대학교' %}selected{% endif %}>이화여자대학교</option>
+                    <option value="숙명여자대학교" {% if participant.university == '숙명여자대학교' %}selected{% endif %}>숙명여자대학교</option>
+                    <option value="전남대학교" {% if participant.university == '전남대학교' %}selected{% endif %}>전남대학교</option>
+                    <option value="부산대학교" {% if participant.university == '부산대학교' %}selected{% endif %}>부산대학교</option>
+                    <option value="디지스트" {% if participant.university == '디지스트' %}selected{% endif %}>디지스트</option>
+                    <option value="지스트" {% if participant.university == '지스트' %}selected{% endif %}>지스트</option>
+                    <option value="유니스트" {% if participant.university == '유니스트' %}selected{% endif %}>유니스트</option>
+                    <option value="포스텍" {% if participant.university == '포스텍' %}selected{% endif %}>포스텍</option>
+                    <option value="성균관대학교" {% if participant.university == '성균관대학교' %}selected{% endif %}>성균관대학교</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="major">전공<span class="required-asterisk">*</span>:</label>
+                <input type="text" id="major" name="major" value="{{ participant.major if participant.major else '' }}" required placeholder="예: 컴퓨터공학, 경영학">
+            </div>
+
+            <div class="form-group">
+                <label for="high_school_type">출신고등학교<span class="required-asterisk">*</span>:</label>
+                <select id="high_school_type" name="high_school_type" required>
+                    <option value="">고등학교 유형 선택</option>
+                    <option value="일반고" {% if participant.high_school_type == '일반고' %}selected{% endif %}>일반고</option>
+                    <option value="과고" {% if participant.high_school_type == '과고' %}selected{% endif %}>과고</option>
+                    <option value="영재학교" {% if participant.high_school_type == '영재학교' %}selected{% endif %}>영재학교</option>
+                    <option value="외고" {% if participant.high_school_type == '외고' %}selected{% endif %}>외고</option>
+                    <option value="자율형사립고" {% if participant.high_school_type == '자율형사립고' %}selected{% endif %}>자율형사립고</option>
+                    <option value="해외고" {% if participant.high_school_type == '해외고' %}selected{% endif %}>해외고</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="student_id">학번<span class="required-asterisk">*</span>:</label>
+                <input type="number" id="student_id" name="student_id" required min="1" value="{{ participant.student_id if participant.student_id else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="semester">학기<span class="required-asterisk">*</span>:</label>
+                <input type="number" id="semester" name="semester" required min="1" value="{{ participant.semester if participant.semester else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="age">나이<span class="required-asterisk">*</span>:</label>
+                <input type="number" id="age" name="age" required min="18" max="99" value="{{ participant.age if participant.age else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label>성별<span class="required-asterisk">*</span>:</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="gender" value="남자" {% if participant.gender == '남자' %}checked{% endif %} required> 남자</label>
+                    <label><input type="radio" name="gender" value="여자" {% if participant.gender == '여자' %}checked{% endif %} required> 여자</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>병역사항<span class="required-asterisk">*</span>:</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="military_service" value="병역필" {% if participant.military_service == '병역필' %}checked{% endif %} required> 병역필</label>
+                    <label><input type="radio" name="military_service" value="미필" {% if participant.military_service == '미필' %}checked{% endif %} required> 미필</label>
+                    <label><input type="radio" name="military_service" value="면제" {% if participant.military_service == '면제' %}checked{% endif %} required> 면제</label>
+                    <label><input type="radio" name="military_service" value="해당없음" {% if participant.military_service == '해당없음' %}checked{% endif %} required> 해당없음</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>현재 졸업학기 및 휴학 여부<span class="required-asterisk">*</span>:</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="graduation_leave" value="졸업학기" {% if participant.graduation_leave == '졸업학기' %}checked{% endif %} required> 졸업학기</label>
+                    <label><input type="radio" name="graduation_leave" value="휴학중" {% if participant.graduation_leave == '휴학중' %}checked{% endif %} required> 휴학중</label>
+                    <label><input type="radio" name="graduation_leave" value="해당없음" {% if participant.graduation_leave == '해당없음' %}checked{% endif %} required> 해당없음</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>재수여부<span class="required-asterisk">*</span>:</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="re_exam" value="현역/조기졸업" {% if participant.re_exam == '현역/조기졸업' %}checked{% endif %} required> 현역/조기졸업</label>
+                    <label><input type="radio" name="re_exam" value="재수/반수" {% if participant.re_exam == '재수/반수' %}checked{% endif %} required> 재수/반수</label>
+                    <label><input type="radio" name="re_exam" value="삼수이상" {% if participant.re_exam == '삼수이상' %}checked{% endif %} required> 삼수이상</label>
+                    <label><input type="radio" name="re_exam" value="기타(검정고시,편입 등)" {% if participant.re_exam == '기타(검정고시,편입 등)' %}checked{% endif %} required> 기타(검정고시,편입 등)</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="major_cs_courses">주요 전산과목:</label><br>
+                {% set major_subjects_options = ['디지탈시스템 및 실험', '문제해결기법', '이산구조', '지능 로봇 설계 및 프로그래밍', '프로그래밍의 이해', '데이타구조', '데이타베이스 개론', 
+                '소프트웨어 공학개론', '시스템 프로그래밍', '알고리즘 개론', '운영체제 및 실험', '전산기조직', '전산망개론', '전산학 프로젝트', '프로그래밍 언어'] %}
+                {% for option in major_subjects_options %}
+                    <input type="checkbox"
+                           id="major_cs_course_{{ loop.index }}"
+                           name="major_cs_courses"
+                           value="{{ option }}"
+                           {% if participant and option in participant.major_cs_courses %}checked{% endif %}>
+                    <label for="major_cs_course_{{ loop.index }}">{{ option }}</label><br>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>대학생활</h2>
+            <div class="form-group">
+                <label for="passion_vacation">가장 열정적으로 보냈던 방학과 그 이유:</label>
+                <textarea id="passion_vacation" name="passion_vacation" rows="4">{{ participant.passion_vacation if participant.passion_vacation else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="active_club">활발하게 활동한 동아리:</label>
+                <textarea id="active_club" name="active_club" rows="4">{{ participant.active_club if participant.active_club else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="leave_period_work">휴학했다면 그 기간과 기간 중에 한 일:</label>
+                <textarea id="leave_period_work" name="leave_period_work" rows="4">{{ participant.leave_period_work if participant.leave_period_work else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="intern_exp_details">인턴 경험이 있다면 그 기간과 어디에서 어떤 업무를 했나요?:</label>
+                <textarea id="intern_exp_details" name="intern_exp_details" rows="4">{{ participant.intern_exp_details if participant.intern_exp_details else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="personal_project_details">학과 프로젝트 이외에 본인이 별도의 프로그램이나 앱을 개발한 경험이 있다면, 간략히 프로젝트 내용을 설명해 주세요.:</label>
+                <textarea id="personal_project_details" name="personal_project_details" rows="4">{{ participant.personal_project_details if participant.personal_project_details else '' }}</textarea>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>기타</h2>
+            <div class="form-group">
+                <label for="profile_photo">본인 사진 업로드 (선택):</label>
+                {% if participant.profile_photo_filename %}
+                <div class="profile-photo-container">
+                    <p>현재 사진:</p>
+                    <img src="{{ url_for('uploaded_file', filename=participant.profile_photo_filename) }}" alt="Current Profile Photo">
+                </div>
+                {% else %}
+                <p class="help-text">현재 등록된 사진이 없습니다.</p>
+                {% endif %}
+                <input type="file" id="profile_photo" name="profile_photo" accept="image/*">
+                <span class="help-text">새로운 사진을 업로드하려면 파일을 선택하세요.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="self_video_url">60초 본인 동영상 URL (필수)<span class="required-asterisk">*</span>:</label>
+                {% if participant.self_video_url %}
+                    <p>현재 동영상 URL: <a href="{{ participant.self_video_url }}" target="_blank">{{ participant.self_video_url }}</a></p>
+                    {% set video_url = participant.self_video_url %}
+                    {% if 'youtube.com/' in video_url or 'youtu.be/' in video_url %}
+                        {% set video_id = video_url.split('v=')[-1].split('&')[0] if 'v=' in video_url else video_url.split('/')[-1].split('?')[0] %}
+                        <div class="video-embed-container">
+                            <iframe src="https://www.youtube.com/embed/{{ video_id }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    {% elif 'vimeo.com/' in video_url %}
+                        {% set video_id = video_url.split('vimeo.com/')[-1].split('?')[0] %}
+                        <div class="video-embed-container">
+                            <iframe src="https://player.vimeo.com/video/{{ video_id }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    {% else %}
+                        <p><em>(임베드할 수 없는 동영상 URL 형식입니다. 링크를 클릭하여 시청해주세요.)</em></p>
+                    {% endif %}
+                {% else %}
+                    <p class="help-text">현재 등록된 동영상 URL이 없습니다.</p>
+                {% endif %}
+                <input type="url" id="self_video_url" name="self_video_url" value="{{ participant.self_video_url if participant.self_video_url else '' }}" placeholder="예: https://youtube.com/my_video" required>
+                <span class="help-text">YouTube, Vimeo 등 동영상 링크를 입력해주세요.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="overseas_life">1년 이상 해외생활을 했다면, 그 기간과 어디에서 무엇을 했나요? (200자 이하):</label>
+                <textarea id="overseas_life" name="overseas_life" rows="3" maxlength="200">{{ participant.overseas_life if participant.overseas_life else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="awards_competitions">공모전 및 대회 수상 경력이 있으면 적어주세요. (200자 이하):</label>
+                <textarea id="awards_competitions" name="awards_competitions" rows="3" maxlength="200">{{ participant.awards_competitions if participant.awards_competitions else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="unique_hobby">남들과 다른 특별한 취미가 있으면 적어주세요. (200자 이하):</label>
+                <textarea id="unique_hobby" name="unique_hobby" rows="3" maxlength="200">{{ participant.unique_hobby if participant.unique_hobby else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="application_motive">지원 동기 (200자 이하):</label>
+                <textarea id="application_motive" name="application_motive" rows="3" maxlength="200">{{ participant.application_motive if participant.application_motive else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="additional_comments">추가로 더 하고 싶은 이야기가 있으면 적어주세요. (200자 이하):</label>
+                <textarea id="additional_comments" name="additional_comments" rows="3" maxlength="200">{{ participant.additional_comments if participant.additional_comments else '' }}</textarea>
+            </div>
+        </div>
+
+        <input type="submit" value="정보 수정하기">
+        <a href="{{ url_for('list_participants') }}" class="cancel-button">취소</a>
+    </form>
+</body>
+</html>
