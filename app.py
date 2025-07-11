@@ -255,9 +255,9 @@ def register_submit():
         "unique_hobby": request.form.get('unique_hobby', ''),
         "application_motive": request.form.get('application_motive', ''),
         "additional_comments": request.form.get('additional_comments', ''),
+        "mbti": request.form.get('mbti', ''),
 
         # Old fields that might still be expected by existing categorization logic
-        "mbti": "",
         "school": request.form['university'],
         "major_cs_courses": major_cs_courses_list,
         "region": "",
@@ -265,7 +265,7 @@ def register_submit():
         "intern_exp": request.form.get('intern_exp_details', ''),
         "immersion_exp": request.form.get('passion_vacation', ''),
         "club_exp": request.form.get('active_club', ''),
-        "hobbies": [h.strip() for h in request.form.get('unique_hobby', '').split(',') if h.strip()],
+        "hobbies": request.form.get('unique_hobby', ''),
         "overseas_exp": "유" if request.form.get('overseas_life') else "무",
         "overseas_details": {"duration": request.form.get('overseas_life', ''), "continent": "N/A"} if request.form.get('overseas_life') else None,
     }
@@ -396,9 +396,9 @@ def edit_participant(participant_id):
             "unique_hobby": request.form.get('unique_hobby', ''),
             "application_motive": request.form.get('application_motive', ''),
             "additional_comments": request.form.get('additional_comments', ''),
+            "mbti": request.form.get('mbti', participant.get('mbti', '')),
 
             # Proxying new fields to old names for categorization function compatibility
-            "mbti": participant.get('mbti', ''),
             "school": request.form['university'],
             # "major" is now taken directly from the new 'major' field for Gemini
             "region": participant.get('region', ''),
@@ -406,7 +406,7 @@ def edit_participant(participant_id):
             "intern_exp": request.form.get('intern_exp_details', ''),
             "immersion_exp": request.form.get('passion_vacation', ''),
             "club_exp": request.form.get('active_club', ''),
-            "hobbies": [h.strip() for h in request.form.get('unique_hobby', '').split(',') if h.strip()],
+            "hobbies": request.form.get('unique_hobby', ''),
             "overseas_exp": "유" if request.form.get('overseas_life') else "무",
             "overseas_details": {"duration": request.form.get('overseas_life', ''), "continent": "N/A"} if request.form.get('overseas_life') else None,
         }
