@@ -283,9 +283,90 @@ def register_submit():
 
 @app.route('/participants')
 def list_participants():
-    participants = participants_collection.find({}) # Fetch all participants
-    # Render a template to display participants nicely
-    return render_template('participants_list.html', participants=participants)
+    # Sort participants by average score in descending order (highest first)
+    participants = list(participants_collection.find({}).sort('avg_score', -1))
+    
+    # Calculate statistics for the floating box
+    total_participants = len(participants)
+    
+    # Pass/Fail statistics
+    pass_count = sum(1 for p in participants if p.get('status') == '합격')
+    fail_count = sum(1 for p in participants if p.get('status') == '불합격')
+    pending_count = total_participants - pass_count - fail_count
+    
+    # Gender and university statistics
+    kaist_male = sum(1 for p in participants if p.get('university') == '카이스트' and p.get('gender') == '남자')
+    kaist_female = sum(1 for p in participants if p.get('university') == '카이스트' and p.get('gender') == '여자')
+    other_male = sum(1 for p in participants if p.get('university') != '카이스트' and p.get('gender') == '남자')
+    other_female = sum(1 for p in participants if p.get('university') != '카이스트' and p.get('gender') == '여자')
+    
+    statistics = {
+        'total': total_participants,
+        'pass': pass_count,
+        'fail': fail_count,
+        'pending': pending_count,
+        'kaist_male': kaist_male,
+        'kaist_female': kaist_female,
+        'other_male': other_male,
+        'other_female': other_female
+    }
+    
+    return render_template('participants_list.html', participants=participants, statistics=statistics)
+
+@app.route('/update_status/<participant_id>', methods=['POST'])
+def update_status(participant_id):
+    try:
+        obj_id = ObjectId(participant_id)
+        status = request.json.get('status')
+        
+        print(f"Updating status for participant {participant_id} to {status}")
+        
+        if status not in ['합격', '불합격', '미정']:
+            return jsonify({'error': 'Invalid status'}), 400
+            
+        result = participants_collection.update_one(
+            {'_id': obj_id},
+            {'$set': {'status': status}}
+        )
+        
+        print(f"Update result: modified_count = {result.modified_count}")
+        
+        if result.modified_count == 1:
+            # Get updated statistics
+            participants = list(participants_collection.find({}))
+            total_participants = len(participants)
+            pass_count = sum(1 for p in participants if p.get('status') == '합격')
+            fail_count = sum(1 for p in participants if p.get('status') == '불합격')
+            pending_count = total_participants - pass_count - fail_count
+            
+            kaist_male = sum(1 for p in participants if p.get('university') == '카이스트' and p.get('gender') == '남자')
+            kaist_female = sum(1 for p in participants if p.get('university') == '카이스트' and p.get('gender') == '여자')
+            other_male = sum(1 for p in participants if p.get('university') != '카이스트' and p.get('gender') == '남자')
+            other_female = sum(1 for p in participants if p.get('university') != '카이스트' and p.get('gender') == '여자')
+            
+            response_data = {
+                'success': True,
+                'message': f'Status updated to {status}',
+                'statistics': {
+                    'total': total_participants,
+                    'pass': pass_count,
+                    'fail': fail_count,
+                    'pending': pending_count,
+                    'kaist_male': kaist_male,
+                    'kaist_female': kaist_female,
+                    'other_male': other_male,
+                    'other_female': other_female
+                }
+            }
+            
+            print(f"Sending response: {response_data}")
+            return jsonify(response_data)
+        else:
+            return jsonify({'success': False, 'error': 'Participant not found'}), 404
+            
+    except Exception as e:
+        print(f"Error in update_status: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/categorize_participants', methods=['GET'])
 def categorize_all_participants():

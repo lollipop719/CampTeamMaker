@@ -1,21 +1,26 @@
- .profile-photo-container {
-    text-align: center; /* Centers the image horizontally */
-    margin-bottom: 20px; /* Adds some space below the image */
+.profile-photo-container {
+    /* If participant-details has flex: 2, and actions will have flex: 1, this should be flex: 1 too for balance */
+    flex: 1; /* Give it some flex-grow to occupy space */
+    display: flex; /* Make it a flex container as well */
+    justify-content: center; /* Horizontally center its child (the image) */
+    align-items: center; /* Vertically center its child (the image) */
+    /* Remove margin: auto; as the parent flex container will handle its positioning */
 }
 
 .profile-photo {
-    width: 150px;   /* Set a fixed width for the photo */
-    height: 150px;  /* Set a fixed height to make it square */
-    object-fit: cover; /* Ensures the image covers the area without distortion, cropping if necessary */
-    border-radius: 50%; /* Makes the image circular */
-    border: 2px solid #ddd; /* Optional: adds a subtle border */
-    display: block; /* Makes it a block element to respect text-align: center */
-    margin-left: auto; /* Centers the block element */
-    margin-right: auto; /* Centers the block element */
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    /* Remove display: block;, margin-left: auto;, margin-right: auto; as flex parent handles centering */
 }
 
 .participant-info-card {
-    /* Add styles for the overall card if you have one, e.g. */
+    display: flex; /* Make it a flex container */
+    align-items: center; /* Vertically center items */
+    justify-content: space-around; /* Distribute space evenly around items, or adjust as needed */
+
     width: 80%; /* Adjust as needed */
     margin: 20px auto; /* Center the card itself */
     padding: 20px;
@@ -23,10 +28,8 @@
     box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
     background-color: #fff;
 }
-
 .participant-details {
-    /* Styles for the text details below the photo */
-    text-align: center; /* Center the text details as well */
+    flex: 2; /* Occupies 2 parts of available space */
 }
 
 .participant-card {
