@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>정리 페이지</title>
+    <style>
+        .organize-container {
+            display: flex;
+            gap: 24px;
+            width: 100%;
+            height: 80vh;
+            margin-top: 32px;
+        }
+        .column {
+            flex: 1;
+            background: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            min-width: 0;
+        }
+        .scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            min-height: 0;
+        }
+        .pass-column { border: 2px solid #007bff; }
+        .fail-column { border: 2px solid #dc3545; }
+        .pending-column { border: 2px solid #6c757d; }
+        button[disabled] { opacity: 0.5; cursor: not-allowed; }
+        .mail-popup-overlay {
+            position: fixed; left:0; top:0; width:100vw; height:100vh;
+            background: rgba(0,0,0,0.5); z-index: 2000; display: none;
+        }
+        .mail-popup {
+            position: fixed; left:50%; top:50%; transform:translate(-50%,-50%);
+            background: #fff; border-radius: 10px; box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+            padding: 32px; z-index: 2100; min-width: 350px; max-width: 90vw;
+        }
+        .mail-popup textarea { width: 100%; min-height: 120px; margin-top: 12px; }
+        .mail-popup .popup-btns { margin-top: 16px; text-align: right; }
+        .mail-popup .popup-btns button { margin-left: 8px; }
+        .participant-card {
+            border: 1.5px solid #e3eafc;
+            padding: 16px 14px 12px 14px;
+            margin-bottom: 16px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #fafdff 80%, #eaf1fb 100%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            position: relative;
+            max-width: 400px;
+            width: 100%;
+            font-size: 13px;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        .participant-card:hover {
+            box-shadow: 0 4px 16px rgba(0,123,255,0.10);
+            border-color: #90bfff;
+        }
+        .participant-details strong {
+            color: #1976d2;
+            font-size: 1.13em;
+            margin-bottom: 2px;
+        }
+        .participant-details div {
+            margin-bottom: 1px;
+        }
+        .section-header {
+            font-size: 1em;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 6px;
+            color: #1976d2;
+            border-bottom: 1px dashed #b6d0f7;
+            padding-bottom: 2px;
+            letter-spacing: 0.01em;
+        }
+        .participant-extra-details {
+            border-top: 1px dashed #e3eafc;
+            margin-top: 8px;
+            padding-top: 8px;
+            font-size: 12px;
+            background: #f7faff;
+            border-radius: 0 0 8px 8px;
+        }
+        .participant-info-card {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 8px;
+            width: 100%;
+        }
+        .card-main-content {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            width: 100%;
+            max-width: 400px;
+        }
+        .participant-details {
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            min-width: 0;
+        }
+        .profile-photo-container {
+            flex: 0 0 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 48px;
+            max-width: 60px;
+            margin: 0 8px 0 0;
+        }
+        .card-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: flex-start;
+            gap: 6px;
+            margin-left: 10px;
+            min-width: 60px;
+        }
+        .status-buttons {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        .status-btn {
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 4px;
+            border: none;
+            min-width: 36px;
+            height: 22px;
+            box-sizing: border-box;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .status-btn.pass { background-color: #28a745; color: #fff; }
+        .status-btn.fail { background-color: #dc3545; color: #fff; }
+        .status-btn.pending { background-color: #6c757d; color: #fff; }
+        .status-btn.active { box-shadow: 0 0 0 2px #007bff; }
+        .fade-out { opacity: 0; transition: opacity 0.3s; }
+        .fade-in { opacity: 1; transition: opacity 0.3s; }
+    </style>
+    <style>
+    .floating-stats {
+        position: fixed;
+        top: 80px;
+        right: 80px;
+        width: 320px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        z-index: 1300;
+        padding: 20px 18px 18px 18px;
+        max-height: 90vh;
+        overflow-y: auto;
+        min-width: 280px;
+        min-height: 200px;
+        transition: box-shadow 0.2s;
+    }
+    .floating-stats h3 {
+        margin-top: 0;
+        color: #333;
+        text-align: center;
+        border-bottom: 2px solid #1976d2;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+    .pie-chart {
+        width: 180px;
+        height: 180px;
+        margin: 0 auto 18px auto;
+        position: relative;
+    }
+    .pie-chart canvas {
+        width: 100%;
+        height: 100%;
+    }
+    .pie-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 18px;
+    }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+    .legend-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+    }
+    .stats-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    .stats-table th,
+    .stats-table td {
+        border: 1px solid #ddd;
+        padding: 7px;
+        text-align: center;
+        font-size: 14px;
+    }
+    .stats-table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+    #close-floating-stats:hover { color: #1976d2; }
+    </style>
+</head>
+<body>
+    <!-- Floating Bubble Button -->
+    <div id="floating-bubble" style="position:fixed;bottom:32px;right:32px;z-index:1200;width:56px;height:56px;background:#1976d2;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M7 13a5 5 0 0 1 10 0v1a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-1Z" stroke="#1976d2" stroke-width="1.5"/><circle cx="12" cy="9" r="2" fill="#1976d2"/></svg>
+    </div>
+
+    <!-- Floating Statistics Box (hidden by default) -->
+    <div id="floating-stats" class="floating-stats" style="display:none;">
+        <div id="floating-stats-header" style="cursor:move;text-align:center;user-select:none;">
+            <h3 style="margin:0 0 10px 0;">통계</h3>
+        </div>
+        <div class="pie-chart">
+            <canvas id="statusPieChart"></canvas>
+        </div>
+        <div class="pie-legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #6c757d;"></div>
+                <span id="legend-pending">미정 ({{ statistics.pending }})</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #007bff;"></div>
+                <span id="legend-pass">합격 ({{ statistics.pass }})</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #dc3545;"></div>
+                <span id="legend-fail">불합격 ({{ statistics.fail }})</span>
+            </div>
+        </div>
+        <table class="stats-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>남자</th>
+                    <th>여자</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>카이스트</strong></td>
+                    <td id="kaist-male">{{ statistics.kaist_male }}</td>
+                    <td id="kaist-female">{{ statistics.kaist_female }}</td>
+                </tr>
+                <tr>
+                    <td><strong>타대생</strong></td>
+                    <td id="other-male">{{ statistics.other_male }}</td>
+                    <td id="other-female">{{ statistics.other_female }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div id="total-count" style="text-align: center; margin-top: 15px; font-size: 14px; color: #666;">
+            총 {{ statistics.total }}명
+        </div>
+        <div style="margin-top:20px;display:flex;align-items:center;gap:8px;">
+            <label for="pass-limit-input" style="font-weight:bold;">합격자 수 관리</label>
+            <input type="number" id="pass-limit-input" min="1" max="{{ statistics.total }}" value="{{ statistics.pass }}" style="width:60px;">
+            <button id="pass-limit-confirm" style="padding:2px 10px;font-size:13px;border-radius:4px;border:1px solid #1976d2;background:#fafdff;color:#1976d2;cursor:pointer;">적용</button>
+        </div>
+        <button id="close-floating-stats" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:20px;color:#888;cursor:pointer;">&times;</button>
+    </div>
+
+    <div class="organize-container">
+        <div class="column pass-column">
+            <h2>합격</h2>
+            <div class="search-filter-bar" style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
+                <input type="text" class="column-search" placeholder="이름 검색" style="padding:6px; border-radius:5px; border:1px solid #bbb; width:120px;">
+                <div class="univ-filter-dropdown" style="position:relative;">
+                    <button type="button" class="univ-filter-btn" style="padding:6px 12px; border-radius:5px; border:1px solid #bbb; background:#f8f9fa; cursor:pointer;">대학교 필터 ▼</button>
+                    <div class="univ-filter-options" style="display:none; position:absolute; left:0; top:110%; background:#fff; border:1px solid #bbb; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.08); z-index:10; min-width:140px; padding:8px; max-height:200px; overflow-y:auto;">
+                        {% set universities = participants | map(attribute='university') | list | unique %}
+                        {% for univ in universities %}
+                        <label style="display:block; margin-bottom:4px;">
+                            <input type="checkbox" class="univ-filter-checkbox" value="{{ univ }}"> {{ univ }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-area" id="pass-list">
+                {% for p in participants if p.status == '합격' %}
+                <div class="participant-card" data-participant-id="{{ p._id }}" data-name="{{ p.name }}" data-university="{{ p.university }}">
+                    <div class="card-main-content">
+                        <div class="profile-photo-container">
+                            {% if p.profile_photo_filename %}
+                                <img src="{{ url_for('uploaded_file', filename=p.profile_photo_filename) }}" alt="Profile Photo" class="profile-photo">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='images/default_profile.png') }}" alt="Default Profile Photo" class="profile-photo">
+                            {% endif %}
+                        </div>
+                        <div class="participant-details">
+                            <strong>{{ p.name }}</strong>
+                            <div>성별: {{ p.gender if p.gender else 'N/A' }}</div>
+                            <div>대학교: {{ p.university if p.university else 'N/A' }}</div>
+                            <div>전공: {{ p.major if p.major else 'N/A' }}</div>
+                            <div>나이: {{ p.age if p.age else 'N/A' }}</div>
+                            <div>학기 수: {{ p.semester if p.semester else 'N/A' }}</div>
+                        </div>
+                        <div class="card-actions">
+                            <div class="status-buttons">
+                                <button class="status-btn pass {% if p.status == '합격' %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '합격', this)" {% if p.status == '합격' %}disabled{% endif %}>합격</button>
+                                <button class="status-btn fail {% if p.status == '불합격' %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '불합격', this)" {% if p.status == '불합격' %}disabled{% endif %}>불합격</button>
+                                <button class="status-btn pending {% if p.status == '미정' or not p.status %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '미정', this)" {% if p.status == '미정' or not p.status %}disabled{% endif %}>미정</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="toggle-details-btn" onclick="toggleDetails(this)">▼ 더보기</button>
+                    <div class="participant-extra-details" style="display:none;">
+                        <div class="section-header">개인정보</div>
+                        <div>연락처: {{ p.contact if p.contact else 'N/A' }}</div>
+                        <div>이메일: {{ p.email if p.email else 'N/A' }}</div>
+                        <div>MBTI: {{ p.mbti if p.mbti else 'N/A' }}</div>
+                        <div>고등학교: {{ p.high_school_type if p.high_school_type else 'N/A' }}</div>
+                        <div>학번: {{ p.student_id if p.student_id else 'N/A' }}</div>
+                        <div>군대: {{ p.military_service if p.military_service else 'N/A' }}</div>
+                        <div>현재 졸업학기 및 휴학 여부: {{ p.graduation_leave if p.graduation_leave else 'N/A' }}</div>
+                        <div>재수여부: {{ p.re_exam if p.re_exam else 'N/A' }}</div>
+                        <div>재지원 여부: {{ p.reapply if p.reapply else 'N/A' }}</div>
+                        <div class="section-header">대학생활</div>
+                        <div>주요 전산과목: {% if p.major_cs_courses %}{{ p.major_cs_courses | join(', ') }}{% else %}N/A{% endif %}</div>
+                        <div>열정적 방학: {{ p.passion_vacation if p.passion_vacation else 'N/A' }}</div>
+                        <div>활동 동아리: {{ p.active_club if p.active_club else 'N/A' }}</div>
+                        <div>휴학 기간/활동: {{ p.leave_period_work if p.leave_period_work else 'N/A' }}</div>
+                        <div>인턴 경험 상세: {{ p.intern_exp_details if p.intern_exp_details else 'N/A' }}</div>
+                        <div>개인 프로젝트: {{ p.personal_project_details if p.personal_project_details else 'N/A' }}</div>
+                        <div class="section-header">기타</div>
+                        {% if p.self_video_url %}
+                        <div>본인 동영상 URL: <a href="{{ p.self_video_url }}" target="_blank">{{ p.self_video_url }}</a></div>
+                        {% set video_url = p.self_video_url %}
+                        {% if 'youtube.com/' in video_url or 'youtu.be/' in video_url %}
+                            {% set video_id = video_url.split('v=')[-1].split('&')[0] if 'v=' in video_url else video_url.split('/')[-1].split('?')[0] %}
+                            <div class="video-embed-container" style="max-width:120px;">
+                                <iframe width="120" height="68" src="https://www.youtube.com/embed/{{ video_id }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        {% elif 'vimeo.com/' in video_url %}
+                            {% set video_id = video_url.split('vimeo.com/')[-1].split('?')[0] %}
+                            <div class="video-embed-container" style="max-width:120px;">
+                                <iframe width="120" height="68" src="https://player.vimeo.com/video/{{ video_id }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        {% else %}
+                            <div><em>(임베드할 수 없는 동영상 URL 형식입니다. 링크를 클릭하여 시청해주세요.)</em></div>
+                        {% endif %}
+                        {% else %}
+                        <div>본인 동영상 URL: N/A</div>
+                        {% endif %}
+                        <div>해외 생활: {{ p.overseas_life if p.overseas_life else 'N/A' }}</div>
+                        <div>수상 경력: {{ p.awards_competitions if p.awards_competitions else 'N/A' }}</div>
+                        <div>특별한 취미: {{ p.unique_hobby if p.unique_hobby else 'N/A' }}</div>
+                        <div>지원 동기: {{ p.application_motive if p.application_motive else 'N/A' }}</div>
+                        <div>추가 코멘트: {{ p.additional_comments if p.additional_comments else 'N/A' }}</div>
+                        <div class="section-header">점수 분석</div>
+                        <div>개발 점수: {{ p.dev_score if p.dev_score is not none else 'N/A' }}</div>
+                        <div>개성 점수: {{ p.personality_score if p.personality_score is not none else 'N/A' }}</div>
+                        <div>열정 점수: {{ p.passion_score if p.passion_score is not none else 'N/A' }}</div>
+                        <div>평균 점수: {{ p.avg_score if p.avg_score is not none else 'N/A' }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button id="send-pass-mail" disabled>합격자 메일 보내기</button>
+        </div>
+        <div class="column fail-column">
+            <h2>불합</h2>
+            <div class="search-filter-bar" style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
+                <input type="text" class="column-search" placeholder="이름 검색" style="padding:6px; border-radius:5px; border:1px solid #bbb; width:120px;">
+                <div class="univ-filter-dropdown" style="position:relative;">
+                    <button type="button" class="univ-filter-btn" style="padding:6px 12px; border-radius:5px; border:1px solid #bbb; background:#f8f9fa; cursor:pointer;">대학교 필터 ▼</button>
+                    <div class="univ-filter-options" style="display:none; position:absolute; left:0; top:110%; background:#fff; border:1px solid #bbb; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.08); z-index:10; min-width:140px; padding:8px; max-height:200px; overflow-y:auto;">
+                        {% set universities = participants | map(attribute='university') | list | unique %}
+                        {% for univ in universities %}
+                        <label style="display:block; margin-bottom:4px;">
+                            <input type="checkbox" class="univ-filter-checkbox" value="{{ univ }}"> {{ univ }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-area" id="fail-list">
+                {% for p in participants if p.status == '불합격' %}
+                <div class="participant-card" data-participant-id="{{ p._id }}" data-name="{{ p.name }}" data-university="{{ p.university }}">
+                    <div class="card-main-content">
+                        <div class="profile-photo-container">
+                            {% if p.profile_photo_filename %}
+                                <img src="{{ url_for('uploaded_file', filename=p.profile_photo_filename) }}" alt="Profile Photo" class="profile-photo">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='images/default_profile.png') }}" alt="Default Profile Photo" class="profile-photo">
+                            {% endif %}
+                        </div>
+                        <div class="participant-details">
+                            <strong>{{ p.name }}</strong>
+                            <div>성별: {{ p.gender if p.gender else 'N/A' }}</div>
+                            <div>대학교: {{ p.university if p.university else 'N/A' }}</div>
+                            <div>전공: {{ p.major if p.major else 'N/A' }}</div>
+                            <div>나이: {{ p.age if p.age else 'N/A' }}</div>
+                            <div>학기 수: {{ p.semester if p.semester else 'N/A' }}</div>
+                        </div>
+                        <div class="card-actions">
+                            <div class="status-buttons">
+                                <button class="status-btn pass {% if p.status == '합격' %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '합격', this)" {% if p.status == '합격' %}disabled{% endif %}>합격</button>
+                                <button class="status-btn fail {% if p.status == '불합격' %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '불합격', this)" {% if p.status == '불합격' %}disabled{% endif %}>불합격</button>
+                                <button class="status-btn pending {% if p.status == '미정' or not p.status %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '미정', this)" {% if p.status == '미정' or not p.status %}disabled{% endif %}>미정</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="toggle-details-btn" onclick="toggleDetails(this)">▼ 더보기</button>
+                    <div class="participant-extra-details" style="display:none;">
+                        <div class="section-header">개인정보</div>
+                        <div>연락처: {{ p.contact if p.contact else 'N/A' }}</div>
+                        <div>이메일: {{ p.email if p.email else 'N/A' }}</div>
+                        <div>MBTI: {{ p.mbti if p.mbti else 'N/A' }}</div>
+                        <div>고등학교: {{ p.high_school_type if p.high_school_type else 'N/A' }}</div>
+                        <div>학번: {{ p.student_id if p.student_id else 'N/A' }}</div>
+                        <div>군대: {{ p.military_service if p.military_service else 'N/A' }}</div>
+                        <div>현재 졸업학기 및 휴학 여부: {{ p.graduation_leave if p.graduation_leave else 'N/A' }}</div>
+                        <div>재수여부: {{ p.re_exam if p.re_exam else 'N/A' }}</div>
+                        <div>재지원 여부: {{ p.reapply if p.reapply else 'N/A' }}</div>
+                        <div class="section-header">대학생활</div>
+                        <div>주요 전산과목: {% if p.major_cs_courses %}{{ p.major_cs_courses | join(', ') }}{% else %}N/A{% endif %}</div>
+                        <div>열정적 방학: {{ p.passion_vacation if p.passion_vacation else 'N/A' }}</div>
+                        <div>활동 동아리: {{ p.active_club if p.active_club else 'N/A' }}</div>
+                        <div>휴학 기간/활동: {{ p.leave_period_work if p.leave_period_work else 'N/A' }}</div>
+                        <div>인턴 경험 상세: {{ p.intern_exp_details if p.intern_exp_details else 'N/A' }}</div>
+                        <div>개인 프로젝트: {{ p.personal_project_details if p.personal_project_details else 'N/A' }}</div>
+                        <div class="section-header">기타</div>
+                        {% if p.self_video_url %}
+                        <div>본인 동영상 URL: <a href="{{ p.self_video_url }}" target="_blank">{{ p.self_video_url }}</a></div>
+                        {% set video_url = p.self_video_url %}
+                        {% if 'youtube.com/' in video_url or 'youtu.be/' in video_url %}
+                            {% set video_id = video_url.split('v=')[-1].split('&')[0] if 'v=' in video_url else video_url.split('/')[-1].split('?')[0] %}
+                            <div class="video-embed-container" style="max-width:120px;">
+                                <iframe width="120" height="68" src="https://www.youtube.com/embed/{{ video_id }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        {% elif 'vimeo.com/' in video_url %}
+                            {% set video_id = video_url.split('vimeo.com/')[-1].split('?')[0] %}
+                            <div class="video-embed-container" style="max-width:120px;">
+                                <iframe width="120" height="68" src="https://player.vimeo.com/video/{{ video_id }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        {% else %}
+                            <div><em>(임베드할 수 없는 동영상 URL 형식입니다. 링크를 클릭하여 시청해주세요.)</em></div>
+                        {% endif %}
+                        {% else %}
+                        <div>본인 동영상 URL: N/A</div>
+                        {% endif %}
+                        <div>해외 생활: {{ p.overseas_life if p.overseas_life else 'N/A' }}</div>
+                        <div>수상 경력: {{ p.awards_competitions if p.awards_competitions else 'N/A' }}</div>
+                        <div>특별한 취미: {{ p.unique_hobby if p.unique_hobby else 'N/A' }}</div>
+                        <div>지원 동기: {{ p.application_motive if p.application_motive else 'N/A' }}</div>
+                        <div>추가 코멘트: {{ p.additional_comments if p.additional_comments else 'N/A' }}</div>
+                        <div class="section-header">점수 분석</div>
+                        <div>개발 점수: {{ p.dev_score if p.dev_score is not none else 'N/A' }}</div>
+                        <div>개성 점수: {{ p.personality_score if p.personality_score is not none else 'N/A' }}</div>
+                        <div>열정 점수: {{ p.passion_score if p.passion_score is not none else 'N/A' }}</div>
+                        <div>평균 점수: {{ p.avg_score if p.avg_score is not none else 'N/A' }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button id="send-fail-mail" disabled>불합격자 메일 보내기</button>
+        </div>
+        <div class="column pending-column">
+            <h2>미정</h2>
+            <div class="search-filter-bar" style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
+                <input type="text" class="column-search" placeholder="이름 검색" style="padding:6px; border-radius:5px; border:1px solid #bbb; width:120px;">
+                <div class="univ-filter-dropdown" style="position:relative;">
+                    <button type="button" class="univ-filter-btn" style="padding:6px 12px; border-radius:5px; border:1px solid #bbb; background:#f8f9fa; cursor:pointer;">대학교 필터 ▼</button>
+                    <div class="univ-filter-options" style="display:none; position:absolute; left:0; top:110%; background:#fff; border:1px solid #bbb; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.08); z-index:10; min-width:140px; padding:8px; max-height:200px; overflow-y:auto;">
+                        {% set universities = participants | map(attribute='university') | list | unique %}
+                        {% for univ in universities %}
+                        <label style="display:block; margin-bottom:4px;">
+                            <input type="checkbox" class="univ-filter-checkbox" value="{{ univ }}"> {{ univ }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-area" id="pending-list">
+                {% for p in participants if not p.status or p.status == '미정' %}
+                <div class="participant-card" data-participant-id="{{ p._id }}" data-name="{{ p.name }}" data-university="{{ p.university }}">
+                    <div class="card-main-content">
+                        <div class="profile-photo-container">
+                            {% if p.profile_photo_filename %}
+                                <img src="{{ url_for('uploaded_file', filename=p.profile_photo_filename) }}" alt="Profile Photo" class="profile-photo">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='images/default_profile.png') }}" alt="Default Profile Photo" class="profile-photo">
+                            {% endif %}
+                        </div>
+                        <div class="participant-details">
+                            <strong>{{ p.name }}</strong>
+                            <div>성별: {{ p.gender if p.gender else 'N/A' }}</div>
+                            <div>대학교: {{ p.university if p.university else 'N/A' }}</div>
+                            <div>전공: {{ p.major if p.major else 'N/A' }}</div>
+                            <div>나이: {{ p.age if p.age else 'N/A' }}</div>
+                            <div>학기 수: {{ p.semester if p.semester else 'N/A' }}</div>
+                        </div>
+                        <div class="card-actions">
+                            <div class="status-buttons">
+                                <button class="status-btn pass {% if p.status == '합격' %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '합격', this)" {% if p.status == '합격' %}disabled{% endif %}>합격</button>
+                                <button class="status-btn fail {% if p.status == '불합격' %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '불합격', this)" {% if p.status == '불합격' %}disabled{% endif %}>불합격</button>
+                                <button class="status-btn pending {% if p.status == '미정' or not p.status %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '미정', this)" {% if p.status == '미정' or not p.status %}disabled{% endif %}>미정</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="toggle-details-btn" onclick="toggleDetails(this)">▼ 더보기</button>
+                    <div class="participant-extra-details" style="display:none;">
+                        <div class="section-header">개인정보</div>
+                        <div>연락처: {{ p.contact if p.contact else 'N/A' }}</div>
+                        <div>이메일: {{ p.email if p.email else 'N/A' }}</div>
+                        <div>MBTI: {{ p.mbti if p.mbti else 'N/A' }}</div>
+                        <div>고등학교: {{ p.high_school_type if p.high_school_type else 'N/A' }}</div>
+                        <div>학번: {{ p.student_id if p.student_id else 'N/A' }}</div>
+                        <div>군대: {{ p.military_service if p.military_service else 'N/A' }}</div>
+                        <div>현재 졸업학기 및 휴학 여부: {{ p.graduation_leave if p.graduation_leave else 'N/A' }}</div>
+                        <div>재수여부: {{ p.re_exam if p.re_exam else 'N/A' }}</div>
+                        <div>재지원 여부: {{ p.reapply if p.reapply else 'N/A' }}</div>
+                        <div class="section-header">대학생활</div>
+                        <div>주요 전산과목: {% if p.major_cs_courses %}{{ p.major_cs_courses | join(', ') }}{% else %}N/A{% endif %}</div>
+                        <div>열정적 방학: {{ p.passion_vacation if p.passion_vacation else 'N/A' }}</div>
+                        <div>활동 동아리: {{ p.active_club if p.active_club else 'N/A' }}</div>
+                        <div>휴학 기간/활동: {{ p.leave_period_work if p.leave_period_work else 'N/A' }}</div>
+                        <div>인턴 경험 상세: {{ p.intern_exp_details if p.intern_exp_details else 'N/A' }}</div>
+                        <div>개인 프로젝트: {{ p.personal_project_details if p.personal_project_details else 'N/A' }}</div>
+                        <div class="section-header">기타</div>
+                        {% if p.self_video_url %}
+                        <div>본인 동영상 URL: <a href="{{ p.self_video_url }}" target="_blank">{{ p.self_video_url }}</a></div>
+                        {% set video_url = p.self_video_url %}
+                        {% if 'youtube.com/' in video_url or 'youtu.be/' in video_url %}
+                            {% set video_id = video_url.split('v=')[-1].split('&')[0] if 'v=' in video_url else video_url.split('/')[-1].split('?')[0] %}
+                            <div class="video-embed-container" style="max-width:120px;">
+                                <iframe width="120" height="68" src="https://www.youtube.com/embed/{{ video_id }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        {% elif 'vimeo.com/' in video_url %}
+                            {% set video_id = video_url.split('vimeo.com/')[-1].split('?')[0] %}
+                            <div class="video-embed-container" style="max-width:120px;">
+                                <iframe width="120" height="68" src="https://player.vimeo.com/video/{{ video_id }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        {% else %}
+                            <div><em>(임베드할 수 없는 동영상 URL 형식입니다. 링크를 클릭하여 시청해주세요.)</em></div>
+                        {% endif %}
+                        {% else %}
+                        <div>본인 동영상 URL: N/A</div>
+                        {% endif %}
+                        <div>해외 생활: {{ p.overseas_life if p.overseas_life else 'N/A' }}</div>
+                        <div>수상 경력: {{ p.awards_competitions if p.awards_competitions else 'N/A' }}</div>
+                        <div>특별한 취미: {{ p.unique_hobby if p.unique_hobby else 'N/A' }}</div>
+                        <div>지원 동기: {{ p.application_motive if p.application_motive else 'N/A' }}</div>
+                        <div>추가 코멘트: {{ p.additional_comments if p.additional_comments else 'N/A' }}</div>
+                        <div class="section-header">점수 분석</div>
+                        <div>개발 점수: {{ p.dev_score if p.dev_score is not none else 'N/A' }}</div>
+                        <div>개성 점수: {{ p.personality_score if p.personality_score is not none else 'N/A' }}</div>
+                        <div>열정 점수: {{ p.passion_score if p.passion_score is not none else 'N/A' }}</div>
+                        <div>평균 점수: {{ p.avg_score if p.avg_score is not none else 'N/A' }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="mail-popup-overlay" id="mail-popup-overlay"></div>
+    <div class="mail-popup" id="mail-popup" style="display:none;">
+        <h3 id="mail-popup-title">메일 보내기</h3>
+        <!-- User credentials section -->
+        <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+            <h4 style="margin: 0 0 10px 0; color: #333;">📧 발송자 정보</h4>
+            <div style="margin-bottom: 8px;">
+                <label for="user-email" style="display: block; margin-bottom: 3px; font-size: 0.9rem;">Gmail 주소:</label>
+                <input type="email" id="user-email" placeholder="your-email@gmail.com" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="margin-bottom: 8px;">
+                <label for="user-password" style="display: block; margin-bottom: 3px; font-size: 0.9rem;">앱 비밀번호:</label>
+                <input type="password" id="user-password" placeholder="Gmail 앱 비밀번호" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="font-size: 0.8rem; color: #666; background: #e3f2fd; padding: 5px; border-radius: 3px;">
+                💡 Gmail 앱 비밀번호는 Google 계정 설정에서 생성할 수 있습니다.
+            </div>
+        </div>
+        <label for="mail-draft" style="display: block; margin-bottom: 5px; font-weight: bold;">메일 내용:</label>
+        <textarea id="mail-draft"></textarea>
+        <div style="margin: 10px 0 10px 0; text-align:left;">
+            <input type="checkbox" id="bcc-checkbox" style="margin-right:6px;">
+            <label for="bcc-checkbox" style="font-size:0.97rem;">모든 합격자에게 숨은참조(BCC)로 한 번에 보내기</label>
+        </div>
+        <div class="popup-btns">
+            <button onclick="closeMailPopup()">취소</button>
+            <button id="send-mail-btn">보내기</button>
+        </div>
+    </div>
+    <!-- Progress Modal -->
+    <div class="mail-popup-overlay" id="mail-progress-overlay" style="display:none;"></div>
+    <div class="mail-popup" id="mail-progress-popup" style="display:none;min-width:320px;text-align:center;">
+        <h3>메일 발송 진행중...</h3>
+        <div id="mail-progress-text" style="margin:18px 0;font-size:1.1rem;">0/0</div>
+        <div id="mail-progress-bar-container" style="background:#eee;border-radius:6px;height:18px;width:100%;margin-bottom:18px;">
+            <div id="mail-progress-bar" style="background:#1976d2;height:100%;width:0%;border-radius:6px;"></div>
+        </div>
+        <button id="mail-progress-close" style="display:none;margin-top:10px;" onclick="closeMailProgress()">닫기</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+let passLimit = {{ pass_limit|default(0)|tojson }};
+function updateMailButtons() {
+    const passCount = document.querySelectorAll('#pass-list > div').length;
+    const pendingCount = document.querySelectorAll('#pending-list > div').length;
+    document.getElementById('send-pass-mail').disabled = !(passCount >= passLimit);
+    document.getElementById('send-fail-mail').disabled = !(pendingCount === 0);
+}
+updateMailButtons();
+
+// 메일 팝업
+function openMailPopup(type) {
+    document.getElementById('mail-popup-overlay').style.display = 'block';
+    document.getElementById('mail-popup').style.display = 'block';
+    document.getElementById('mail-popup-title').textContent = type === 'pass' ? '합격자 메일 보내기' : '불합격자 메일 보내기';
+    document.getElementById('mail-draft').value = type === 'pass'
+        ? '합격을 축하합니다! ... (초안을 수정하세요)'
+        : '아쉽게도 불합격입니다. ... (초안을 수정하세요)';
+    document.getElementById('send-mail-btn').onclick = function() { sendMail(type); };
+}
+function closeMailPopup() {
+    document.getElementById('mail-popup-overlay').style.display = 'none';
+    document.getElementById('mail-popup').style.display = 'none';
+}
+document.getElementById('send-pass-mail').onclick = () => openMailPopup('pass');
+document.getElementById('send-fail-mail').onclick = () => openMailPopup('fail');
+
+function toggleDetails(btn) {
+    const details = btn.nextElementSibling;
+    if (!details) return;
+    if (details.style.display === 'none' || details.style.display === '') {
+        details.style.display = 'block';
+        btn.textContent = '▲ 접기';
+    } else {
+        details.style.display = 'none';
+        btn.textContent = '▼ 더보기';
+    }
+}
+
+function updateFloatingStats(statistics) {
+    // Update pie chart
+    if (window.statusPieChart && statistics) {
+        statusPieChart.data.datasets[0].data = [
+            statistics.pending,
+            statistics.pass,
+            statistics.fail
+        ];
+        statusPieChart.update();
+    }
+    // Update legend
+    document.getElementById('legend-pending').textContent = `미정 (${statistics.pending ?? 0})`;
+    document.getElementById('legend-pass').textContent = `합격 (${statistics.pass ?? 0})`;
+    document.getElementById('legend-fail').textContent = `불합격 (${statistics.fail ?? 0})`;
+    document.getElementById('kaist-male').textContent = statistics.kaist_male;
+    document.getElementById('kaist-female').textContent = statistics.kaist_female;
+    document.getElementById('other-male').textContent = statistics.other_male;
+    document.getElementById('other-female').textContent = statistics.other_female;
+    document.getElementById('total-count').textContent = `총 ${statistics.total}명`;
+}
+
+// --- Mail Progress and BCC Logic ---
+function showMailProgress(sent, total, done) {
+    document.getElementById('mail-progress-overlay').style.display = 'block';
+    document.getElementById('mail-progress-popup').style.display = 'block';
+    document.getElementById('mail-progress-text').textContent = `${sent}/${total}`;
+    const percent = total > 0 ? Math.round((sent/total)*100) : 0;
+    document.getElementById('mail-progress-bar').style.width = percent + '%';
+    document.getElementById('mail-progress-close').style.display = done ? 'inline-block' : 'none';
+}
+function closeMailProgress() {
+    document.getElementById('mail-progress-overlay').style.display = 'none';
+    document.getElementById('mail-progress-popup').style.display = 'none';
+}
+window.sendMail = function(type) {
+    const draft = document.getElementById('mail-draft').value;
+    const userEmail = document.getElementById('user-email').value;
+    const userPassword = document.getElementById('user-password').value;
+    const useBcc = document.getElementById('bcc-checkbox').checked;
+    if (!userEmail || !userPassword) {
+        alert('Gmail 주소와 앱 비밀번호를 모두 입력해주세요.');
+        return;
+    }
+    closeMailPopup();
+    showMailProgress(0, 0, false);
+    if (useBcc) {
+        fetch('/send_bulk_mail', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                type: type, 
+                draft: draft, 
+                user_email: userEmail, 
+                user_password: userPassword, 
+                bcc: true
+            })
+        }).then(res => res.json()).then(data => {
+            showMailProgress(1, 1, true);
+            alert(data.message);
+        });
+    } else {
+        fetch(`/get_mail_recipients?type=${type}`)
+        .then(res => res.json())
+        .then(data => {
+            const recipients = data.recipients;
+            let sent = 0;
+            function sendNext() {
+                if (sent >= recipients.length) {
+                    showMailProgress(sent, recipients.length, true);
+                    alert(`${sent}명에게 메일을 보냈습니다.`);
+                    return;
+                }
+                showMailProgress(sent, recipients.length, false);
+                fetch('/send_bulk_mail', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: type,
+                        draft: draft,
+                        user_email: userEmail,
+                        user_password: userPassword,
+                        single: true,
+                        recipient: recipients[sent]
+                    })
+                }).then(res => res.json()).then(() => {
+                    sent++;
+                    sendNext();
+                });
+            }
+            sendNext();
+        });
+    }
+}
+function updateStatusOrganize(participantId, status, btn) {
+            const card = btn.closest('.participant-card');
+            if (!card) return;
+            fetch(`/update_status/${participantId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: status })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update button states
+                    const buttons = card.querySelectorAll('.status-btn');
+                    buttons.forEach(b => b.classList.remove('active'));
+                    card.querySelector(`.status-btn.${status === '합격' ? 'pass' : status === '불합격' ? 'fail' : 'pending'}`).classList.add('active');
+                    // Fade out, move, fade in
+                    card.classList.remove('fade-in');
+                    card.classList.add('fade-out');
+                    setTimeout(() => {
+                        // Move card to new column
+                        let targetList;
+                        if (status === '합격') targetList = document.getElementById('pass-list');
+                        else if (status === '불합격') targetList = document.getElementById('fail-list');
+                        else targetList = document.getElementById('pending-list');
+                        targetList.appendChild(card);
+                        card.classList.remove('fade-out');
+                        card.classList.add('fade-in');
+                        // Optionally, scroll to top of new column
+                        targetList.scrollTop = 0;
+                        // Update floating stats
+                        if (data.statistics) updateFloatingStats(data.statistics);
+                        // Update mail buttons
+                        updateMailButtons();
+                    }, 300);
+                } else {
+                    alert(data.error || '상태 업데이트 실패');
+                }
+            })
+            .catch(() => alert('네트워크 오류'));
+        }
+
+        // Floating bubble and floating stats logic
+        (function() {
+            const bubble = document.getElementById('floating-bubble');
+            const statsBox = document.getElementById('floating-stats');
+            const closeBtn = document.getElementById('close-floating-stats');
+            const header = document.getElementById('floating-stats-header');
+            let isDragging = false, dragOffsetX = 0, dragOffsetY = 0;
+
+            // Show stats box on bubble click
+            bubble.addEventListener('click', function() {
+                statsBox.style.display = 'block';
+                statsBox.style.opacity = 1;
+            });
+            // Hide stats box on close
+            closeBtn.addEventListener('click', function() {
+                statsBox.style.display = 'none';
+            });
+            // Drag logic
+            header.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                const rect = statsBox.getBoundingClientRect();
+                dragOffsetX = e.clientX - rect.left;
+                dragOffsetY = e.clientY - rect.top;
+                document.body.style.userSelect = 'none';
+            });
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                let x = e.clientX - dragOffsetX;
+                let y = e.clientY - dragOffsetY;
+                // Keep within viewport
+                x = Math.max(0, Math.min(window.innerWidth - statsBox.offsetWidth, x));
+                y = Math.max(0, Math.min(window.innerHeight - statsBox.offsetHeight, y));
+                statsBox.style.left = x + 'px';
+                statsBox.style.top = y + 'px';
+                statsBox.style.right = 'auto';
+                statsBox.style.bottom = 'auto';
+                statsBox.style.position = 'fixed';
+            });
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+                document.body.style.userSelect = '';
+            });
+        })();
+
+        // Pie chart logic (copied from participants_list.html, adapted)
+        let statusPieChart = null;
+        function initPieChart() {
+            const ctx = document.getElementById('statusPieChart').getContext('2d');
+            statusPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['미정', '합격', '불합격'],
+                    datasets: [{
+                        data: [
+                            {{ statistics.pending|default(0)|tojson }},
+                            {{ statistics.pass|default(0)|tojson }},
+                            {{ statistics.fail|default(0)|tojson }}
+                        ],
+                        backgroundColor: [
+                            '#6c757d',
+                            '#007bff',
+                            '#dc3545'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            initPieChart();
+        });
+
+        // 합격자 수 관리 적용 버튼
+        document.getElementById('pass-limit-confirm').addEventListener('click', function() {
+            const input = document.getElementById('pass-limit-input');
+            let val = parseInt(input.value, 10);
+            if (isNaN(val) || val < 1) val = 1;
+            passLimit = val;
+            input.value = passLimit;
+            updateMailButtons();
+        });
+    </script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.scroll-area').forEach(function(area) {
+        const searchInput = area.parentElement.querySelector('.column-search');
+        const filterBtn = area.parentElement.querySelector('.univ-filter-btn');
+        const filterOptions = area.parentElement.querySelector('.univ-filter-options');
+        const checkboxes = area.parentElement.querySelectorAll('.univ-filter-checkbox');
+        const cards = area.querySelectorAll('.participant-card');
+
+        // Name search
+        searchInput.addEventListener('input', filter);
+        // University filter dropdown toggle
+        filterBtn.addEventListener('click', function() {
+            filterOptions.style.display = filterOptions.style.display === 'block' ? 'none' : 'block';
+        });
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!filterBtn.contains(e.target) && !filterOptions.contains(e.target)) {
+                filterOptions.style.display = 'none';
+            }
+        });
+        // University filter
+        checkboxes.forEach(cb => cb.addEventListener('change', filter));
+
+        function filter() {
+            const nameQuery = searchInput.value.trim().toLowerCase();
+            const checkedUnivs = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+            let anyVisible = false;
+            cards.forEach(card => {
+                const name = (card.getAttribute('data-name') || '').toLowerCase();
+                const univ = card.getAttribute('data-university');
+                const nameMatch = name.includes(nameQuery);
+                const univMatch = checkedUnivs.length === 0 || checkedUnivs.includes(univ);
+                if (nameMatch && univMatch) {
+                    card.style.display = '';
+                    anyVisible = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            // Show/hide the 'no results' message
+            let noResult = area.querySelector('.noResultMsg');
+            if (!noResult) {
+                noResult = document.createElement('p');
+                noResult.className = 'noResultMsg';
+                noResult.style.textAlign = 'center';
+                noResult.style.color = '#dc3545';
+                noResult.style.fontWeight = 'bold';
+                noResult.textContent = '해당 지원자가 없습니다!';
+                area.appendChild(noResult);
+            }
+            noResult.style.display = anyVisible ? 'none' : '';
+        }
+    });
+});
+</script>
+</body>
+</html>

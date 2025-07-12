@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>등록된 참가자 목록</title>
+    <title>등록된 지원자 목록</title>
     <style>
         html, body, * {
             box-sizing: border-box;
@@ -248,7 +248,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 1000;
             padding: 20px;
-            max-height: 80vh;
+            max-height: 95vh;
             overflow-y: auto;
         }
         
@@ -452,6 +452,28 @@
             display: block;
             margin: 0 auto;
         }
+        .organize-btn {
+            width: 100%;
+            margin-top: 16px;
+            padding: 10px 0;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .organize-btn:hover {
+            background: #0056b3;
+        }
+        #pass-limit {
+            font-size: 16px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
@@ -516,23 +538,38 @@ function toggleDetails(btn) {
             </tbody>
         </table>
         
-        <div style="text-align: center; margin-top: 15px; font-size: 14px; color: #666;">
+        <div id="total-count" style="text-align: center; margin-top: 15px; font-size: 14px; color: #666;">
             총 {{ statistics.total }}명
         </div>
+        <div style="margin-top:20px;">
+            <label for="pass-limit" style="font-weight:bold;">합격자 수 관리</label>
+            <input type="number" id="pass-limit" min="1" max="{{ statistics.total }}" value="{{ statistics.pass }}" style="width:60px; margin-left:8px;">
+        </div>
+        <button class="organize-btn" onclick="organizeParticipants()">정리</button>
+        <script>
+        function organizeParticipants() {
+            const limit = document.getElementById('pass-limit').value;
+            window.location.href = '/organize?pass_limit=' + limit;
+        }
+        </script>
     </div>
 
     <div class="participants-list-wrapper">
-    <h1>등록된 참가자 목록</h1>
+    <h1>등록된 지원자 목록</h1>
+    <div style="text-align:center; margin-bottom: 20px;">
+    <input type="text" id="participantSearch" placeholder="이름으로 검색" style="padding:8px; width:220px; border-radius:6px; border:1px solid #bbb;">
+</div>
     {% if participants %}
         {% for participant in participants %}
-        <div class="participant-card" data-participant-id="{{ participant._id }}">
+        <div class="participant-card" data-participant-id="{{ participant._id }}" data-name="{{ participant.name }}">
             <div class="participant-info-card">
                 <div class="participant-details" style="flex:2;">
                     <h3>{{ participant.name }}</h3>
-                    <p><strong>연락처:</strong> {{ participant.contact if participant.contact else 'N/A' }}</p>
-                    <p><strong>이메일:</strong> {{ participant.email if participant.email else 'N/A' }}</p>
+                    <p><strong>성별:</strong> {{ participant.gender if participant.gender else 'N/A' }}</p>
                     <p><strong>대학교:</strong> {{ participant.university if participant.university else 'N/A' }}</p>
                     <p><strong>전공:</strong> {{ participant.major if participant.major else 'N/A' }}</p>
+                    <p><strong>나이:</strong> {{ participant.age if participant.age else 'N/A' }}</p>
+                    <p><strong>학기 수:</strong> {{ participant.semester if participant.semester else 'N/A' }}</p>
                 </div>
                 <div class="profile-photo-container">
                     {% if participant.profile_photo_filename %}
@@ -545,9 +582,9 @@ function toggleDetails(btn) {
                     <a href="{{ url_for('edit_participant', participant_id=participant._id) }}" class="action-btn">수정</a>
                     <button onclick="confirmDelete('{{ participant._id }}', '{{ participant.name }}')" class="action-btn delete">삭제</button>
                     <div class="status-buttons">
-                        <button class="status-btn pass {% if participant.status == '합격' %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '합격')">합격</button>
-                        <button class="status-btn fail {% if participant.status == '불합격' %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '불합격')">불합격</button>
-                        <button class="status-btn pending {% if participant.status == '미정' or not participant.status %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '미정')">미정</button>
+                        <button class="status-btn pass {% if participant.status == '합격' %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '합격')" {% if participant.status == '합격' %}disabled{% endif %}>합격</button>
+                        <button class="status-btn fail {% if participant.status == '불합격' %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '불합격')" {% if participant.status == '불합격' %}disabled{% endif %}>불합격</button>
+                        <button class="status-btn pending {% if participant.status == '미정' or not participant.status %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '미정')" {% if participant.status == '미정' or not participant.status %}disabled{% endif %}>미정</button>
                     </div>
                     <div class="current-status {% if participant.status == '합격' %}pass{% elif participant.status == '불합격' %}fail{% else %}pending{% endif %}" style="text-align:center;">
                         {% if participant.status %}{{ participant.status }}{% else %}미정{% endif %}
@@ -557,7 +594,24 @@ function toggleDetails(btn) {
             <button class="toggle-details-btn" onclick="toggleDetails(this)">▼ 더보기</button>
             <div class="participant-extra-details" style="display:none;">
                 <!-- All the rest of the info goes here (copy from the previous card body, except the above fields) -->
+                <div class="section-header">개인정보</div>
+                <p><strong>연락처:</strong> {{ participant.contact if participant.contact else 'N/A' }}</p>
+                <p><strong>이메일:</strong> {{ participant.email if participant.email else 'N/A' }}</p>
+                <p><strong>MBTI:</strong> {{ participant.mbti if participant.mbti else 'N/A' }}</p>
+                <p><strong>고등학교:</strong> {{ participant.high_school_type if participant.high_school_type else 'N/A' }}</p>
+                <p><strong>학번:</strong> {{ participant.student_id if participant.student_id else 'N/A' }}</p>
+                <p><strong>군대:</strong> {{ participant.military_service if participant.military_service else 'N/A' }}</p>
+                <p><strong>현재 졸업학기 및 휴학 여부:</strong> {{ participant.graduation_leave if participant.graduation_leave else 'N/A' }}</p>
+                <p><strong>재수여부:</strong> {{ participant.re_exam if participant.re_exam else 'N/A' }}</p>
+                <p><strong>재지원 여부:</strong> {{ participant.reapply if participant.reapply else 'N/A' }}</p>
                 <div class="section-header">대학생활</div>
+                <p><strong>주요 전산과목:</strong>
+                {% if participant.major_cs_courses %}
+                    {{ participant.major_cs_courses | join(', ') }}
+                {% else %}
+                    N/A
+                {% endif %}
+                </p>
                 <p><strong>열정적 방학:</strong> {{ participant.passion_vacation if participant.passion_vacation else 'N/A' }}</p>
                 <p><strong>활동 동아리:</strong> {{ participant.active_club if participant.active_club else 'N/A' }}</p>
                 <p><strong>휴학 기간/활동:</strong> {{ participant.leave_period_work if participant.leave_period_work else 'N/A' }}</p>
@@ -589,7 +643,6 @@ function toggleDetails(btn) {
                 <p><strong>지원 동기:</strong> {{ participant.application_motive if participant.application_motive else 'N/A' }}</p>
                 <p><strong>추가 코멘트:</strong> {{ participant.additional_comments if participant.additional_comments else 'N/A' }}</p>
                 <div class="section-header">점수 분석</div>
-                <p><strong>MBTI:</strong> {{ participant.mbti if participant.mbti else 'N/A' }}</p>
                 <p>
                     <strong>개발 점수:</strong> {{ participant.dev_score if participant.dev_score is not none else 'N/A' }}
                     <button class="toggle-reason-btn" data-target="dev-reason-{{ loop.index }}">이유 보기</button>
@@ -616,7 +669,7 @@ function toggleDetails(btn) {
         </div>
         {% endfor %}
     {% else %}
-        <p>아직 등록된 참가자가 없습니다.</p>
+        <p id="noParticipantsMsg">아직 등록된 지원자가 없습니다.</p>
     {% endif %}
     <p><a href="/register">새 참가자 등록하기</a></p>
     <p><a href="/">홈으로 돌아가기</a></p>
@@ -649,9 +702,9 @@ function toggleDetails(btn) {
                     labels: ['미정', '합격', '불합격'],
                     datasets: [{
                         data: [
-                            {{ statistics.pending }},
-                            {{ statistics.pass }},
-                            {{ statistics.fail }}
+                            {{ statistics.pending|tojson }},
+                            {{ statistics.pass|tojson }},
+                            {{ statistics.fail|tojson }}
                         ],
                         backgroundColor: [
                             '#6c757d',  // Grey for pending
@@ -733,12 +786,7 @@ function toggleDetails(btn) {
                         statusPieChart.update();
                         
                         // Update legend numbers with null checks
-                        const legendItems = document.querySelectorAll('.legend-item span');
-                        if (legendItems.length >= 3) {
-                            legendItems[0].textContent = `미정 (${data.statistics.pending})`;
-                            legendItems[1].textContent = `합격 (${data.statistics.pass})`;
-                            legendItems[2].textContent = `불합격 (${data.statistics.fail})`;
-                        }
+                        updateLegend(data.statistics);
                         
                         // Update table with null checks
                         const tableCells = document.querySelectorAll('.stats-table tbody tr td');
@@ -750,7 +798,7 @@ function toggleDetails(btn) {
                         }
                         
                         // Update total count with null check
-                        const totalElement = document.querySelector('.floating-stats div:last-child');
+                        const totalElement = document.getElementById('total-count');
                         if (totalElement) {
                             totalElement.textContent = `총 ${data.statistics.total}명`;
                         }
@@ -893,6 +941,61 @@ function toggleDetails(btn) {
                 showToast(decodeURIComponent(message), status);
             }
         });
+
+        // Update legend by rebuilding it
+        function updateLegend(statistics) {
+            const legend = document.querySelector('.pie-legend');
+            if (!legend) return;
+            legend.innerHTML = `
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #6c757d;"></div>
+                    <span>미정 (${statistics.pending ?? 0})</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #007bff;"></div>
+                    <span>합격 (${statistics.pass ?? 0})</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #dc3545;"></div>
+                    <span>불합격 (${statistics.fail ?? 0})</span>
+                </div>
+            `;
+        }
     </script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('participantSearch');
+    if (!searchInput) return;
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim().toLowerCase();
+        const cards = document.querySelectorAll('.participant-card');
+        let anyVisible = false;
+        cards.forEach(card => {
+            const name = (card.getAttribute('data-name') || '').toLowerCase();
+            if (name.includes(query)) {
+                card.style.display = '';
+                anyVisible = true;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        // Show/hide the 'no results' message
+        let noResult = document.getElementById('noParticipantResult');
+        if (!noResult) {
+            noResult = document.createElement('p');
+            noResult.id = 'noParticipantResult';
+            noResult.style.textAlign = 'center';
+            noResult.style.color = '#dc3545';
+            noResult.style.fontWeight = 'bold';
+            noResult.textContent = '해당 지원자가 없습니다!';
+            document.querySelector('.participants-list-wrapper').appendChild(noResult);
+        }
+        noResult.style.display = anyVisible ? 'none' : '';
+        // Hide the 'no participants' message when searching
+        const noMsg = document.getElementById('noParticipantsMsg');
+        if (noMsg) noMsg.style.display = query ? 'none' : '';
+    });
+});
+</script>
 </body>
 </html>

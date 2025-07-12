@@ -1,26 +1,128 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+import os
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # Allow OAuth2 with HTTP for development
+
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, session
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from pymongo import MongoClient
 from bson.objectid import ObjectId # Import ObjectId to work with MongoDB _id
-import os
 import google.generativeai as genai # Import the Gemini library
 from werkzeug.utils import secure_filename
 from flask import send_from_directory # Re-add for serving uploaded files
+import smtplib
+from email.mime.text import MIMEText
+from google_auth_oauthlib.flow import Flow
+from google.oauth2 import id_token
+from google.auth.transport import requests
+import json
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = 'VeRYSECreT032&$90kdl2l1kdmfnt'
+
+# --- Flask-Login Configuration ---
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+# --- Google OAuth2 Configuration ---
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', 'your-google-client-id-here')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', 'your-google-client-secret-here')
+GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI', 'http://localhost:5000/callback')
 
 # --- MongoDB Configuration ---
 # Use environment variables for sensitive info in production
 # For local dev, you can hardcode, but ENV variables are best practice
 MONGO_URI = "mongodb+srv://sciencekid719:WD3zXfPzYdTDpQh2@campteammakercluster.yikpgdv.mongodb.net/?retryWrites=true&w=majority&appName=campTeamMakerCluster"
-MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "campTeamMakerDB") # Your database name
+MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "molipDB") # Your database name
 
 # Initialize MongoDB client
 client = MongoClient(MONGO_URI)
 db = client[MONGO_DB_NAME] # Access the specific database
 
-# Get a reference to your participants collection
+# Get a reference to your collections
 participants_collection = db.participants
+users_collection = db.users  # New collection for user management
+
+# --- User Model for Flask-Login ---
+class User(UserMixin):
+    def __init__(self, user_data):
+        self.id = str(user_data['_id'])
+        self.email = user_data['email']
+        self.name = user_data['name']
+        self.role = user_data.get('role', 'student')  # Default role is student
+        self.picture = user_data.get('picture', '')
+
+@login_manager.user_loader
+def load_user(user_id):
+    user_data = users_collection.find_one({'_id': ObjectId(user_id)})
+    if user_data:
+        return User(user_data)
+    return None
+
+# --- Role-Based Access Control Decorators ---
+def professor_required(f):
+    @login_required
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != 'professor':
+            flash('교수 권한이 필요합니다.', 'error')
+            return redirect(url_for('home'))
+        return f(*args, **kwargs)
+    decorated_function.__name__ = f.__name__
+    return decorated_function
+
+def student_required(f):
+    @login_required
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != 'student':
+            flash('학생 권한이 필요합니다.', 'error')
+            return redirect(url_for('home'))
+        return f(*args, **kwargs)
+    decorated_function.__name__ = f.__name__
+    return decorated_function
+
+# --- Helper Functions ---
+def determine_user_role(email):
+    """Determine user role based on email domain or specific addresses"""
+    # You can customize this logic based on your needs
+    if email.endswith('@kaist.ac.kr'):
+        return 'professor'
+    elif email in ['admin@example.com', 'professor@example.com']:  # Add specific admin emails
+        return 'professor'
+    else:
+        return 'student'
+
+def create_or_update_user(google_user_info):
+    """Create or update user in database"""
+    email = google_user_info['email']
+    user_data = {
+        'email': email,
+        'name': google_user_info['name'],
+        'picture': google_user_info.get('picture', ''),
+        'role': determine_user_role(email),
+        'google_id': google_user_info['sub']
+    }
+    
+    # Check if user exists
+    existing_user = users_collection.find_one({'email': email})
+    if existing_user:
+        # Update existing user
+        users_collection.update_one(
+            {'email': email},
+            {'$set': {
+                'name': user_data['name'],
+                'picture': user_data['picture'],
+                'google_id': user_data['google_id']
+            }}
+        )
+        user_data['_id'] = existing_user['_id']
+        user_data['role'] = existing_user.get('role', 'student')  # Keep existing role
+    else:
+        # Create new user
+        result = users_collection.insert_one(user_data)
+        user_data['_id'] = result.inserted_id
+    
+    return User(user_data)
 
 # --- File Upload Configuration (re-added for photos) ---
 UPLOAD_FOLDER = 'uploads'
@@ -170,21 +272,143 @@ def categorize_with_gemini(participant_data):
             "avg_score": 0,
         }
 
+# --- Authentication Routes ---
+
+@app.route('/login')
+def login():
+    # Check if this is an OAuth callback (has 'code' parameter)
+    if request.args.get('code'):
+        # This is an OAuth callback, redirect to the callback handler
+        return callback()
+    
+    # This is a regular login page request
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    return render_template('login.html')
+
+@app.route('/google-login')
+def google_login():
+    flow = Flow.from_client_config(
+        {
+            "web": {
+                "client_id": GOOGLE_CLIENT_ID,
+                "client_secret": GOOGLE_CLIENT_SECRET,
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "redirect_uris": [GOOGLE_REDIRECT_URI]
+            }
+        },
+        scopes=['openid', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
+    )
+    flow.redirect_uri = GOOGLE_REDIRECT_URI
+    authorization_url, state = flow.authorization_url(
+        access_type='offline',
+        include_granted_scopes='true'
+    )
+    session['state'] = state
+    return redirect(authorization_url)
+
+@app.route('/callback')
+def callback():
+    try:
+        print("DEBUG: Starting OAuth callback...")
+        flow = Flow.from_client_config(
+            {
+                "web": {
+                    "client_id": GOOGLE_CLIENT_ID,
+                    "client_secret": GOOGLE_CLIENT_SECRET,
+                    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                    "token_uri": "https://oauth2.googleapis.com/token",
+                    "redirect_uris": [GOOGLE_REDIRECT_URI]
+                }
+            },
+            scopes=['openid', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
+        )
+        flow.redirect_uri = GOOGLE_REDIRECT_URI
+        
+        print(f"DEBUG: Redirect URI set to: {GOOGLE_REDIRECT_URI}")
+        
+        # Use the authorization server's response to fetch the OAuth 2.0 tokens
+        authorization_response = request.url
+        print(f"DEBUG: Authorization response URL: {authorization_response}")
+        
+        flow.fetch_token(authorization_response=authorization_response)
+        
+        # Get user info from Google
+        credentials = flow.credentials
+        print("DEBUG: Got credentials from Google")
+        
+        id_info = id_token.verify_oauth2_token(
+            credentials.id_token, requests.Request(), GOOGLE_CLIENT_ID
+        )
+        print(f"DEBUG: Got user info: {id_info.get('email')}")
+        
+        # Create or update user
+        user = create_or_update_user(id_info)
+        print(f"DEBUG: Created/updated user: {user.email} with role: {user.role}")
+        
+        login_user(user)
+        print("DEBUG: User logged in successfully")
+        
+        flash(f'{user.name}님, 환영합니다! ({user.role} 권한)', 'success')
+        return redirect(url_for('home'))
+        
+    except Exception as e:
+        print(f"ERROR in callback: {e}")
+        import traceback
+        traceback.print_exc()
+        flash('로그인 중 오류가 발생했습니다.', 'error')
+        return redirect(url_for('login'))
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('로그아웃되었습니다.', 'info')
+    return redirect(url_for('home'))
+
+@app.route('/upgrade_role', methods=['POST'])
+@login_required
+def upgrade_role():
+    code = request.form.get('code')
+    professor_code = os.getenv('PROFESSOR_CODE', 'campsecret2024')
+    if code and code == professor_code:
+        users_collection.update_one({'_id': ObjectId(current_user.id)}, {'$set': {'role': 'professor'}})
+        flash('교수 권한이 부여되었습니다.', 'success')
+    else:
+        flash('코드가 올바르지 않습니다.', 'error')
+    return redirect(url_for('home'))
+
 # --- Routes ---
 
 @app.route('/')
 def home():
-    # Example: Count participants from MongoDB
-    num_participants = participants_collection.count_documents({})
-    return f"Hello, Camp Team Builder! We have {num_participants} participants registered."
+    if current_user.is_authenticated:
+        if current_user.role == 'professor':
+            # Professors see participant count and admin links
+            num_participants = participants_collection.count_documents({})
+            return render_template('home.html', 
+                                user=current_user, 
+                                num_participants=num_participants,
+                                is_professor=True)
+        else:
+            # Students see welcome message and registration link
+            return render_template('home.html', 
+                                user=current_user, 
+                                is_professor=False)
+    else:
+        # Not logged in - show login page
+        return render_template('home.html', user=None)
 
 # Define a route for participant registration (GET to display form)
 @app.route('/register', methods=['GET'])
+@student_required
 def register_form():
     return render_template('register.html') # Render the HTML form from templates/
 
 
 @app.route('/register', methods=['POST'])
+@student_required
 def register_submit():
     # Handle Photo Upload
     profile_photo_filename = None # Initialize the variable
@@ -235,6 +459,7 @@ def register_submit():
         "semester": int(request.form['semester']),
         "age": int(request.form['age']),
         "gender": request.form['gender'],
+        "reapply": request.form['reapply'],
         "military_service": request.form['military_service'],
         "graduation_leave": request.form['graduation_leave'],
         "re_exam": request.form['re_exam'],
@@ -268,6 +493,8 @@ def register_submit():
         "hobbies": request.form.get('unique_hobby', ''),
         "overseas_exp": "유" if request.form.get('overseas_life') else "무",
         "overseas_details": {"duration": request.form.get('overseas_life', ''), "continent": "N/A"} if request.form.get('overseas_life') else None,
+        # --- Link to Google user ---
+        "google_id": str(current_user.id),
     }
 
     try:
@@ -282,6 +509,7 @@ def register_submit():
 
 
 @app.route('/participants')
+@professor_required
 def list_participants():
     # Sort participants by average score in descending order (highest first)
     participants = list(participants_collection.find({}).sort('avg_score', -1))
@@ -314,6 +542,7 @@ def list_participants():
     return render_template('participants_list.html', participants=participants, statistics=statistics)
 
 @app.route('/update_status/<participant_id>', methods=['POST'])
+@professor_required
 def update_status(participant_id):
     try:
         obj_id = ObjectId(participant_id)
@@ -369,6 +598,7 @@ def update_status(participant_id):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/categorize_participants', methods=['GET'])
+@professor_required
 def categorize_all_participants():
     participants = participants_collection.find({})
     updated_count = 0
@@ -407,6 +637,7 @@ def categorize_all_participants():
     return redirect(url_for('list_participants'))
 
 @app.route('/edit_participant/<participant_id>', methods=['GET', 'POST'])
+@professor_required
 def edit_participant(participant_id):
     try:
         obj_id = ObjectId(participant_id)
@@ -459,6 +690,7 @@ def edit_participant(participant_id):
             "semester": int(request.form['semester']),
             "age": int(request.form['age']),
             "gender": request.form['gender'],
+            "reapply": request.form['reapply'],
             "military_service": request.form['military_service'],
             "graduation_leave": request.form['graduation_leave'],
             "re_exam": request.form['re_exam'],
@@ -533,6 +765,7 @@ def edit_participant(participant_id):
         return render_template('edit_participant.html', participant=participant)
 
 @app.route('/delete_participant/<participant_id>', methods=['POST'])
+@professor_required
 def delete_participant(participant_id):
     try:
         obj_id = ObjectId(participant_id)
@@ -562,6 +795,191 @@ def delete_participant(participant_id):
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/organize')
+@professor_required
+def organize_page():
+    participants = list(participants_collection.find({}))
+    try:
+        pass_limit = int(request.args.get('pass_limit', 5))
+    except Exception:
+        pass_limit = 5
+    # Compute statistics for the floating box
+    statistics = {
+        'pending': 0,
+        'pass': 0,
+        'fail': 0,
+        'kaist_male': 0,
+        'kaist_female': 0,
+        'other_male': 0,
+        'other_female': 0,
+        'total': len(participants)
+    }
+    for p in participants:
+        status = p.get('status', '미정') or '미정'
+        if status == '합격':
+            statistics['pass'] += 1
+        elif status == '불합격':
+            statistics['fail'] += 1
+        else:
+            statistics['pending'] += 1
+        univ = p.get('university', '')
+        gender = p.get('gender', '')
+        if univ == '카이스트':
+            if gender == '남자':
+                statistics['kaist_male'] += 1
+            elif gender == '여자':
+                statistics['kaist_female'] += 1
+        else:
+            if gender == '남자':
+                statistics['other_male'] += 1
+            elif gender == '여자':
+                statistics['other_female'] += 1
+    return render_template('organize.html', participants=participants, pass_limit=pass_limit, statistics=statistics)
+
+@app.route('/get_mail_recipients')
+@login_required
+@professor_required
+def get_mail_recipients():
+    mail_type = request.args.get('type')
+    if mail_type == 'pass':
+        recipients = [p['email'] for p in participants_collection.find({'status': '합격'})]
+    elif mail_type == 'fail':
+        recipients = [p['email'] for p in participants_collection.find({'status': '불합격'})]
+    else:
+        return jsonify({'recipients': []})
+    return jsonify({'recipients': recipients})
+
+# --- Real Email Sending Function (Gmail SMTP) ---
+def send_real_email(to_email, subject, body, user_email=None, user_password=None, bcc_list=None):
+    smtp_server = 'smtp.gmail.com'
+    smtp_port = 587
+    
+    # Use provided credentials or fall back to environment variables
+    if user_email and user_password:
+        smtp_user = user_email
+        smtp_password = user_password
+    else:
+        smtp_user = os.getenv('GMAIL_USER', 'sciencekid719@gmail.com')
+        smtp_password = os.getenv('GMAIL_APP_PASSWORD')
+    
+    if not smtp_password:
+        print('GMAIL_APP_PASSWORD environment variable not set!')
+        return False
+    
+    try:
+        msg = MIMEText(body, 'plain', 'utf-8')
+        msg['Subject'] = subject
+        msg['From'] = smtp_user
+        msg['To'] = to_email if to_email else ''
+        if bcc_list:
+            msg['Bcc'] = ','.join(bcc_list)
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_user, smtp_password)
+            server.sendmail(smtp_user, [to_email] if to_email else [] + (bcc_list if bcc_list else []), msg.as_string())
+        return True
+    except Exception as e:
+        print(f'Error sending email: {e}')
+        return False
+
+@app.route('/send_bulk_mail', methods=['POST'])
+@login_required
+@professor_required
+def send_bulk_mail():
+    data = request.get_json()
+    mail_type = data.get('type')
+    draft = data.get('draft')
+    user_email = data.get('user_email')
+    user_password = data.get('user_password')
+    use_bcc = data.get('bcc', False)
+    single = data.get('single', False)
+    single_recipient = data.get('recipient')
+    
+    if mail_type == 'pass':
+        recipients = [p['email'] for p in participants_collection.find({'status': '합격'})]
+        subject = '합격을 축하합니다!'
+    elif mail_type == 'fail':
+        recipients = [p['email'] for p in participants_collection.find({'status': '불합격'})]
+        subject = '불합격 안내'
+    else:
+        return jsonify({'message': '잘못된 요청'}), 400
+    
+    if use_bcc:
+        # Send one mail with all in BCC
+        try:
+            send_real_email('', subject, draft, user_email, user_password, bcc_list=recipients)
+            return jsonify({'message': f'BCC로 {len(recipients)}명에게 메일을 보냈습니다.'})
+        except Exception as e:
+            return jsonify({'message': f'BCC 메일 발송 중 오류: {e}'}), 500
+    elif single and single_recipient:
+        # Send to a single recipient (for progress)
+        try:
+            send_real_email(single_recipient, subject, draft, user_email, user_password)
+            return jsonify({'message': f'{single_recipient}에게 메일을 보냈습니다.'})
+        except Exception as e:
+            return jsonify({'message': f'개별 메일 발송 중 오류: {e}'}), 500
+    else:
+        # Fallback: send all individually (legacy)
+        sent_count = 0
+        for email in recipients:
+            try:
+                send_real_email(email, subject, draft, user_email, user_password)
+                sent_count += 1
+            except Exception as e:
+                print(f'Error sending to {email}: {e}')
+        return jsonify({'message': f'{sent_count}명에게 메일을 보냈습니다.'})
+
+@app.route('/my_registration', methods=['GET', 'POST'])
+@login_required
+def my_registration():
+    # Only allow students
+    if getattr(current_user, 'role', None) != 'student':
+        flash('학생만 접근할 수 있습니다.', 'error')
+        return redirect(url_for('home'))
+
+    participant = participants_collection.find_one({'google_id': str(current_user.id)})
+
+    if request.method == 'POST':
+        update_data = {
+            'name': request.form['name'],
+            'contact': request.form['contact'],
+            'email': current_user.email,  # Do not allow changing email
+            'university': request.form['university'],
+            'major': request.form['major'],
+            'high_school_type': request.form['high_school_type'],
+            'student_id': int(request.form['student_id']),
+            'semester': int(request.form['semester']),
+            'age': int(request.form['age']),
+            'gender': request.form['gender'],
+            'reapply': request.form['reapply'],
+            'military_service': request.form['military_service'],
+            'graduation_leave': request.form['graduation_leave'],
+            're_exam': request.form['re_exam'],
+            'major_cs_courses': request.form.getlist('major_cs_courses'),
+            'passion_vacation': request.form.get('passion_vacation', ''),
+            'active_club': request.form.get('active_club', ''),
+            'leave_period_work': request.form.get('leave_period_work', ''),
+            'intern_exp_details': request.form.get('intern_exp_details', ''),
+            'personal_project_details': request.form.get('personal_project_details', ''),
+            'self_video_url': request.form.get('self_video_url', ''),
+            'overseas_life': request.form.get('overseas_life', ''),
+            'awards_competitions': request.form.get('awards_competitions', ''),
+            'unique_hobby': request.form.get('unique_hobby', ''),
+            'application_motive': request.form.get('application_motive', ''),
+            'additional_comments': request.form.get('additional_comments', ''),
+            'mbti': request.form.get('mbti', ''),
+            'school': request.form['university'],
+        }
+        participants_collection.update_one({'google_id': str(current_user.id)}, {'$set': update_data})
+        flash('정보가 성공적으로 수정되었습니다.', 'success')
+        return redirect(url_for('home'))
+
+    return render_template(
+        'register.html',
+        participant=participant,
+        edit_mode=True
+    )
 
 # --- Run the application ---
 if __name__ == '__main__':

@@ -138,6 +138,24 @@
             display: block;
             margin-top: 5px;
         }
+        .compact-checkbox-group label {
+            font-weight: normal;
+            margin: 0 0 0 4px;
+            display: block;
+        }
+        .compact-checkbox-group input[type="checkbox"] {
+            margin-right: 4px;
+            margin-bottom: 0;
+        }
+        .compact-checkbox-group {
+            margin-top: 0;
+            padding-top: 0;
+        }
+        .compact-checkbox-group .checkbox-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2px;
+        }
     </style>
 </head>
 <body>
@@ -223,6 +241,8 @@
                 </div>
             </div>
 
+            
+
             <div class="form-group">
                 <label>병역사항<span class="required-asterisk">*</span>:</label>
                 <div class="radio-group">
@@ -253,17 +273,29 @@
             </div>
 
             <div class="form-group">
-                <label for="major_cs_courses">주요 전산과목:</label><br>
+                <label>재지원 여부<span class="required-asterisk">*</span>:</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="reapply" value="예" {% if participant.reapply == '예' %}checked{% endif %} required> 예</label>
+                    <label><input type="radio" name="reapply" value="아니오" {% if participant.reapply == '아니오' %}checked{% endif %} required> 아니오</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="major_cs_courses">주요 전산과목:</label>
+                <div class="compact-checkbox-group">
                 {% set major_subjects_options = ['디지탈시스템 및 실험', '문제해결기법', '이산구조', '지능 로봇 설계 및 프로그래밍', '프로그래밍의 이해', '데이타구조', '데이타베이스 개론', 
                 '소프트웨어 공학개론', '시스템 프로그래밍', '알고리즘 개론', '운영체제 및 실험', '전산기조직', '전산망개론', '전산학 프로젝트', '프로그래밍 언어'] %}
                 {% for option in major_subjects_options %}
-                    <input type="checkbox"
-                           id="major_cs_course_{{ loop.index }}"
-                           name="major_cs_courses"
-                           value="{{ option }}"
-                           {% if participant and option in participant.major_cs_courses %}checked{% endif %}>
-                    <label for="major_cs_course_{{ loop.index }}">{{ option }}</label><br>
+                    <div class="checkbox-row">
+                        <input type="checkbox"
+                               id="major_cs_course_{{ loop.index }}"
+                               name="major_cs_courses"
+                               value="{{ option }}"
+                               {% if participant and option in participant.major_cs_courses %}checked{% endif %}>
+                        <label for="major_cs_course_{{ loop.index }}">{{ option }}</label>
+                    </div>
                 {% endfor %}
+                </div>
             </div>
         </div>
 
