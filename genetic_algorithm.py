@@ -39,7 +39,8 @@ weights = {
     "categorized_immersion_exp": 2,
     "categorized_intern_exp": 2,
     "categorized_major": 2,
-    "score": 4
+    "score": 4,
+    "gender_balance": 10  # NEW: gender balance weight
 }
 def print_group_fitness_details(grouping, applicants_dict, weights):
     print("\n📊 최종 그룹별 Fitness 상세 점수:")
@@ -83,12 +84,13 @@ def fitness(grouping, applicants_dict, weights):
     immersion_score = calculate_categorical_balance(grouping, applicants_dict, 'categorized_immersion_exp')+ calculate_categorical_entropy(grouping, applicants_dict, 'categorized_immersion_exp')
     intern_score = calculate_categorical_balance(grouping, applicants_dict, 'categorized_intern_exp')+ calculate_categorical_entropy(grouping, applicants_dict, 'categorized_intern_exp')
     major_score = calculate_categorical_balance(grouping, applicants_dict, 'categorized_major')+ calculate_categorical_entropy(grouping, applicants_dict, 'categorized_major')
-    
     score_balance = calculate_score_std(grouping, applicants_dict)
 
+    # NEW: Gender balance
+    all_genders = [a["gender"] for a in applicants_dict.values()]
+    overall_ratio = all_genders.count("여자") / len(all_genders) if all_genders else 0.5
+    gender_balance_score = calculate_gender_balance(grouping, applicants_dict, overall_ratio)
 
-
-    # 총점 계산: 각 점수 × int형 가중치
     total_fitness = (
         weights["university"] * university_score + 
         weights["mbti"] * mbti_score +
@@ -98,9 +100,9 @@ def fitness(grouping, applicants_dict, weights):
         weights["categorized_immersion_exp"] * immersion_score +
         weights["categorized_intern_exp"] * intern_score +
         weights["categorized_major"] * major_score +
-        weights["score"] * score_balance
+        weights["score"] * score_balance +
+        weights["gender_balance"] * gender_balance_score
     )
-
     return int(round(total_fitness))
 
 def calculate_university_diversity(grouping, applicants_dict):
@@ -181,74 +183,67 @@ def calculate_score_std(grouping, applicants_dict):
 
     return - (np.std(dev_avgs) + np.std(passion_avgs) + np.std(personality_avgs))
 
+def calculate_gender_balance(grouping, applicants_dict, overall_ratio):
+    # overall_ratio: proportion of girls (e.g., 0.5 for 1:1)
+    group_scores = []
+    for group in grouping:
+        genders = [applicants_dict[aid]["gender"] for aid in group]
+        if not genders:
+            continue
+        group_ratio = genders.count("여자") / len(genders)
+        group_scores.append(1 - abs(group_ratio - overall_ratio))
+    return sum(group_scores) / len(group_scores) if group_scores else 0
 
-def generate_random_grouping(male_ids, female_ids):
-    random.shuffle(male_ids)
-    random.shuffle(female_ids)
 
+def generate_random_grouping(applicant_ids, num_groups=4):
+    random.shuffle(applicant_ids)
+    group_size = math.ceil(len(applicant_ids) / num_groups)
     grouping = []
-    for i in range(4):
-        group = male_ids[i*10:(i+1)*10] + female_ids[i*10:(i+1)*10]
-        random.shuffle(group)
+    for i in range(num_groups):
+        group = applicant_ids[i*group_size:(i+1)*group_size]
         grouping.append(group)
     return grouping
 
 
-def generate_initial_population(applicants, population_size=100):
-    male_ids = [a["_id"] for a in applicants if a["gender"] == "남자"]
-    female_ids = [a["_id"] for a in applicants if a["gender"] == "여자"]
-
+def generate_initial_population(applicants, population_size=100, num_groups=4):
+    applicant_ids = [a["_id"] for a in applicants]
     population = []
     for _ in range(population_size):
-        grouping = generate_random_grouping(male_ids, female_ids)
+        grouping = generate_random_grouping(applicant_ids, num_groups)
         population.append(grouping)
-
     return population
 
 
 
-def crossover(parent1, parent2, applicants_dict):
+def crossover(parent1, parent2, applicants_dict, num_groups=4):
     all_ids = set(sum(parent1, []))
-    male_ids = {aid for aid in all_ids if is_male(aid, applicants_dict)}
-    female_ids = all_ids - male_ids
-
     # 부모로부터 일부 그룹 선택
-    p1_selected = random.sample(parent1, 2)
-    p2_selected = random.sample(parent2, 2)
-
+    p1_selected = random.sample(parent1, num_groups // 2)
+    p2_selected = random.sample(parent2, num_groups // 2)
     child = [list(g) for g in p1_selected + p2_selected]
-
     used_ids_flat = sum(child, [])
     used_counts = Counter(used_ids_flat)
-
-    # 중복 및 누락 ID 목록
-    duplicate_ids = [aid for aid, count in used_counts.items() if count > 1]
     missing_ids = list(all_ids - set(used_ids_flat))
-
-    # 중복 ID 교체 (성별 유지)
-    for i in range(4):
+    # 중복 ID 교체
+    for i in range(num_groups):
         for j in range(len(child[i])):
             current_id = child[i][j]
             if used_counts[current_id] > 1:
-                gender = applicants_dict[current_id]["gender"]
-                same_gender_missing = [
-                    mid for mid in missing_ids if applicants_dict[mid]["gender"] == gender
-                ]
-
-                if same_gender_missing:
-                    new_id = same_gender_missing.pop()
-                    missing_ids.remove(new_id)
-
+                if missing_ids:
+                    new_id = missing_ids.pop()
                     used_counts[current_id] -= 1
                     child[i][j] = new_id
                     used_counts[new_id] += 1
-
-    # 성비 확인
-    for i in range(4):
-        males = [aid for aid in child[i] if is_male(aid, applicants_dict)]
-        females = [aid for aid in child[i] if not is_male(aid, applicants_dict)]
-        assert len(males) == 10 and len(females) == 10, f"성비 오류 in group {i}"
-
+    # 그룹 크기 맞추기 (최대 1명 차이 허용)
+    total = sum(len(g) for g in child)
+    target_size = total // num_groups
+    for i, group in enumerate(child):
+        while len(group) > target_size + 1:
+            # Move extra to group with less
+            for j, g2 in enumerate(child):
+                if len(g2) < target_size:
+                    g2.append(group.pop())
+                    break
     return child
 
 
@@ -268,7 +263,7 @@ def mutate(grouping, applicants_dict, num_swaps=1):
         return applicants_dict[aid]["gender"]
 
     # 그룹 인덱스 조합 리스트
-    group_indices = list(range(4))
+    group_indices = list(range(len(new_grouping)))
 
     for _ in range(num_swaps):
         for gender in ["남자", "여자"]:
@@ -301,11 +296,11 @@ def tournament_selection(scored_population, k=3):
     return competitors[0][0]  # 상위 개체의 grouping만 반환
 
 ### ✅ 유전 알고리즘 실행 함수
-def genetic_algorithm(applicants, weights, generations=50, population_size=50, elite_size=5, mutation_rate=0.3):
+def genetic_algorithm(applicants, weights, generations=50, population_size=50, elite_size=5, mutation_rate=0.3, num_groups=4):
     # 사전 처리
     applicants_dict = {a["_id"]: a for a in applicants}
 
-    population = generate_initial_population(applicants, population_size)
+    population = generate_initial_population(applicants, population_size, num_groups)
 
     best_solution = None
     best_fitness = float('-inf')
@@ -332,7 +327,7 @@ def genetic_algorithm(applicants, weights, generations=50, population_size=50, e
         while len(new_population) < population_size:
             parent1 = tournament_selection(scored_population)
             parent2 = tournament_selection(scored_population)
-            child = crossover(parent1, parent2,applicants_dict)
+            child = crossover(parent1, parent2,applicants_dict, num_groups)
             if random.random() < mutation_rate:
                 child = mutate(child, applicants_dict)
             new_population.append(child)
@@ -340,21 +335,3 @@ def genetic_algorithm(applicants, weights, generations=50, population_size=50, e
         population = new_population
 
     return best_solution
-
-def print_final_grouping(grouping, applicants_dict):
-    for i, group in enumerate(grouping):
-        print(f"\n🟦 Group {i+1}")
-        for aid in group:
-            info = applicants_dict[aid]
-            print(f"{info['name']} ({info['gender']}, {info['mbti']}, {info['categorized_major']})")
-
-
-best_grouping = genetic_algorithm(applicants, weights)
-applicants_dict = {a["_id"]: a for a in applicants}
-print_final_grouping(best_grouping, applicants_dict)
-print_group_fitness_details(best_grouping, applicants_dict, weights)
-
-print("================ 카테고리 분포 확인 ================= ")
-debug_print_category_distribution(best_grouping, applicants_dict, "categorized_major")
-debug_print_category_distribution(best_grouping, applicants_dict, "categorized_abroad_exp")
-debug_print_category_distribution(best_grouping, applicants_dict, "categorized_hobbies")

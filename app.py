@@ -17,6 +17,7 @@ import json
 from dotenv import load_dotenv
 load_dotenv()
 from datetime import datetime
+from genetic_algorithm import genetic_algorithm, weights
 
 app = Flask(__name__)
 app.secret_key = 'VeRYSECreT032&$90kdl2l1kdmfnt'
@@ -849,14 +850,51 @@ def delete_participant(participant_id):
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+@app.route('/divide_groups')
+@professor_required
+def divide_groups():
+    합격자 = list(participants_collection.find({'status': '합격'}))
+    if not 합격자 or len(합격자) < 4:
+        flash('합격자가 4명 이상이어야 분반이 가능합니다.', 'error')
+        return redirect(url_for('organize_page'))
+    # Run the genetic algorithm with default weights
+    from genetic_algorithm import weights
+    grouping = genetic_algorithm(합격자, weights, num_groups=4)
+    # Convert all ObjectIds to strings for session storage
+    grouping_str = [[str(aid) for aid in group] for group in grouping]
+    session['latest_grouping'] = grouping_str
+    session['latest_weights'] = weights  # Store the weights used
+    flash('분반이 완료되었습니다!', 'success')
+    return redirect(url_for('group_results'))
+
+@app.route('/group_results')
+@professor_required
+def group_results():
+    grouping = session.get('latest_grouping')
+    if not grouping:
+        flash('먼저 분반을 실행해주세요.', 'error')
+        return redirect(url_for('organize_page'))
+    # Get the weights that were used for this grouping
+    weights_used = session.get('latest_weights', {}) or {}
+    # Fetch all 합격자 info
+    합격자 = {str(p['_id']): p for p in participants_collection.find({'status': '합격'})}
+    # Build group info
+    groups = []
+    for group in grouping:
+        group_info = [합격자.get(str(aid)) for aid in group if 합격자.get(str(aid))]
+        groups.append(group_info)
+    return render_template('group_results.html', groups=groups, weights_used=weights_used)
+
 @app.route('/organize')
 @professor_required
 def organize_page():
     participants = list(participants_collection.find({}))
+    합격자_count = sum(1 for p in participants if p.get('status') == '합격')
+    num_groups = 4
     try:
-        pass_limit = int(request.args.get('pass_limit', 5))
+        pass_limit = int(request.args.get('pass_limit', 80))
     except Exception:
-        pass_limit = 5
+        pass_limit = 80
     # Compute statistics for the floating box
     statistics = {
         'pending': 0,
@@ -888,7 +926,7 @@ def organize_page():
                 statistics['other_male'] += 1
             elif gender == '여자':
                 statistics['other_female'] += 1
-    return render_template('organize.html', participants=participants, pass_limit=pass_limit, statistics=statistics)
+    return render_template('organize.html', participants=participants, pass_limit=pass_limit, statistics=statistics, 합격자_count=합격자_count, num_groups=num_groups)
 
 @app.route('/get_mail_recipients')
 @login_required
@@ -1062,6 +1100,68 @@ def api_update_settings():
     pass_limit = int(data.get('pass_limit', 5))
     update_app_settings(open_time, close_time, pass_limit)
     return jsonify({'success': True})
+
+@app.route('/api/group_fitness')
+@professor_required
+def api_group_fitness():
+    grouping = session.get('latest_grouping')
+    if not grouping:
+        return jsonify({'error': 'No grouping found'}), 400
+    # Use the weights that were used for this grouping
+    weights_used = session.get('latest_weights', {})
+    합격자 = {str(p['_id']): p for p in participants_collection.find({'status': '합격'})}
+    applicants_dict = 합격자
+    # Use the stored weights, fallback to default weights
+    from genetic_algorithm import weights as default_weights, fitness
+    weights_to_use = weights_used if weights_used else default_weights
+    scores = []
+    for group in grouping:
+        if not group:
+            scores.append(0)
+            continue
+        score = fitness([group], applicants_dict, weights_to_use)
+        scores.append(score)
+    return jsonify({'scores': scores})
+
+@app.route('/api/redistribute_groups', methods=['POST'])
+@professor_required
+def api_redistribute_groups():
+    data = request.get_json()
+    new_weights = data.get('weights')
+    if not new_weights:
+        return jsonify({'error': 'No weights provided'}), 400
+    # Convert all weights to int
+    for k in new_weights:
+        try:
+            new_weights[k] = int(new_weights[k])
+        except Exception:
+            new_weights[k] = 1
+    합격자 = list(participants_collection.find({'status': '합격'}))
+    from genetic_algorithm import genetic_algorithm, fitness
+    grouping = genetic_algorithm(합격자, new_weights, num_groups=4)
+    # Convert ObjectIds to strings for session
+    grouping_str = [[str(aid) for aid in group] for group in grouping]
+    session['latest_grouping'] = grouping_str
+    session['latest_weights'] = new_weights  # Store the new weights used
+    # Prepare group info for frontend, serializing ObjectIds
+    합격자_dict = {str(p['_id']): p for p in 합격자}
+    def serialize_participant(p):
+        if not p:
+            return None
+        p = dict(p)
+        if '_id' in p:
+            p['_id'] = str(p['_id'])
+        return p
+    groups = []
+    scores = []
+    for group in grouping_str:
+        group_info = [serialize_participant(합격자_dict.get(str(aid))) for aid in group if 합격자_dict.get(str(aid))]
+        groups.append(group_info)
+        if group:
+            scores.append(fitness([group], 합격자_dict, new_weights))
+        else:
+            scores.append(0)
+    return jsonify({'groups': groups, 'scores': scores})
 
 # --- Run the application ---
 if __name__ == '__main__':

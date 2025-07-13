@@ -152,6 +152,67 @@
         .status-btn.active { box-shadow: 0 0 0 2px #007bff; }
         .fade-out { opacity: 0; transition: opacity 0.3s; }
         .fade-in { opacity: 1; transition: opacity 0.3s; }
+        
+        /* Loading popup styles */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+        .loading-popup {
+            background: #fff;
+            border-radius: 12px;
+            padding: 32px 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e3eafc;
+            border-top: 4px solid #1976d2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 12px;
+        }
+        .loading-message {
+            color: #666;
+            font-size: 1em;
+            line-height: 1.4;
+        }
+        .success-icon {
+            font-size: 48px;
+            color: #4caf50;
+            margin-bottom: 16px;
+        }
+        .profile-photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #b6d0f7;
+            background: #eaf1fb;
+            display: block;
+        }
     </style>
     <style>
     .floating-stats {
@@ -226,6 +287,8 @@
     </style>
 </head>
 <body>
+    <h1>정리 페이지</h1>
+    
     <!-- Floating Bubble Button -->
     <div id="floating-bubble" style="position:fixed;bottom:32px;right:32px;z-index:1200;width:56px;height:56px;background:#1976d2;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s;">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M7 13a5 5 0 0 1 10 0v1a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-1Z" stroke="#1976d2" stroke-width="1.5"/><circle cx="12" cy="9" r="2" fill="#1976d2"/></svg>
@@ -283,6 +346,15 @@
             <button id="pass-limit-confirm" style="padding:2px 10px;font-size:13px;border-radius:4px;border:1px solid #1976d2;background:#fafdff;color:#1976d2;cursor:pointer;">적용</button>
         </div>
         <button id="close-floating-stats" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:20px;color:#888;cursor:pointer;">&times;</button>
+    </div>
+
+    <!-- Loading popup -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-popup" id="loading-popup">
+            <div class="loading-spinner" id="loading-spinner"></div>
+            <div class="loading-title" id="loading-title">분반 나누기 중...</div>
+            <div class="loading-message" id="loading-message">유전 알고리즘을 실행하여 최적의 분반을 찾고 있습니다.</div>
+        </div>
     </div>
 
     <div class="organize-container">
@@ -579,6 +651,13 @@
                 {% endfor %}
             </div>
         </div>
+    </div>
+    <div style="margin: 18px 0; text-align: center;">
+        <span style="font-size: 1.1em; font-weight: bold; color: #1976d2;">현재 합격자 수: {{ 합격자_count }}명</span>
+        &nbsp;|&nbsp;
+        <span style="font-size: 1.1em; font-weight: bold; color: #1976d2;">분반 수: {{ num_groups }}개</span>
+        &nbsp;|&nbsp;
+        <a href="{{ url_for('divide_groups') }}" class="btn" style="background:#007bff; color:#fff; padding:10px 24px; border-radius:7px; font-size:1.1em; font-weight:bold; text-decoration:none; margin-left:10px;">분반 나누기</a>
     </div>
     <div class="mail-popup-overlay" id="mail-popup-overlay"></div>
     <div class="mail-popup" id="mail-popup" style="display:none;">
@@ -892,16 +971,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Name search
         searchInput.addEventListener('input', filter);
+        
         // University filter dropdown toggle
-        filterBtn.addEventListener('click', function() {
+        filterBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent event bubbling
             filterOptions.style.display = filterOptions.style.display === 'block' ? 'none' : 'block';
         });
-        // Hide dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!filterBtn.contains(e.target) && !filterOptions.contains(e.target)) {
-                filterOptions.style.display = 'none';
-            }
-        });
+        
         // University filter
         checkboxes.forEach(cb => cb.addEventListener('change', filter));
 
@@ -935,6 +1011,80 @@ document.addEventListener('DOMContentLoaded', function() {
             noResult.style.display = anyVisible ? 'none' : '';
         }
     });
+    
+    // Global click handler to close all dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        const allFilterOptions = document.querySelectorAll('.univ-filter-options');
+        const allFilterBtns = document.querySelectorAll('.univ-filter-btn');
+        
+        let clickedOnFilter = false;
+        allFilterBtns.forEach(btn => {
+            if (btn.contains(e.target)) {
+                clickedOnFilter = true;
+            }
+        });
+        
+        allFilterOptions.forEach(options => {
+            if (options.contains(e.target)) {
+                clickedOnFilter = true;
+            }
+        });
+        
+        if (!clickedOnFilter) {
+            allFilterOptions.forEach(options => {
+                options.style.display = 'none';
+            });
+        }
+    });
+});
+
+// --- Loading popup functions ---
+function showLoadingPopup(title, message) {
+    document.getElementById('loading-title').textContent = title;
+    document.getElementById('loading-message').textContent = message;
+    document.getElementById('loading-spinner').style.display = 'block';
+    document.getElementById('loading-overlay').style.display = 'flex';
+}
+
+function showSuccessPopup(title, message) {
+    document.getElementById('loading-title').textContent = title;
+    document.getElementById('loading-message').textContent = message;
+    document.getElementById('loading-spinner').style.display = 'none';
+    document.getElementById('loading-popup').innerHTML = `
+        <div class="success-icon">✓</div>
+        <div class="loading-title">${title}</div>
+        <div class="loading-message">${message}</div>
+    `;
+}
+
+function hideLoadingPopup() {
+    setTimeout(() => {
+        document.getElementById('loading-overlay').style.display = 'none';
+        // Reset the popup content for next use
+        document.getElementById('loading-popup').innerHTML = `
+            <div class="loading-spinner" id="loading-spinner"></div>
+            <div class="loading-title" id="loading-title">분반 나누기 중...</div>
+            <div class="loading-message" id="loading-message">유전 알고리즘을 실행하여 최적의 분반을 찾고 있습니다.</div>
+        `;
+    }, 2000); // Show success message for 2 seconds
+}
+
+// --- Handle 분반 나누기 link click ---
+document.addEventListener('DOMContentLoaded', function() {
+    const divideGroupsLink = document.querySelector('a[href*="divide_groups"]');
+    if (divideGroupsLink) {
+        divideGroupsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Show loading popup
+            showLoadingPopup('분반 나누기 중...', '유전 알고리즘을 실행하여 최적의 분반을 찾고 있습니다.');
+            
+            // Navigate to the divide_groups page after a short delay
+            setTimeout(() => {
+                window.location.href = this.href;
+            }, 500); // Small delay to show the loading popup
+        });
+    }
 });
 </script>
 </body>

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>분반 결과</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f7fb; margin: 0; padding: 0; }
+        h1 { text-align: center; color: #1976d2; margin-top: 32px; }
+        .groups-container {
+            display: flex;
+            gap: 32px;
+            justify-content: center;
+            margin: 32px auto 0 auto;
+            max-width: 1400px;
+        }
+        .group-column {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            padding: 18px 12px 18px 12px;
+            min-width: 260px;
+            flex: 1;
+        }
+        .group-title {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 18px;
+        }
+        .student-card {
+            background: #f7faff;
+            border: 1px solid #e3eafc;
+            border-radius: 8px;
+            margin-bottom: 14px;
+            padding: 12px 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .student-photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #b6d0f7;
+            background: #eaf1fb;
+        }
+        .student-info {
+            flex: 1;
+        }
+        .student-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #1976d2;
+        }
+        .student-meta {
+            font-size: 0.97em;
+            color: #444;
+            margin-top: 2px;
+        }
+        .floating-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 60px;
+            height: 60px;
+            background: #1976d2;
+            color: #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            cursor: pointer;
+            z-index: 2000;
+            transition: background 0.2s;
+        }
+        .floating-btn:hover { background: #1251a3; }
+        .floating-box {
+            position: fixed;
+            bottom: 110px;
+            right: 32px;
+            width: 370px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+            z-index: 2100;
+            padding: 28px 24px 20px 24px;
+            display: none;
+            flex-direction: column;
+            gap: 18px;
+            min-height: 220px;
+        }
+        .floating-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .floating-box-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #1976d2;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: #888;
+            cursor: pointer;
+        }
+        .fitness-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        .fitness-table th, .fitness-table td {
+            border: 1px solid #e3eafc;
+            padding: 7px 0;
+            text-align: center;
+            font-size: 1em;
+        }
+        .fitness-table th {
+            background: #f7faff;
+            color: #1976d2;
+        }
+        .weights-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 16px;
+            margin-bottom: 15px;
+        }
+        .weight-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0;
+        }
+        .weight-input-group label {
+            font-size: 0.9em;
+            color: #1976d2;
+            min-width: 100px;
+            font-weight: 500;
+        }
+        .weight-input-group input {
+            width: 50px;
+            padding: 4px 6px;
+            border-radius: 4px;
+            border: 1px solid #b6d0f7;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        .redistribute-btn {
+            width: 100%;
+            padding: 10px 0;
+            background: #1976d2;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        .redistribute-btn:hover { background: #1251a3; }
+        .fitness-loading { text-align: center; color: #888; margin: 10px 0; }
+        
+        /* Loading popup styles */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+        .loading-popup {
+            background: #fff;
+            border-radius: 12px;
+            padding: 32px 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e3eafc;
+            border-top: 4px solid #1976d2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 12px;
+        }
+        .loading-message {
+            color: #666;
+            font-size: 1em;
+            line-height: 1.4;
+        }
+        .success-icon {
+            font-size: 48px;
+            color: #4caf50;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>분반 결과</h1>
+    <div class="groups-container">
+        {% for group in groups %}
+        <div class="group-column">
+            <div class="group-title">{{ loop.index }} 분반</div>
+            {% for student in group %}
+            <div class="student-card">
+                {% if student.profile_photo_filename %}
+                    <img src="{{ url_for('uploaded_file', filename=student.profile_photo_filename) }}" class="student-photo" alt="Profile Photo">
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/default_profile.png') }}" class="student-photo" alt="Default Profile Photo">
+                {% endif %}
+                <div class="student-info">
+                    <div class="student-name">{{ student.name }}</div>
+                    <div class="student-meta">
+                        <span>{{ student.gender }}</span> |
+                        <span>{{ student.university }}</span> |
+                        <span>{{ student.age }}세</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    <div style="text-align:center; margin:32px 0;">
+        <a href="{{ url_for('organize_page') }}" style="background:#1976d2; color:#fff; padding:10px 24px; border-radius:7px; font-size:1.1em; font-weight:bold; text-decoration:none;">← 정리 페이지로 돌아가기</a>
+    </div>
+    
+    <!-- Loading popup -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-popup" id="loading-popup">
+            <div class="loading-spinner" id="loading-spinner"></div>
+            <div class="loading-title" id="loading-title">분반 재분배 중...</div>
+            <div class="loading-message" id="loading-message">유전 알고리즘을 실행하여 최적의 분반을 찾고 있습니다.</div>
+        </div>
+    </div>
+    
+    <div class="floating-btn" id="open-floating-box" title="분반 통계 및 가중치 설정">⚙️</div>
+    <div class="floating-box" id="floating-box">
+        <div class="floating-box-header">
+            <span class="floating-box-title">분반 통계 및 가중치 설정</span>
+            <button class="close-btn" id="close-floating-box">&times;</button>
+        </div>
+        <div id="fitness-section">
+            <div class="fitness-loading" id="fitness-loading">로딩 중...</div>
+            <table class="fitness-table" id="fitness-table" style="display:none;">
+                <thead><tr><th>Group</th><th>Fitness Score</th></tr></thead>
+                <tbody id="fitness-tbody"></tbody>
+            </table>
+        </div>
+        <form class="weights-form" id="weights-form">
+            <!-- Weight inputs will be inserted here by JS -->
+        </form>
+        <button class="redistribute-btn" id="redistribute-btn">재분배</button>
+    </div>
+    <script>
+    // --- Pass weights from Flask to JavaScript ---
+    const weightsUsed = {{ weights_used|tojson|safe }};
+    
+    // --- Loading popup functions ---
+    function showLoadingPopup(title, message) {
+        document.getElementById('loading-title').textContent = title;
+        document.getElementById('loading-message').textContent = message;
+        document.getElementById('loading-spinner').style.display = 'block';
+        document.getElementById('loading-overlay').style.display = 'flex';
+    }
+    
+    function showSuccessPopup(title, message) {
+        document.getElementById('loading-title').textContent = title;
+        document.getElementById('loading-message').textContent = message;
+        document.getElementById('loading-spinner').style.display = 'none';
+        document.getElementById('loading-popup').innerHTML = `
+            <div class="success-icon">✓</div>
+            <div class="loading-title">${title}</div>
+            <div class="loading-message">${message}</div>
+        `;
+    }
+    
+    function hideLoadingPopup() {
+        setTimeout(() => {
+            document.getElementById('loading-overlay').style.display = 'none';
+            // Reset the popup content for next use
+            document.getElementById('loading-popup').innerHTML = `
+                <div class="loading-spinner" id="loading-spinner"></div>
+                <div class="loading-title" id="loading-title">분반 재분배 중...</div>
+                <div class="loading-message" id="loading-message">유전 알고리즘을 실행하여 최적의 분반을 찾고 있습니다.</div>
+            `;
+        }, 2000); // Show success message for 2 seconds
+    }
+    
+    // --- Floating button logic ---
+    const openBtn = document.getElementById('open-floating-box');
+    const box = document.getElementById('floating-box');
+    const closeBtn = document.getElementById('close-floating-box');
+    openBtn.onclick = () => { box.style.display = 'flex'; loadFitness(); loadWeights(); };
+    closeBtn.onclick = () => { box.style.display = 'none'; };
+
+    // --- Load fitness scores ---
+    function loadFitness() {
+        document.getElementById('fitness-loading').style.display = '';
+        document.getElementById('fitness-table').style.display = 'none';
+        fetch('/api/group_fitness').then(r=>r.json()).then(data => {
+            if (data.scores) {
+                const tbody = document.getElementById('fitness-tbody');
+                tbody.innerHTML = '';
+                data.scores.forEach((score, i) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${i+1} 분반</td><td>${score}</td>`;
+                    tbody.appendChild(tr);
+                });
+                document.getElementById('fitness-loading').style.display = 'none';
+                document.getElementById('fitness-table').style.display = '';
+            } else {
+                document.getElementById('fitness-loading').textContent = '분반 결과가 없습니다.';
+            }
+        });
+    }
+
+    // --- Load weights into form ---
+    function loadWeights() {
+        // Define a fixed order for the weight fields
+        const weightOrder = [
+            'university',
+            'mbti', 
+            'categorized_abroad_exp',
+            'categorized_club_exp',
+            'categorized_hobbies',
+            'categorized_immersion_exp',
+            'categorized_intern_exp',
+            'categorized_major',
+            'score',
+            'gender_balance'
+        ];
+        
+        // Korean translations for weight labels
+        const koreanLabels = {
+            'university': '대학교',
+            'mbti': 'MBTI',
+            'categorized_abroad_exp': '해외 경험',
+            'categorized_club_exp': '동아리 경험',
+            'categorized_hobbies': '취미',
+            'categorized_immersion_exp': '몰입 경험',
+            'categorized_intern_exp': '인턴 경험',
+            'categorized_major': '전공',
+            'score': '자소서 점수',
+            'gender_balance': '성비'
+        };
+        
+        // Use the weights that were actually used for this grouping
+        const defaultWeights = weightsUsed && Object.keys(weightsUsed).length > 0 ? weightsUsed : {
+            university: 5,
+            mbti: 3,
+            categorized_abroad_exp: 2,
+            categorized_club_exp: 2,
+            categorized_hobbies: 1,
+            categorized_immersion_exp: 2,
+            categorized_intern_exp: 2,
+            categorized_major: 2,
+            score: 4,
+            gender_balance: 10
+        };
+        
+        const form = document.getElementById('weights-form');
+        form.innerHTML = '';
+        
+        // Use the fixed order to ensure consistent field placement
+        weightOrder.forEach(key => {
+            const val = defaultWeights[key] || 0;
+            const koreanLabel = koreanLabels[key] || key;
+            const group = document.createElement('div');
+            group.className = 'weight-input-group';
+            group.innerHTML = `<label for="w-${key}">${koreanLabel}</label><input type="number" id="w-${key}" name="${key}" value="${val}" min="0" max="50">`;
+            form.appendChild(group);
+        });
+    }
+
+    // --- Redistribute logic ---
+    document.getElementById('redistribute-btn').onclick = function(e) {
+        e.preventDefault();
+        const form = document.getElementById('weights-form');
+        const formData = new FormData(form);
+        const weights = {};
+        for (const [k, v] of formData.entries()) weights[k] = v;
+        
+        // Show loading popup
+        showLoadingPopup('분반 재분배 중...', '유전 알고리즘을 실행하여 최적의 분반을 찾고 있습니다.');
+        
+        document.getElementById('redistribute-btn').disabled = true;
+        fetch('/api/redistribute_groups', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ weights })
+        })
+        .then(r=>r.json())
+        .then(data => {
+            if (data.groups && data.scores) {
+                // Update group columns
+                const groupColumns = document.querySelectorAll('.group-column');
+                data.groups.forEach((group, i) => {
+                    const col = groupColumns[i];
+                    if (!col) return;
+                    // Remove all student cards except the title
+                    while (col.children.length > 1) col.removeChild(col.lastChild);
+                    group.forEach(student => {
+                        const card = document.createElement('div');
+                        card.className = 'student-card';
+                        card.innerHTML = `
+                            <img src="${student.profile_photo_filename ? '/uploads/' + student.profile_photo_filename : '/static/images/default_profile.png'}" class="student-photo" alt="Profile Photo">
+                            <div class="student-info">
+                                <div class="student-name">${student.name}</div>
+                                <div class="student-meta">
+                                    <span>${student.gender}</span> |
+                                    <span>${student.university}</span> |
+                                    <span>${student.age}세</span>
+                                </div>
+                            </div>
+                        `;
+                        col.appendChild(card);
+                    });
+                });
+                // Update fitness table
+                const tbody = document.getElementById('fitness-tbody');
+                tbody.innerHTML = '';
+                data.scores.forEach((score, i) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>Group ${i+1}</td><td>${score}</td>`;
+                    tbody.appendChild(tr);
+                });
+                
+                // Show success message
+                showSuccessPopup('재분배 완료!', '새로운 가중치로 분반이 성공적으로 재분배되었습니다.');
+                hideLoadingPopup();
+            } else {
+                // Show error message
+                showSuccessPopup('오류 발생', '재분배 중 오류가 발생했습니다. 다시 시도해주세요.');
+                hideLoadingPopup();
+            }
+        })
+        .catch(error => {
+            console.error('Redistribution error:', error);
+            showSuccessPopup('오류 발생', '재분배 중 오류가 발생했습니다. 다시 시도해주세요.');
+            hideLoadingPopup();
+        })
+        .finally(() => {
+            document.getElementById('redistribute-btn').disabled = false;
+        });
+    };
+    </script>
+</body>
+</html> 
