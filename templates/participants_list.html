@@ -474,6 +474,54 @@
             border-radius: 4px;
             border: 1px solid #ccc;
         }
+        .floating-settings-btn {
+            position: fixed;
+            top: 32px;
+            left: 32px;
+            z-index: 1200;
+            width: 56px;
+            height: 56px;
+            background: #1976d2;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .floating-settings-btn svg { width: 28px; height: 28px; }
+        .settings-modal-overlay {
+            position: fixed; left:0; top:0; width:100vw; height:100vh;
+            background: rgba(0,0,0,0.5); z-index: 2000; display: none;
+        }
+        .settings-modal {
+            position: fixed; left:50%; top:50%; transform:translate(-50%,-50%);
+            background: #fff; border-radius: 10px; box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+            padding: 32px; z-index: 2100; min-width: 350px; max-width: 90vw;
+        }
+        .settings-modal label { font-weight: bold; display:block; margin-top:12px; }
+        .settings-modal input[type="datetime-local"],
+        .settings-modal input[type="number"] {
+            width: 100%; padding: 8px; margin-top: 4px; border-radius: 5px; border: 1px solid #ccc;
+            font-size: 1em;
+        }
+        .settings-modal .modal-btns { margin-top: 18px; text-align: right; }
+        .settings-modal .modal-btns button { margin-left: 8px; }
+        .fade-in {
+            animation: fadeIn 0.7s;
+        }
+        .fade-out {
+            animation: fadeOut 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -541,10 +589,7 @@ function toggleDetails(btn) {
         <div id="total-count" style="text-align: center; margin-top: 15px; font-size: 14px; color: #666;">
             총 {{ statistics.total }}명
         </div>
-        <div style="margin-top:20px;">
-            <label for="pass-limit" style="font-weight:bold;">합격자 수 관리</label>
-            <input type="number" id="pass-limit" min="1" max="{{ statistics.total }}" value="{{ statistics.pass }}" style="width:60px; margin-left:8px;">
-        </div>
+        
         <button class="organize-btn" onclick="organizeParticipants()">정리</button>
         <script>
         function organizeParticipants() {
@@ -559,8 +604,9 @@ function toggleDetails(btn) {
     <div style="text-align:center; margin-bottom: 20px;">
     <input type="text" id="participantSearch" placeholder="이름으로 검색" style="padding:8px; width:220px; border-radius:6px; border:1px solid #bbb;">
 </div>
-    {% if participants %}
-        {% for participant in participants %}
+{% if ungraded_participants %}
+    <div style="margin-bottom:16px; text-align:center; color:#ff9800; font-weight:bold;">아직 Gemini 점수 미부여 지원자</div>
+    {% for participant in ungraded_participants %}
         <div class="participant-card" data-participant-id="{{ participant._id }}" data-name="{{ participant.name }}">
             <div class="participant-info-card">
                 <div class="participant-details" style="flex:2;">
@@ -581,6 +627,7 @@ function toggleDetails(btn) {
                 <div class="actions">
                     <a href="{{ url_for('edit_participant', participant_id=participant._id) }}" class="action-btn">수정</a>
                     <button onclick="confirmDelete('{{ participant._id }}', '{{ participant.name }}')" class="action-btn delete">삭제</button>
+                    <button class="action-btn" style="background:#ff9800; color:#fff;" onclick="categorizeParticipant(this, '{{ participant._id }}')">Gemini 재분류</button>
                     <div class="status-buttons">
                         <button class="status-btn pass {% if participant.status == '합격' %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '합격')" {% if participant.status == '합격' %}disabled{% endif %}>합격</button>
                         <button class="status-btn fail {% if participant.status == '불합격' %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '불합격')" {% if participant.status == '불합격' %}disabled{% endif %}>불합격</button>
@@ -643,38 +690,152 @@ function toggleDetails(btn) {
                 <p><strong>지원 동기:</strong> {{ participant.application_motive if participant.application_motive else 'N/A' }}</p>
                 <p><strong>추가 코멘트:</strong> {{ participant.additional_comments if participant.additional_comments else 'N/A' }}</p>
                 <div class="section-header">점수 분석</div>
-                <p>
+                <p id="dev-score-{{ participant._id }}">
                     <strong>개발 점수:</strong> {{ participant.dev_score if participant.dev_score is not none else 'N/A' }}
-                    <button class="toggle-reason-btn" data-target="dev-reason-{{ loop.index }}">이유 보기</button>
+                    <button class="toggle-reason-btn" data-target="dev-reason-{{ participant._id }}">이유 보기</button>
                 </p>
-                <p class="reason-text" id="dev-reason-{{ loop.index }}">
+                <p class="reason-text" id="dev-reason-{{ participant._id }}">
                     {{ participant.dev_score_reason if participant.dev_score_reason else 'N/A' }}
                 </p>
-                <p>
+                <p id="personality-score-{{ participant._id }}">
                     <strong>개성 점수:</strong> {{ participant.personality_score if participant.personality_score is not none else 'N/A' }}
-                    <button class="toggle-reason-btn" data-target="personality-reason-{{ loop.index }}">이유 보기</button>
+                    <button class="toggle-reason-btn" data-target="personality-reason-{{ participant._id }}">이유 보기</button>
                 </p>
-                <p class="reason-text" id="personality-reason-{{ loop.index }}">
+                <p class="reason-text" id="personality-reason-{{ participant._id }}">
                     {{ participant.personality_score_reason if participant.personality_score_reason else 'N/A' }}
                 </p>
-                <p>
+                <p id="passion-score-{{ participant._id }}">
                     <strong>열정 점수:</strong> {{ participant.passion_score if participant.passion_score is not none else 'N/A' }}
-                    <button class="toggle-reason-btn" data-target="passion-reason-{{ loop.index }}">이유 보기</button>
+                    <button class="toggle-reason-btn" data-target="passion-reason-{{ participant._id }}">이유 보기</button>
                 </p>
-                <p class="reason-text" id="passion-reason-{{ loop.index }}">
+                <p class="reason-text" id="passion-reason-{{ participant._id }}">
                     {{ participant.passion_score_reason if participant.passion_score_reason else 'N/A' }}
                 </p>
-                <p><strong>평균 점수:</strong> {{ participant.avg_score if participant.avg_score is not none else 'N/A' }}</p>
+                <p id="avg-score-{{ participant._id }}"><strong>평균 점수:</strong> {{ participant.avg_score if participant.avg_score is not none else 'N/A' }}</p>
             </div>
         </div>
-        {% endfor %}
-    {% else %}
-        <p id="noParticipantsMsg">아직 등록된 지원자가 없습니다.</p>
-    {% endif %}
-    <p><a href="/register">새 참가자 등록하기</a></p>
-    <p><a href="/">홈으로 돌아가기</a></p>
-    <p><a href="/categorize_participants">참가자 분류 실행 (Gemini API 호출)</a></p>
-    </div>
+    {% endfor %}
+    <hr style="margin:32px 0; border:1px dashed #bbb;">
+{% endif %}
+{% if graded_participants %}
+    <div style="margin-bottom:16px; text-align:center; color:#1976d2; font-weight:bold;">Gemini 점수 부여 지원자</div>
+    {% for participant in graded_participants %}
+        <div class="participant-card" data-participant-id="{{ participant._id }}" data-name="{{ participant.name }}">
+            <div class="participant-info-card">
+                <div class="participant-details" style="flex:2;">
+                    <h3>{{ participant.name }}</h3>
+                    <p><strong>성별:</strong> {{ participant.gender if participant.gender else 'N/A' }}</p>
+                    <p><strong>대학교:</strong> {{ participant.university if participant.university else 'N/A' }}</p>
+                    <p><strong>전공:</strong> {{ participant.major if participant.major else 'N/A' }}</p>
+                    <p><strong>나이:</strong> {{ participant.age if participant.age else 'N/A' }}</p>
+                    <p><strong>학기 수:</strong> {{ participant.semester if participant.semester else 'N/A' }}</p>
+                </div>
+                <div class="profile-photo-container">
+                    {% if participant.profile_photo_filename %}
+                        <img src="{{ url_for('uploaded_file', filename=participant.profile_photo_filename) }}" alt="Profile Photo" class="profile-photo">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/default_profile.png') }}" alt="Default Profile Photo" class="profile-photo">
+                    {% endif %}
+                </div>
+                <div class="actions">
+                    <a href="{{ url_for('edit_participant', participant_id=participant._id) }}" class="action-btn">수정</a>
+                    <button onclick="confirmDelete('{{ participant._id }}', '{{ participant.name }}')" class="action-btn delete">삭제</button>
+                    <button class="action-btn" style="background:#ff9800; color:#fff;" onclick="categorizeParticipant(this, '{{ participant._id }}')">Gemini 재분류</button>
+                    <div class="status-buttons">
+                        <button class="status-btn pass {% if participant.status == '합격' %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '합격')" {% if participant.status == '합격' %}disabled{% endif %}>합격</button>
+                        <button class="status-btn fail {% if participant.status == '불합격' %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '불합격')" {% if participant.status == '불합격' %}disabled{% endif %}>불합격</button>
+                        <button class="status-btn pending {% if participant.status == '미정' or not participant.status %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '미정')" {% if participant.status == '미정' or not participant.status %}disabled{% endif %}>미정</button>
+                    </div>
+                    <div class="current-status {% if participant.status == '합격' %}pass{% elif participant.status == '불합격' %}fail{% else %}pending{% endif %}" style="text-align:center;">
+                        {% if participant.status %}{{ participant.status }}{% else %}미정{% endif %}
+                    </div>
+                </div>
+            </div>
+            <button class="toggle-details-btn" onclick="toggleDetails(this)">▼ 더보기</button>
+            <div class="participant-extra-details" style="display:none;">
+                <!-- All the rest of the info goes here (copy from the previous card body, except the above fields) -->
+                <div class="section-header">개인정보</div>
+                <p><strong>연락처:</strong> {{ participant.contact if participant.contact else 'N/A' }}</p>
+                <p><strong>이메일:</strong> {{ participant.email if participant.email else 'N/A' }}</p>
+                <p><strong>MBTI:</strong> {{ participant.mbti if participant.mbti else 'N/A' }}</p>
+                <p><strong>고등학교:</strong> {{ participant.high_school_type if participant.high_school_type else 'N/A' }}</p>
+                <p><strong>학번:</strong> {{ participant.student_id if participant.student_id else 'N/A' }}</p>
+                <p><strong>군대:</strong> {{ participant.military_service if participant.military_service else 'N/A' }}</p>
+                <p><strong>현재 졸업학기 및 휴학 여부:</strong> {{ participant.graduation_leave if participant.graduation_leave else 'N/A' }}</p>
+                <p><strong>재수여부:</strong> {{ participant.re_exam if participant.re_exam else 'N/A' }}</p>
+                <p><strong>재지원 여부:</strong> {{ participant.reapply if participant.reapply else 'N/A' }}</p>
+                <div class="section-header">대학생활</div>
+                <p><strong>주요 전산과목:</strong>
+                {% if participant.major_cs_courses %}
+                    {{ participant.major_cs_courses | join(', ') }}
+                {% else %}
+                    N/A
+                {% endif %}
+                </p>
+                <p><strong>열정적 방학:</strong> {{ participant.passion_vacation if participant.passion_vacation else 'N/A' }}</p>
+                <p><strong>활동 동아리:</strong> {{ participant.active_club if participant.active_club else 'N/A' }}</p>
+                <p><strong>휴학 기간/활동:</strong> {{ participant.leave_period_work if participant.leave_period_work else 'N/A' }}</p>
+                <p><strong>인턴 경험 상세:</strong> {{ participant.intern_exp_details if participant.intern_exp_details else 'N/A' }}</p>
+                <p><strong>개인 프로젝트:</strong> {{ participant.personal_project_details if participant.personal_project_details else 'N/A' }}</p>
+                <div class="section-header">기타</div>
+                {% if participant.self_video_url %}
+                <p><strong>본인 동영상 URL:</strong> <a href="{{ participant.self_video_url }}" target="_blank">{{ participant.self_video_url }}</a></p>
+                {% set video_url = participant.self_video_url %}
+                {% if 'youtube.com/' in video_url or 'youtu.be/' in video_url %}
+                    {% set video_id = video_url.split('v=')[-1].split('&')[0] if 'v=' in video_url else video_url.split('/')[-1].split('?')[0] %}
+                    <div class="video-embed-container">
+                        <iframe src="https://www.youtube.com/embed/{{ video_id }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                {% elif 'vimeo.com/' in video_url %}
+                    {% set video_id = video_url.split('vimeo.com/')[-1].split('?')[0] %}
+                    <div class="video-embed-container">
+                        <iframe src="https://player.vimeo.com/video/{{ video_id }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                {% else %}
+                    <p><em>(임베드할 수 없는 동영상 URL 형식입니다. 링크를 클릭하여 시청해주세요.)</em></p>
+                {% endif %}
+                {% else %}
+                <p><strong>본인 동영상 URL:</strong> N/A</p>
+                {% endif %}
+                <p><strong>해외 생활:</strong> {{ participant.overseas_life if participant.overseas_life else 'N/A' }}</p>
+                <p><strong>수상 경력:</strong> {{ participant.awards_competitions if participant.awards_competitions else 'N/A' }}</p>
+                <p><strong>특별한 취미:</strong> {{ participant.unique_hobby if participant.unique_hobby else 'N/A' }}</p>
+                <p><strong>지원 동기:</strong> {{ participant.application_motive if participant.application_motive else 'N/A' }}</p>
+                <p><strong>추가 코멘트:</strong> {{ participant.additional_comments if participant.additional_comments else 'N/A' }}</p>
+                <div class="section-header">점수 분석</div>
+                <p id="dev-score-{{ participant._id }}">
+                    <strong>개발 점수:</strong> {{ participant.dev_score if participant.dev_score is not none else 'N/A' }}
+                    <button class="toggle-reason-btn" data-target="dev-reason-{{ participant._id }}">이유 보기</button>
+                </p>
+                <p class="reason-text" id="dev-reason-{{ participant._id }}">
+                    {{ participant.dev_score_reason if participant.dev_score_reason else 'N/A' }}
+                </p>
+                <p id="personality-score-{{ participant._id }}">
+                    <strong>개성 점수:</strong> {{ participant.personality_score if participant.personality_score is not none else 'N/A' }}
+                    <button class="toggle-reason-btn" data-target="personality-reason-{{ participant._id }}">이유 보기</button>
+                </p>
+                <p class="reason-text" id="personality-reason-{{ participant._id }}">
+                    {{ participant.personality_score_reason if participant.personality_score_reason else 'N/A' }}
+                </p>
+                <p id="passion-score-{{ participant._id }}">
+                    <strong>열정 점수:</strong> {{ participant.passion_score if participant.passion_score is not none else 'N/A' }}
+                    <button class="toggle-reason-btn" data-target="passion-reason-{{ participant._id }}">이유 보기</button>
+                </p>
+                <p class="reason-text" id="passion-reason-{{ participant._id }}">
+                    {{ participant.passion_score_reason if participant.passion_score_reason else 'N/A' }}
+                </p>
+                <p id="avg-score-{{ participant._id }}"><strong>평균 점수:</strong> {{ participant.avg_score if participant.avg_score is not none else 'N/A' }}</p>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+{% if not ungraded_participants and not graded_participants %}
+    <p id="noParticipantsMsg">아직 등록된 지원자가 없습니다.</p>
+{% endif %}
+<p><a href="/register">새 참가자 등록하기</a></p>
+<p><a href="/">홈으로 돌아가기</a></p>
+<p><a href="/categorize_participants">참가자 분류 실행 (Gemini API 호출)</a></p>
+</div>
     <div id="overlay" class="overlay"></div>
     <div id="confirmDeleteDialog" class="confirm-dialog">
         <p><span id="deleteParticipantName"></span> 님을 정말 삭제하시겠습니까?</p>
@@ -963,6 +1124,114 @@ function toggleDetails(btn) {
         }
     </script>
     <script>
+function categorizeParticipant(btn, participantId) {
+    btn.disabled = true;
+    const origText = btn.textContent;
+    btn.textContent = '분류중...';
+    fetch(`/categorize_participant/${participantId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            // Update the card fields by id
+            const card = btn.closest('.participant-card');
+            if (card) {
+                const details = card.querySelector('.participant-extra-details');
+                if (details) {
+                    document.getElementById(`dev-score-${participantId}`).innerHTML = `<strong>개발 점수:</strong> ${data.data.dev_score ?? 'N/A'} <button class=\"toggle-reason-btn\" data-target=\"dev-reason-${participantId}\">이유 보기</button>`;
+                    document.getElementById(`dev-reason-${participantId}`).textContent = data.data.dev_score_reason ?? 'N/A';
+                    document.getElementById(`personality-score-${participantId}`).innerHTML = `<strong>개성 점수:</strong> ${data.data.personality_score ?? 'N/A'} <button class=\"toggle-reason-btn\" data-target=\"personality-reason-${participantId}\">이유 보기</button>`;
+                    document.getElementById(`personality-reason-${participantId}`).textContent = data.data.personality_score_reason ?? 'N/A';
+                    document.getElementById(`passion-score-${participantId}`).innerHTML = `<strong>열정 점수:</strong> ${data.data.passion_score ?? 'N/A'} <button class=\"toggle-reason-btn\" data-target=\"passion-reason-${participantId}\">이유 보기</button>`;
+                    document.getElementById(`passion-reason-${participantId}`).textContent = data.data.passion_score_reason ?? 'N/A';
+                    document.getElementById(`avg-score-${participantId}`).innerHTML = `<strong>평균 점수:</strong> ${data.data.avg_score ?? 'N/A'}`;
+                    // Re-attach event listeners for '이유 보기' buttons
+                    card.querySelectorAll('.toggle-reason-btn').forEach(button => {
+                        button.onclick = function() {
+                            const targetId = button.dataset.target;
+                            const reasonElement = document.getElementById(targetId);
+                            if (reasonElement) {
+                                if (reasonElement.classList.contains('show')) {
+                                    reasonElement.classList.remove('show');
+                                    button.textContent = '이유 보기';
+                                } else {
+                                    reasonElement.classList.add('show');
+                                    button.textContent = '이유 숨기기';
+                                }
+                            }
+                        };
+                    });
+                    // Expand the card if not already expanded
+                    details.style.display = 'block';
+                    const toggleBtn = card.querySelector('.toggle-details-btn');
+                    if (toggleBtn) toggleBtn.textContent = '▲ 접기';
+                }
+            }
+            // If card is in ungraded section, move it to graded section in correct order
+            const ungradedSection = document.querySelectorAll('.participants-list-wrapper > .participant-card');
+            const gradedSectionLabel = document.querySelector('.participants-list-wrapper .graded-section-label');
+            const gradedSection = gradedSectionLabel ? gradedSectionLabel.nextElementSibling : null;
+            const isUngraded = card.previousElementSibling && card.previousElementSibling.textContent.includes('미부여');
+            // Fallback: check if card is before the partition line
+            const partition = document.querySelector('.participants-list-wrapper hr');
+            if (partition && card.compareDocumentPosition(partition) & Node.DOCUMENT_POSITION_FOLLOWING) {
+                // Card is before partition (ungraded)
+                card.classList.add('fade-out');
+                setTimeout(() => {
+                    // Remove from ungraded
+                    card.parentNode.removeChild(card);
+                    // Find graded section
+                    let gradedCards = Array.from(document.querySelectorAll('.participants-list-wrapper .participant-card'));
+                    // Only those after the partition
+                    if (partition) {
+                        gradedCards = gradedCards.filter(c => c.compareDocumentPosition(partition) & Node.DOCUMENT_POSITION_PRECEDING);
+                    }
+                    // Find correct insert position by avg_score (descending)
+                    const newAvg = parseFloat(data.data.avg_score ?? 0);
+                    let inserted = false;
+                    for (let i = 0; i < gradedCards.length; i++) {
+                        const details = gradedCards[i].querySelector('.participant-extra-details');
+                        let score = 0;
+                        if (details) {
+                            details.querySelectorAll('p').forEach(p => {
+                                if (p.innerText.startsWith('평균 점수:')) {
+                                    const val = parseFloat(p.childNodes[1].textContent.trim());
+                                    if (!isNaN(val)) score = val;
+                                }
+                            });
+                        }
+                        if (newAvg > score) {
+                            gradedCards[i].parentNode.insertBefore(card, gradedCards[i]);
+                            inserted = true;
+                            break;
+                        }
+                    }
+                    if (!inserted) {
+                        // Insert at end of graded section
+                        partition.parentNode.insertBefore(card, partition.nextElementSibling);
+                    }
+                    card.classList.remove('fade-out');
+                    card.classList.add('fade-in');
+                    setTimeout(() => card.classList.remove('fade-in'), 700);
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 500);
+            }
+        } else {
+            showToast(data.error || 'Gemini 분류 실패', 'error');
+        }
+    })
+    .catch(e => {
+        showToast('서버 오류: ' + e, 'error');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.textContent = origText;
+    });
+}
+</script>
+<script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('participantSearch');
     if (!searchInput) return;
@@ -996,6 +1265,64 @@ document.addEventListener('DOMContentLoaded', function() {
         if (noMsg) noMsg.style.display = query ? 'none' : '';
     });
 });
+</script>
+<div class="floating-settings-btn" id="floating-settings-btn" title="설정">
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 8v4l3 3" stroke="#1976d2" stroke-width="1.5"/><circle cx="12" cy="12" r="6" stroke="#1976d2" stroke-width="1.5"/></svg>
+</div>
+<div class="settings-modal-overlay" id="settings-modal-overlay"></div>
+<div class="settings-modal" id="settings-modal" style="display:none;">
+    <h3 style="margin-top:0;">설정</h3>
+    <label for="open-time-input">지원 시작 시간</label>
+    <input type="datetime-local" id="open-time-input">
+    <label for="close-time-input">지원 마감 시간</label>
+    <input type="datetime-local" id="close-time-input">
+    <label for="pass-limit-input">합격자 수 관리</label>
+    <input type="number" id="pass-limit-input" min="1" value="5" style="width:100px;">
+    <div class="modal-btns">
+        <button onclick="closeSettingsModal()">취소</button>
+        <button id="apply-settings-btn">적용</button>
+    </div>
+</div>
+<script>
+// Floating settings button logic
+const settingsBtn = document.getElementById('floating-settings-btn');
+const settingsModal = document.getElementById('settings-modal');
+const settingsOverlay = document.getElementById('settings-modal-overlay');
+settingsBtn.onclick = function() {
+    settingsModal.style.display = 'block';
+    settingsOverlay.style.display = 'block';
+    fetch('/api/settings').then(r=>r.json()).then(data=>{
+        document.getElementById('open-time-input').value = data.open_time ? data.open_time.slice(0,16) : '';
+        document.getElementById('close-time-input').value = data.close_time ? data.close_time.slice(0,16) : '';
+        document.getElementById('pass-limit-input').value = data.pass_limit;
+    });
+};
+settingsOverlay.onclick = closeSettingsModal;
+function closeSettingsModal() {
+    settingsModal.style.display = 'none';
+    settingsOverlay.style.display = 'none';
+}
+document.getElementById('apply-settings-btn').onclick = function() {
+    const openTime = document.getElementById('open-time-input').value;
+    const closeTime = document.getElementById('close-time-input').value;
+    const passLimit = document.getElementById('pass-limit-input').value;
+    // Check that both times are set and closeTime > openTime
+    if (openTime && closeTime && closeTime <= openTime) {
+        alert('지원 마감 시간은 시작 시간보다 늦어야 합니다.');
+        return;
+    }
+    fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ open_time: openTime, close_time: closeTime, pass_limit: passLimit })
+    }).then(r=>r.json()).then(data=>{
+        if(data.success) {
+            alert('설정이 적용되었습니다.');
+            closeSettingsModal();
+            location.reload();
+        }
+    });
+};
 </script>
 </body>
 </html>

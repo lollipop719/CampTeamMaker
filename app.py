@@ -16,6 +16,7 @@ from google.auth.transport import requests
 import json
 from dotenv import load_dotenv
 load_dotenv()
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'VeRYSECreT032&$90kdl2l1kdmfnt'
@@ -43,6 +44,7 @@ db = client[MONGO_DB_NAME] # Access the specific database
 # Get a reference to your collections
 participants_collection = db.participants
 users_collection = db.users  # New collection for user management
+settings_collection = db.settings  # For global app settings
 
 # --- User Model for Flask-Login ---
 class User(UserMixin):
@@ -272,6 +274,27 @@ def categorize_with_gemini(participant_data):
             "avg_score": 0,
         }
 
+# --- Settings Helper Functions ---
+def get_app_settings():
+    settings = settings_collection.find_one({'_id': 'global'})
+    if not settings:
+        # Default: open always, pass_limit 5
+        settings = {
+            '_id': 'global',
+            'open_time': None,
+            'close_time': None,
+            'pass_limit': 5
+        }
+        settings_collection.insert_one(settings)
+    return settings
+
+def update_app_settings(open_time, close_time, pass_limit):
+    settings_collection.update_one(
+        {'_id': 'global'},
+        {'$set': {'open_time': open_time, 'close_time': close_time, 'pass_limit': pass_limit}},
+        upsert=True
+    )
+
 # --- Authentication Routes ---
 
 @app.route('/login')
@@ -383,27 +406,37 @@ def upgrade_role():
 
 @app.route('/')
 def home():
+    settings = get_app_settings()
+    now = datetime.now().isoformat(timespec='minutes')
+    app_open = True
+    closed_message = ''
+    if settings['open_time'] and now < settings['open_time']:
+        app_open = False
+        closed_message = '아직 지원 기간이 시작되지 않았습니다.'
+    if settings['close_time'] and now > settings['close_time']:
+        app_open = False
+        closed_message = '지원 기간이 마감되었습니다.'
     if current_user.is_authenticated:
         if current_user.role == 'professor':
-            # Professors see participant count and admin links
             num_participants = participants_collection.count_documents({})
-            return render_template('home.html', 
-                                user=current_user, 
-                                num_participants=num_participants,
-                                is_professor=True)
+            return render_template('home.html', user=current_user, num_participants=num_participants, is_professor=True, app_open=app_open, closed_message=closed_message)
         else:
-            # Students see welcome message and registration link
-            return render_template('home.html', 
-                                user=current_user, 
-                                is_professor=False)
+            return render_template('home.html', user=current_user, is_professor=False, app_open=app_open, closed_message=closed_message)
     else:
-        # Not logged in - show login page
-        return render_template('home.html', user=None)
+        return render_template('home.html', user=None, app_open=app_open, closed_message=closed_message)
 
 # Define a route for participant registration (GET to display form)
 @app.route('/register', methods=['GET'])
 @student_required
 def register_form():
+    settings = get_app_settings()
+    now = datetime.now().isoformat(timespec='minutes')
+    if settings['open_time'] and now < settings['open_time']:
+        flash('아직 지원 기간이 시작되지 않았습니다.', 'warning')
+        return redirect(url_for('home'))
+    if settings['close_time'] and now > settings['close_time']:
+        flash('지원 기간이 마감되었습니다.', 'warning')
+        return redirect(url_for('home'))
     return render_template('register.html') # Render the HTML form from templates/
 
 
@@ -511,23 +544,21 @@ def register_submit():
 @app.route('/participants')
 @professor_required
 def list_participants():
-    # Sort participants by average score in descending order (highest first)
-    participants = list(participants_collection.find({}).sort('avg_score', -1))
-    
-    # Calculate statistics for the floating box
-    total_participants = len(participants)
-    
-    # Pass/Fail statistics
-    pass_count = sum(1 for p in participants if p.get('status') == '합격')
-    fail_count = sum(1 for p in participants if p.get('status') == '불합격')
+    # Separate participants into graded and ungraded
+    all_participants = list(participants_collection.find({}))
+    graded = [p for p in all_participants if p.get('avg_score') is not None]
+    ungraded = [p for p in all_participants if p.get('avg_score') is None]
+    graded.sort(key=lambda p: float(p.get('avg_score', 0) or 0), reverse=True)
+    ungraded.sort(key=lambda p: p['_id'], reverse=True)
+    # Calculate statistics for the floating box (use all participants)
+    total_participants = len(all_participants)
+    pass_count = sum(1 for p in all_participants if p.get('status') == '합격')
+    fail_count = sum(1 for p in all_participants if p.get('status') == '불합격')
     pending_count = total_participants - pass_count - fail_count
-    
-    # Gender and university statistics
-    kaist_male = sum(1 for p in participants if p.get('university') == '카이스트' and p.get('gender') == '남자')
-    kaist_female = sum(1 for p in participants if p.get('university') == '카이스트' and p.get('gender') == '여자')
-    other_male = sum(1 for p in participants if p.get('university') != '카이스트' and p.get('gender') == '남자')
-    other_female = sum(1 for p in participants if p.get('university') != '카이스트' and p.get('gender') == '여자')
-    
+    kaist_male = sum(1 for p in all_participants if p.get('university') == '카이스트' and p.get('gender') == '남자')
+    kaist_female = sum(1 for p in all_participants if p.get('university') == '카이스트' and p.get('gender') == '여자')
+    other_male = sum(1 for p in all_participants if p.get('university') != '카이스트' and p.get('gender') == '남자')
+    other_female = sum(1 for p in all_participants if p.get('university') != '카이스트' and p.get('gender') == '여자')
     statistics = {
         'total': total_participants,
         'pass': pass_count,
@@ -538,8 +569,7 @@ def list_participants():
         'other_male': other_male,
         'other_female': other_female
     }
-    
-    return render_template('participants_list.html', participants=participants, statistics=statistics)
+    return render_template('participants_list.html', graded_participants=graded, ungraded_participants=ungraded, statistics=statistics)
 
 @app.route('/update_status/<participant_id>', methods=['POST'])
 @professor_required
@@ -635,6 +665,29 @@ def categorize_all_participants():
 
     flash(f"총 {updated_count}명의 참가자 분류 완료. {errors_count}명 오류 발생.", "info")
     return redirect(url_for('list_participants'))
+
+@app.route('/categorize_participant/<participant_id>', methods=['POST'])
+@professor_required
+def categorize_participant(participant_id):
+    try:
+        obj_id = ObjectId(participant_id)
+        participant = participants_collection.find_one({'_id': obj_id})
+        if not participant:
+            return jsonify({'success': False, 'error': '참가자를 찾을 수 없습니다.'}), 404
+        # Prepare data for Gemini (ensure 'major' is a string)
+        participant_for_gemini = participant.copy()
+        if 'major_cs_courses' in participant_for_gemini and isinstance(participant_for_gemini['major_cs_courses'], list):
+            participant_for_gemini['major'] = ", ".join(participant_for_gemini['major_cs_courses'])
+        else:
+            participant_for_gemini['major'] = participant_for_gemini.get('major', '없음')
+        categorized_data = categorize_with_gemini(participant_for_gemini)
+        if "오류" in categorized_data.values():
+            return jsonify({'success': False, 'error': 'Gemini API 오류'}), 500
+        participants_collection.update_one({'_id': obj_id}, {'$set': categorized_data})
+        # Return only the updated fields for live update
+        return jsonify({'success': True, 'data': categorized_data})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/edit_participant/<participant_id>', methods=['GET', 'POST'])
 @professor_required
@@ -937,6 +990,14 @@ def my_registration():
     if getattr(current_user, 'role', None) != 'student':
         flash('학생만 접근할 수 있습니다.', 'error')
         return redirect(url_for('home'))
+    settings = get_app_settings()
+    now = datetime.now().isoformat(timespec='minutes')
+    if settings['open_time'] and now < settings['open_time']:
+        flash('아직 지원 기간이 시작되지 않았습니다.', 'warning')
+        return redirect(url_for('home'))
+    if settings['close_time'] and now > settings['close_time']:
+        flash('지원 기간이 마감되었습니다.', 'warning')
+        return redirect(url_for('home'))
 
     participant = participants_collection.find_one({'google_id': str(current_user.id)})
 
@@ -980,6 +1041,27 @@ def my_registration():
         participant=participant,
         edit_mode=True
     )
+
+# --- Settings API Endpoints ---
+@app.route('/api/settings', methods=['GET'])
+@login_required
+def api_get_settings():
+    settings = get_app_settings()
+    return jsonify({
+        'open_time': settings.get('open_time'),
+        'close_time': settings.get('close_time'),
+        'pass_limit': settings.get('pass_limit', 5)
+    })
+
+@app.route('/api/settings', methods=['POST'])
+@login_required
+def api_update_settings():
+    data = request.get_json()
+    open_time = data.get('open_time')
+    close_time = data.get('close_time')
+    pass_limit = int(data.get('pass_limit', 5))
+    update_app_settings(open_time, close_time, pass_limit)
+    return jsonify({'success': True})
 
 # --- Run the application ---
 if __name__ == '__main__':

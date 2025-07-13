@@ -328,9 +328,12 @@
 
             {% else %}
             <!-- Student Dashboard -->
+            {% if not app_open and closed_message %}
+            <div style="color:#dc3545;font-weight:bold;text-align:center;margin-bottom:1em;">{{ closed_message }}</div>
+            {% endif %}
             <div class="action-buttons">
-                <a href="{{ url_for('register_form') }}" class="btn btn-primary">📝 참가자 등록하기</a>
-                <a href="{{ url_for('my_registration') }}" class="btn btn-secondary">📋 등록 정보 확인</a>
+                <a href="{{ url_for('register_form') }}" class="btn btn-primary" {% if not app_open %}disabled style="pointer-events:none;opacity:0.5;"{% endif %}>📝 참가자 등록하기</a>
+                <a href="{{ url_for('my_registration') }}" class="btn btn-secondary" {% if not app_open %}disabled style="pointer-events:none;opacity:0.5;"{% endif %}>📋 등록 정보 확인</a>
             </div>
 
             <div class="feature-list">
