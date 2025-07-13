@@ -593,7 +593,12 @@ function toggleDetails(btn) {
         <button class="organize-btn" onclick="organizeParticipants()">정리</button>
         <script>
         function organizeParticipants() {
-            const limit = document.getElementById('pass-limit').value;
+            // Try to get the value from the settings modal input
+            let limitInput = document.getElementById('pass-limit-input');
+            let limit = 80; // default
+            if (limitInput && limitInput.value) {
+                limit = limitInput.value;
+            }
             window.location.href = '/organize?pass_limit=' + limit;
         }
         </script>

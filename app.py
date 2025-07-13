@@ -27,15 +27,15 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 # --- Google OAuth2 Configuration ---
-GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', 'your-google-client-id-here')
-GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', 'your-google-client-secret-here')
-GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI', 'http://localhost:5000/callback')
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
 
 # --- MongoDB Configuration ---
 # Use environment variables for sensitive info in production
 # For local dev, you can hardcode, but ENV variables are best practice
-MONGO_URI = "mongodb+srv://sciencekid719:WD3zXfPzYdTDpQh2@campteammakercluster.yikpgdv.mongodb.net/?retryWrites=true&w=majority&appName=campTeamMakerCluster"
-MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "molipDB") # Your database name
+MONGO_URI = os.getenv("MONGO_URI")
+MONGO_DB_NAME = os.getenv("MONGO_DB_NAME") # Your database name
 
 # Initialize MongoDB client
 client = MongoClient(MONGO_URI)
