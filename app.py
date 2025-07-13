@@ -1,30 +1,33 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask
+from flask_cors import CORS
+from auth import auth
+from middleware import jwt_required
+from flask import jsonify
+from flask import render_template
 
-# Create a Flask web application instance
-app = Flask(__name__)
 
-# --- Routes ---
+app = Flask(
+    __name__,
+    static_folder='static',
+    template_folder='templates'
+)
 
-# Define a route for the homepage
+CORS(app)
+
+app.register_blueprint(auth)
+
+@app.route('/login')
+def login_page():
+    return render_template('login.html')
+
+@app.route('/protected')
+@jwt_required
+def protected():
+    return jsonify({'msg': '이건 로그인된 사용자만 볼 수 있는 데이터입니다!'})
+
 @app.route('/')
 def home():
-    return "Hello, Camp Team Builder!"
+    return '서버 실행 중!'
 
-# Define a route for participant registration (GET to display form)
-@app.route('/register', methods=['GET'])
-def register_form():
-    # In a real app, you'd render an HTML template here
-    return "<h2>Register Participant</h2><form method='POST' action='/register'><label for='name'>Name:</label><input type='text' id='name' name='name'><br><input type='submit' value='Register'></form>"
-
-# Define a route to handle participant registration form submission (POST)
-@app.route('/register', methods=['POST'])
-def register_submit():
-    participant_name = request.form['name']
-    # In a real app, you'd save this to your SQLite DB
-    return f"Participant '{participant_name}' registered successfully! (Not saved to DB yet)"
-
-# --- Run the application ---
 if __name__ == '__main__':
-    # In a development environment, you can run with debug=True
-    # This allows auto-reloading on code changes and provides a debugger
     app.run(debug=True)
