@@ -12,25 +12,26 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'SF Pro Display', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
             min-height: 100vh;
+            color: white;
         }
 
         .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
             padding: 1rem 2rem;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #333;
         }
 
         .user-info {
@@ -52,27 +53,27 @@
 
         .user-name {
             font-weight: bold;
-            color: #333;
         }
 
         .user-role {
             font-size: 0.8rem;
-            color: #666;
+            color: #ccc;
         }
 
         .logout-btn {
-            background: #dc3545;
+            background: rgba(255, 80, 80, 0.2);
             color: white;
-            border: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
-            text-decoration: none;
             font-size: 0.9rem;
+            text-decoration: none;
+            transition: background 0.3s ease;
         }
 
         .logout-btn:hover {
-            background: #c82333;
+            background: rgba(255, 80, 80, 0.4);
         }
 
         .main-content {
@@ -81,24 +82,28 @@
             padding: 0 2rem;
         }
 
-        .welcome-card {
-            background: white;
+        .welcome-card,
+        .login-prompt,
+        .feature-card,
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(25px);
             border-radius: 20px;
             padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             margin-bottom: 2rem;
         }
 
         .welcome-title {
             font-size: 2.5rem;
-            color: #333;
             margin-bottom: 1rem;
         }
 
         .welcome-subtitle {
             font-size: 1.2rem;
-            color: #666;
+            color: #ccc;
             margin-bottom: 2rem;
         }
 
@@ -106,31 +111,17 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
         }
 
         .stat-number {
             font-size: 3rem;
             font-weight: bold;
-            color: #667eea;
+            color: #a0c4ff;
             margin-bottom: 0.5rem;
         }
 
         .stat-label {
-            color: #666;
+            color: #ccc;
             font-size: 1.1rem;
         }
 
@@ -150,64 +141,23 @@
             border: none;
             cursor: pointer;
             font-size: 1rem;
-        }
-
-        .btn-primary {
-            background: #667eea;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
-        .btn-primary:hover {
-            background: #5a6fd8;
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #218838;
-            transform: translateY(-2px);
-        }
-
-        .login-prompt {
-            background: white;
-            border-radius: 20px;
-            padding: 3rem;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .login-title {
-            font-size: 2rem;
-            color: #333;
-            margin-bottom: 1rem;
-        }
-
-        .login-subtitle {
-            color: #666;
-            margin-bottom: 2rem;
-            font-size: 1.1rem;
         }
 
         .login-btn {
-            background: #4285f4;
+            background: rgba(66, 133, 244, 0.2);
             color: white;
             padding: 15px 30px;
             border-radius: 8px;
-            text-decoration: none;
             font-weight: bold;
             font-size: 1.1rem;
             display: inline-block;
@@ -215,7 +165,7 @@
         }
 
         .login-btn:hover {
-            background: #3367d6;
+            background: rgba(66, 133, 244, 0.4);
         }
 
         .feature-list {
@@ -225,22 +175,15 @@
             margin-top: 2rem;
         }
 
-        .feature-card {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 1.5rem;
-            border-left: 4px solid #667eea;
-        }
-
         .feature-title {
             font-weight: bold;
-            color: #333;
             margin-bottom: 0.5rem;
+            font-size: 1.2rem;
         }
 
         .feature-desc {
-            color: #666;
             font-size: 0.9rem;
+            color: #ccc;
         }
 
         @media (max-width: 768px) {
@@ -269,106 +212,98 @@
     </style>
 </head>
 <body>
-    {% if user %}
-    <!-- Logged in user navbar -->
-    <nav class="navbar">
-        <div class="logo">🏕️ Camp Team Maker</div>
-        <div class="user-info">
-            <div class="user-details">
-                <div class="user-name">{{ user.name }}</div>
-                <div class="user-role">{{ '교수' if user.role == 'professor' else '학생' }}</div>
-            </div>
-            {% if user.picture %}
-            <img src="{{ user.picture }}" alt="Profile" class="user-avatar">
-            {% endif %}
-            <a href="{{ url_for('logout') }}" class="logout-btn">로그아웃</a>
+{% if user %}
+<nav class="navbar">
+    <div class="logo">🏕️ Camp Team Maker</div>
+    <div class="user-info">
+        <div class="user-details">
+            <div class="user-name">{{ user.name }}</div>
+            <div class="user-role">{{ '교수' if user.role == 'professor' else '학생' }}</div>
         </div>
-    </nav>
+        {% if user.picture %}<img src="{{ user.picture }}" alt="Profile" class="user-avatar">{% endif %}
+        <a href="{{ url_for('logout') }}" class="logout-btn">로그아웃</a>
+    </div>
+</nav>
 
-    <div class="main-content">
-        <div class="welcome-card">
-            <h1 class="welcome-title">환영합니다, {{ user.name }}님! 👋</h1>
-            <p class="welcome-subtitle">
-                {% if user.role == 'professor' %}
-                교수 권한으로 모든 기능을 이용하실 수 있습니다.
-                {% else %}
-                학생 권한으로 참가자 등록을 진행하실 수 있습니다.
-                {% endif %}
-            </p>
-
+<div class="main-content">
+    <div class="welcome-card">
+        <h1 class="welcome-title">환영합니다, {{ user.name }}님! 👋</h1>
+        <p class="welcome-subtitle">
             {% if user.role == 'professor' %}
-            <!-- Professor Dashboard -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number">{{ num_participants }}</div>
-                    <div class="stat-label">총 참가자 수</div>
-                </div>
-            </div>
-
-            <div class="action-buttons">
-                <a href="{{ url_for('list_participants') }}" class="btn btn-primary">📋 참가자 목록 보기</a>
-                <a href="{{ url_for('organize_page') }}" class="btn btn-success">🎯 합격자 관리</a>
-                <a href="{{ url_for('categorize_all_participants') }}" class="btn btn-secondary">🤖 AI 분류 실행</a>
-            </div>
-
-            <div class="feature-list">
-                <div class="feature-card">
-                    <div class="feature-title">📊 참가자 관리</div>
-                    <div class="feature-desc">참가자 정보 조회, 수정, 삭제 및 상태 변경</div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-title">🎯 합격자 선발</div>
-                    <div class="feature-desc">합격/불합격 결정 및 메일 발송</div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-title">🤖 AI 분류</div>
-                    <div class="feature-desc">Gemini AI를 활용한 자동 점수 계산</div>
-                </div>
-            </div>
-
+            교수 권한으로 모든 기능을 이용하실 수 있습니다.
             {% else %}
-            <!-- Student Dashboard -->
-            {% if not app_open and closed_message %}
-            <div style="color:#dc3545;font-weight:bold;text-align:center;margin-bottom:1em;">{{ closed_message }}</div>
+            학생 권한으로 참가자 등록을 진행하실 수 있습니다.
             {% endif %}
-            <div class="action-buttons">
-                <a href="{{ url_for('register_form') }}" class="btn btn-primary" {% if not app_open %}disabled style="pointer-events:none;opacity:0.5;"{% endif %}>📝 참가자 등록하기</a>
-                <a href="{{ url_for('my_registration') }}" class="btn btn-secondary" {% if not app_open %}disabled style="pointer-events:none;opacity:0.5;"{% endif %}>📋 등록 정보 확인</a>
-            </div>
+        </p>
 
-            <div class="feature-list">
-                <div class="feature-card">
-                    <div class="feature-title">📝 참가자 등록</div>
-                    <div class="feature-desc">개인 정보, 경험, 동영상 URL 등록</div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-title">📋 등록 정보 확인</div>
-                    <div class="feature-desc">등록한 정보 수정 및 확인</div>
-                </div>
+        {% if user.role == 'professor' %}
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ num_participants }}</div>
+                <div class="stat-label">총 참가자 수</div>
             </div>
-
-            <!-- Professor Code Upgrade Form -->
-            <div style="margin:2rem auto;max-width:400px;background:#f8f9fa;padding:1.5rem 1rem 1rem 1rem;border-radius:12px;border:1px solid #e3eafc;text-align:center;">
-                <form method="POST" action="{{ url_for('upgrade_role') }}">
-                    <label style="font-weight:bold;">교수 코드 입력: </label>
-                    <input type="password" name="code" placeholder="교수 코드" style="padding:6px 10px;border-radius:6px;border:1px solid #bbb;">
-                    <button type="submit" class="btn btn-secondary" style="margin-left:8px;">교수 권한 요청</button>
-                </form>
-                <div style="font-size:0.9rem;color:#888;margin-top:8px;">교수님만 입력하세요.</div>
-            </div>
-            {% endif %}
         </div>
-    </div>
 
-    {% else %}
-    <!-- Not logged in -->
-    <div class="main-content">
-        <div class="login-prompt">
-            <h1 class="login-title">🏕️ Camp Team Maker</h1>
-            <p class="login-subtitle">캠프 팀 선발 관리 시스템에 오신 것을 환영합니다</p>
-            <a href="{{ url_for('login') }}" class="login-btn">Google로 로그인하기</a>
+        <div class="action-buttons">
+            <a href="{{ url_for('list_participants') }}" class="btn">📋 참가자 목록 보기</a>
+            <a href="{{ url_for('organize_page') }}" class="btn">🎯 합격자 관리</a>
+            <a href="{{ url_for('categorize_all_participants') }}" class="btn">🤖 AI 분류 실행</a>
         </div>
+
+        <div class="feature-list">
+            <div class="feature-card">
+                <div class="feature-title">📊 참가자 관리</div>
+                <div class="feature-desc">참가자 정보 조회, 수정, 삭제 및 상태 변경</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-title">🎯 합격자 선발</div>
+                <div class="feature-desc">합격/불합격 결정 및 메일 발송</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-title">🤖 AI 분류</div>
+                <div class="feature-desc">Gemini AI를 활용한 자동 점수 계산</div>
+            </div>
+        </div>
+
+        {% else %}
+        {% if not app_open and closed_message %}
+        <div style="color:#ffaaaa;font-weight:bold;text-align:center;margin-bottom:1em;">{{ closed_message }}</div>
+        {% endif %}
+        <div class="action-buttons">
+            <a href="{{ url_for('register_form') }}" class="btn" {% if not app_open %}disabled style="pointer-events:none;opacity:0.5;"{% endif %}>📝 참가자 등록하기</a>
+            <a href="{{ url_for('my_registration') }}" class="btn" {% if not app_open %}disabled style="pointer-events:none;opacity:0.5;"{% endif %}>📋 등록 정보 확인</a>
+        </div>
+
+        <div class="feature-list">
+            <div class="feature-card">
+                <div class="feature-title">📝 참가자 등록</div>
+                <div class="feature-desc">개인 정보, 경험, 동영상 URL 등록</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-title">📋 등록 정보 확인</div>
+                <div class="feature-desc">등록한 정보 수정 및 확인</div>
+            </div>
+        </div>
+
+        <div style="margin:2rem auto;max-width:400px;background:rgba(255,255,255,0.05);padding:1.5rem;border-radius:12px;border:1px solid rgba(255,255,255,0.1);text-align:center;">
+            <form method="POST" action="{{ url_for('upgrade_role') }}">
+                <label style="font-weight:bold;">교수 코드 입력: </label>
+                <input type="password" name="code" placeholder="교수 코드" style="padding:6px 10px;border-radius:6px;border:1px solid #bbb;">
+                <button type="submit" class="btn" style="margin-left:8px;">교수 권한 요청</button>
+            </form>
+            <div style="font-size:0.9rem;color:#aaa;margin-top:8px;">교수님만 입력하세요.</div>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
+</div>
+{% else %}
+<div class="main-content">
+    <div class="login-prompt">
+        <h1 class="login-title">🏕️ Camp Team Maker</h1>
+        <p class="login-subtitle">캠프 팀 선발 관리 시스템에 오신 것을 환영합니다</p>
+        <a href="{{ url_for('login') }}" class="login-btn">Google로 로그인하기</a>
+    </div>
+</div>
+{% endif %}
 </body>
-</html> 
+</html>
