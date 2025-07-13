@@ -1,10 +1,8 @@
 .profile-photo-container {
-    /* If participant-details has flex: 2, and actions will have flex: 1, this should be flex: 1 too for balance */
-    flex: 1; /* Give it some flex-grow to occupy space */
-    display: flex; /* Make it a flex container as well */
-    justify-content: center; /* Horizontally center its child (the image) */
-    align-items: center; /* Vertically center its child (the image) */
-    /* Remove margin: auto; as the parent flex container will handle its positioning */
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .profile-photo {
@@ -12,80 +10,87 @@
     height: 150px;
     object-fit: cover;
     border-radius: 50%;
-    border: 2px solid #ddd;
-    /* Remove display: block;, margin-left: auto;, margin-right: auto; as flex parent handles centering */
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
 }
 
 .participant-info-card {
-    display: flex; /* Make it a flex container */
-    align-items: center; /* Vertically center items */
-    justify-content: space-around; /* Distribute space evenly around items, or adjust as needed */
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
 
-    width: 80%; /* Adjust as needed */
-    margin: 20px auto; /* Center the card itself */
+    width: 80%;
+    margin: 20px auto;
     padding: 20px;
-    border: 1px solid #eee;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-    background-color: #fff;
+
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
+
 .participant-details {
-    flex: 2; /* Occupies 2 parts of available space */
+    flex: 2;
+    color: white;
 }
 
 .participant-card {
     width: 80%;
     margin: 20px auto;
     padding: 20px;
-    border: 1px solid #eee;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-    background-color: #fff;
+
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
 }
 
 .category-info {
     font-size: 0.9em;
-    color: #777;
+    color: rgba(255, 255, 255, 0.6);
     margin-top: 5px;
-    /* Remove padding-left and text-indent as they are causing the issue */
-    /* padding-left: 125px; */
-    /* text-indent: -120px; */
 }
 
 .category-info strong {
-    color: #777; /* Keep the color specific to these labels */
-    /* The min-width and display properties from .participant-card strong will apply */
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .toggle-reason-btn {
     margin-left: 10px;
     padding: 4px 8px;
-    background-color: #6c757d; /* A neutral color */
+    background: rgba(255, 255, 255, 0.15);
     color: white;
-    border: none;
-    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
     cursor: pointer;
     font-size: 0.85em;
-    transition: background-color 0.2s ease;
+    transition: background 0.3s ease;
+    backdrop-filter: blur(10px);
 }
 
 .toggle-reason-btn:hover {
-    background-color: #5a6268;
+    background: rgba(255, 255, 255, 0.25);
 }
 
 .reason-text {
     max-height: 0;
     opacity: 0;
     overflow: hidden;
-    border-left: 2px solid #ccc;
+    border-left: 2px solid rgba(255, 255, 255, 0.3);
     padding-left: 10px;
-    color: #666;
+    color: rgba(255, 255, 255, 0.7);
     font-style: italic;
     margin-top: 5px;
-    margin-bottom: 0; /* collapsed */
+    margin-bottom: 0;
     transition: max-height 0.3s ease, opacity 0.3s ease, margin-bottom 0.3s ease;
 }
 
 .reason-text.show {
-    max-height: 200px;  /* enough to show */
+    max-height: 200px;
     opacity: 1;
     margin-bottom: 15px;
 }
