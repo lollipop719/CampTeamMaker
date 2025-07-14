@@ -1215,6 +1215,9 @@ def api_redistribute_groups():
             scores.append(0)
     return jsonify({'groups': groups, 'scores': scores})
 
+@app.route("/scrollview")
+def home():
+    return render_template("scroll_demo.html")
 # --- Run the application ---
 if __name__ == '__main__':
     app.run(debug=True)
