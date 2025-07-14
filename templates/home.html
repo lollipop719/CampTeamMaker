@@ -4,33 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Camp Team Maker - 홈</title>
+    <!-- Import SF Pro Display font -->
+    <link href="https://stagnansi.github.io/sfp/ff.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
+        html, body, * {
             box-sizing: border-box;
+            font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', Arial, sans-serif !important;
+            color: #222 !important;
         }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            margin: 0;
+            background: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1124&q=100') no-repeat center center fixed, linear-gradient(120deg, #274b74 0%, #3a7bd5 50%, #232526 100%);
+            background-size: cover, cover;
+        }
+        h1, h2, h3, h4, h5, h6, label, p, span, th, td, button, a, input, select, textarea, strong, .section-header, .toggle-details-btn, .action-btn, .status-btn, .current-status, .legend-item, .modal-btns button {
+            color: #fff !important;
+            font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', Arial, sans-serif !important;
+            font-weight: 600 !important;
         }
 
         .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             padding: 1rem 2rem;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1.5px solid rgba(255,255,255,0.25);
         }
 
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #333;
+            color: #fff !important;
         }
 
         .user-info {
@@ -52,12 +60,12 @@
 
         .user-name {
             font-weight: bold;
-            color: #333;
+            color: #fff !important;
         }
 
         .user-role {
             font-size: 0.8rem;
-            color: #666;
+            color: #e0e0e0 !important;
         }
 
         .logout-btn {
@@ -81,41 +89,55 @@
             padding: 0 2rem;
         }
 
-        .welcome-card {
-            background: white;
-            border-radius: 20px;
-            padding: 3rem;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+        .welcome-card, .stat-card, .login-prompt {
+            background-color: rgba(17, 25, 40, 0.75) !important;
+            color: #fff !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(255, 255, 255, 0.125) !important;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18) !important;
+            backdrop-filter: blur(2px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(2px) saturate(180%) !important;
+            padding: 26px !important;
+            margin-bottom: 1.6rem;
+            transition: box-shadow 0.3s, border 0.3s;
+        }
+        .stat-card {
+            padding: 1.6rem !important;
+        }
+        .stat-card:hover, .welcome-card:hover, .login-prompt:hover {
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.22) !important;
+            border: 1.5px solid rgba(255,255,255,0.55) !important;
         }
 
         .welcome-title {
-            font-size: 2.5rem;
-            color: #333;
-            margin-bottom: 1rem;
+            font-size: 2.25rem;
+            color: #fff !important;
+            margin-bottom: 0.85rem;
         }
 
         .welcome-subtitle {
-            font-size: 1.2rem;
-            color: #666;
-            margin-bottom: 2rem;
+            font-size: 1.13rem;
+            color: #e0e0e0 !important;
+            margin-bottom: 1.6rem;
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            gap: 1.3rem;
+            margin-bottom: 1.5rem;
         }
 
         .stat-card {
-            background: white;
+            background-color: rgba(17, 25, 40, 0.75) !important;
             border-radius: 15px;
             padding: 2rem;
             text-align: center;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.125) !important;
+            backdrop-filter: blur(2px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(2px) saturate(180%) !important;
         }
 
         .stat-card:hover {
@@ -125,12 +147,12 @@
         .stat-number {
             font-size: 3rem;
             font-weight: bold;
-            color: #667eea;
+            color: #7ecbff !important;
             margin-bottom: 0.5rem;
         }
 
         .stat-label {
-            color: #666;
+            color: #e0e0e0 !important;
             font-size: 1.1rem;
         }
 
@@ -143,61 +165,41 @@
 
         .btn {
             padding: 12px 24px;
-            border-radius: 8px;
+            border-radius: 16px;
             text-decoration: none;
             font-weight: bold;
-            transition: all 0.3s ease;
-            border: none;
+            transition: all 0.3s cubic-bezier(.4,2,.3,1);
+            border: 1.5px solid rgba(255,255,255,0.55);
             cursor: pointer;
             font-size: 1rem;
+            background: rgba(255,255,255,0.10);
+            color: #fff !important;
+            box-shadow: 0 2px 12px 0 rgba(31,38,135,0.10);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            letter-spacing: 0.01em;
         }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
+        .btn-primary, .btn-secondary, .btn-success {
+            background: rgba(255,255,255,0.13);
+            color: #fff !important;
+            border: 1.5px solid rgba(255,255,255,0.65);
         }
-
-        .btn-primary:hover {
-            background: #5a6fd8;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #218838;
-            transform: translateY(-2px);
-        }
-
-        .login-prompt {
-            background: white;
-            border-radius: 20px;
-            padding: 3rem;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        .btn:hover, .btn-primary:hover, .btn-secondary:hover, .btn-success:hover {
+            background: rgba(255,255,255,0.22);
+            color: #fff !important;
+            border: 1.5px solid #fff;
+            box-shadow: 0 4px 24px 0 rgba(31,38,135,0.16);
+            transform: translateY(-2px) scale(1.04);
         }
 
         .login-title {
             font-size: 2rem;
-            color: #333;
+            color: #fff !important;
             margin-bottom: 1rem;
         }
 
         .login-subtitle {
-            color: #666;
+            color: #e0e0e0 !important;
             margin-bottom: 2rem;
             font-size: 1.1rem;
         }
@@ -221,26 +223,40 @@
         .feature-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
+            gap: 1.3rem;
+            margin-top: 1.5rem;
         }
 
         .feature-card {
-            background: #f8f9fa;
+            background-color: rgba(17, 25, 40, 0.75) !important;
             border-radius: 12px;
-            padding: 1.5rem;
-            border-left: 4px solid #667eea;
+            padding: 1.25rem;
+            border-left: 4px solid #7ecbff !important;
+            border: 1px solid rgba(255, 255, 255, 0.125) !important;
+            backdrop-filter: blur(2px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(2px) saturate(180%) !important;
         }
 
         .feature-title {
             font-weight: bold;
-            color: #333;
+            color: #7ecbff !important;
             margin-bottom: 0.5rem;
         }
 
         .feature-desc {
-            color: #666;
+            color: #e0e0e0 !important;
             font-size: 0.9rem;
+        }
+
+        /* Input styling to match participants_list */
+        input, select, textarea {
+            background: rgba(255,255,255,0.10) !important;
+            color: #fff !important;
+            border: 1.5px solid #7ecbff !important;
+        }
+        input::placeholder, textarea::placeholder {
+            color: #e0e0e0 !important;
+            opacity: 1;
         }
 
         @media (max-width: 768px) {
@@ -255,7 +271,7 @@
             }
 
             .welcome-card {
-                padding: 2rem 1rem;
+                padding: 2rem 1rem !important;
             }
 
             .action-buttons {
@@ -348,13 +364,13 @@
             </div>
 
             <!-- Professor Code Upgrade Form -->
-            <div style="margin:2rem auto;max-width:400px;background:#f8f9fa;padding:1.5rem 1rem 1rem 1rem;border-radius:12px;border:1px solid #e3eafc;text-align:center;">
-                <form method="POST" action="{{ url_for('upgrade_role') }}">
-                    <label style="font-weight:bold;">교수 코드 입력: </label>
-                    <input type="password" name="code" placeholder="교수 코드" style="padding:6px 10px;border-radius:6px;border:1px solid #bbb;">
-                    <button type="submit" class="btn btn-secondary" style="margin-left:8px;">교수 권한 요청</button>
+            <div style="margin:0.5rem auto;max-width:220px;background-color:rgba(17,25,40,0.75);padding:0.2rem 0.3rem 0.2rem 0.3rem;border-radius:12px;border:1px solid rgba(255,255,255,0.125);text-align:center;backdrop-filter:blur(2px) saturate(180%);-webkit-backdrop-filter:blur(2px) saturate(180%);">
+                <form method="POST" action="{{ url_for('upgrade_role') }}" style="display:flex;flex-direction:column;align-items:center;gap:0;">
+                    <label style="font-weight:bold;color:#fff !important;align-self:flex-start;margin-bottom:10px;line-height:1.5;font-size:0.98rem;padding-top:4px;padding-left:6px;">교수 코드 입력:</label>
+                    <input type="password" name="code" placeholder="교수 코드" style="padding:3px 6px;border-radius:6px;border:1.5px solid #7ecbff;background:rgba(255,255,255,0.10);color:#fff;width:100%;max-width:120px;font-size:0.95rem;">
+                    <button type="submit" class="btn btn-secondary" style="margin-top:8px;display:block;width:100%;max-width:120px;padding:6px 0;font-size:0.98rem;">교수 권한 요청</button>
                 </form>
-                <div style="font-size:0.9rem;color:#888;margin-top:8px;">교수님만 입력하세요.</div>
+                <div style="font-size:0.85rem;color:#e0e0e0;margin-top:5px;">교수님만 입력하세요.</div>
             </div>
             {% endif %}
         </div>

@@ -3,7 +3,7 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # Allow OAuth2 with HTTP for de
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, session
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from pymongo import MongoClient
+from pymongo import MongoClient, ASCENDING
 from bson.objectid import ObjectId # Import ObjectId to work with MongoDB _id
 import google.generativeai as genai # Import the Gemini library
 from werkzeug.utils import secure_filename
@@ -545,30 +545,61 @@ def register_submit():
 @app.route('/participants')
 @professor_required
 def list_participants():
-    # Separate participants into graded and ungraded
     all_participants = list(participants_collection.find({}))
     graded = [p for p in all_participants if p.get('avg_score') is not None]
     ungraded = [p for p in all_participants if p.get('avg_score') is None]
     graded.sort(key=lambda p: float(p.get('avg_score', 0) or 0), reverse=True)
     ungraded.sort(key=lambda p: p['_id'], reverse=True)
-    # Calculate statistics for the floating box (use all participants)
-    total_participants = len(all_participants)
-    pass_count = sum(1 for p in all_participants if p.get('status') == '합격')
-    fail_count = sum(1 for p in all_participants if p.get('status') == '불합격')
-    pending_count = total_participants - pass_count - fail_count
-    kaist_male = sum(1 for p in all_participants if p.get('university') == '카이스트' and p.get('gender') == '남자')
-    kaist_female = sum(1 for p in all_participants if p.get('university') == '카이스트' and p.get('gender') == '여자')
-    other_male = sum(1 for p in all_participants if p.get('university') != '카이스트' and p.get('gender') == '남자')
-    other_female = sum(1 for p in all_participants if p.get('university') != '카이스트' and p.get('gender') == '여자')
+
+    # Use aggregation for fast statistics
+    pipeline = [
+        {"$facet": {
+            "pass": [
+                {"$match": {"status": "합격"}},
+                {"$group": {
+                    "_id": None,
+                    "kaist_male": {"$sum": {"$cond": [
+                        {"$and": [
+                            {"$eq": ["$university", "카이스트"]},
+                            {"$eq": ["$gender", "남자"]}
+                        ]}, 1, 0]}},
+                    "kaist_female": {"$sum": {"$cond": [
+                        {"$and": [
+                            {"$eq": ["$university", "카이스트"]},
+                            {"$eq": ["$gender", "여자"]}
+                        ]}, 1, 0]}},
+                    "other_male": {"$sum": {"$cond": [
+                        {"$and": [
+                            {"$ne": ["$university", "카이스트"]},
+                            {"$eq": ["$gender", "남자"]}
+                        ]}, 1, 0]}},
+                    "other_female": {"$sum": {"$cond": [
+                        {"$and": [
+                            {"$ne": ["$university", "카이스트"]},
+                            {"$eq": ["$gender", "여자"]}
+                        ]}, 1, 0]}},
+                    "total": {"$sum": 1}
+                }}
+            ],
+            "fail": [{"$match": {"status": "불합격"}}, {"$count": "count"}],
+            "pending": [{"$match": {"status": "미정"}}, {"$count": "count"}],
+            "all": [{"$count": "count"}]
+        }}
+    ]
+    result = list(participants_collection.aggregate(pipeline))[0]
+    pass_stats = result['pass'][0] if result['pass'] else {"kaist_male": 0, "kaist_female": 0, "other_male": 0, "other_female": 0, "total": 0}
+    fail_count = result['fail'][0]['count'] if result['fail'] else 0
+    pending_count = result['pending'][0]['count'] if result['pending'] else 0
+    total_count = result['all'][0]['count'] if result['all'] else 0
     statistics = {
-        'total': total_participants,
-        'pass': pass_count,
+        'total': pass_stats['total'],
+        'pass': pass_stats['total'],
         'fail': fail_count,
         'pending': pending_count,
-        'kaist_male': kaist_male,
-        'kaist_female': kaist_female,
-        'other_male': other_male,
-        'other_female': other_female
+        'kaist_male': pass_stats['kaist_male'],
+        'kaist_female': pass_stats['kaist_female'],
+        'other_male': pass_stats['other_male'],
+        'other_female': pass_stats['other_female']
     }
     return render_template('participants_list.html', graded_participants=graded, ungraded_participants=ungraded, statistics=statistics)
 
@@ -578,52 +609,73 @@ def update_status(participant_id):
     try:
         obj_id = ObjectId(participant_id)
         status = request.json.get('status')
-        
         print(f"Updating status for participant {participant_id} to {status}")
-        
         if status not in ['합격', '불합격', '미정']:
             return jsonify({'error': 'Invalid status'}), 400
-            
         result = participants_collection.update_one(
             {'_id': obj_id},
             {'$set': {'status': status}}
         )
-        
         print(f"Update result: modified_count = {result.modified_count}")
-        
         if result.modified_count == 1:
-            # Get updated statistics
-            participants = list(participants_collection.find({}))
-            total_participants = len(participants)
-            pass_count = sum(1 for p in participants if p.get('status') == '합격')
-            fail_count = sum(1 for p in participants if p.get('status') == '불합격')
-            pending_count = total_participants - pass_count - fail_count
-            
-            kaist_male = sum(1 for p in participants if p.get('university') == '카이스트' and p.get('gender') == '남자')
-            kaist_female = sum(1 for p in participants if p.get('university') == '카이스트' and p.get('gender') == '여자')
-            other_male = sum(1 for p in participants if p.get('university') != '카이스트' and p.get('gender') == '남자')
-            other_female = sum(1 for p in participants if p.get('university') != '카이스트' and p.get('gender') == '여자')
-            
+            # Use aggregation for fast statistics
+            pipeline = [
+                {"$facet": {
+                    "pass": [
+                        {"$match": {"status": "합격"}},
+                        {"$group": {
+                            "_id": None,
+                            "kaist_male": {"$sum": {"$cond": [
+                                {"$and": [
+                                    {"$eq": ["$university", "카이스트"]},
+                                    {"$eq": ["$gender", "남자"]}
+                                ]}, 1, 0]}},
+                            "kaist_female": {"$sum": {"$cond": [
+                                {"$and": [
+                                    {"$eq": ["$university", "카이스트"]},
+                                    {"$eq": ["$gender", "여자"]}
+                                ]}, 1, 0]}},
+                            "other_male": {"$sum": {"$cond": [
+                                {"$and": [
+                                    {"$ne": ["$university", "카이스트"]},
+                                    {"$eq": ["$gender", "남자"]}
+                                ]}, 1, 0]}},
+                            "other_female": {"$sum": {"$cond": [
+                                {"$and": [
+                                    {"$ne": ["$university", "카이스트"]},
+                                    {"$eq": ["$gender", "여자"]}
+                                ]}, 1, 0]}},
+                            "total": {"$sum": 1}
+                        }}
+                    ],
+                    "fail": [{"$match": {"status": "불합격"}}, {"$count": "count"}],
+                    "pending": [{"$match": {"status": "미정"}}, {"$count": "count"}],
+                    "all": [{"$count": "count"}]
+                }}
+            ]
+            result = list(participants_collection.aggregate(pipeline))[0]
+            pass_stats = result['pass'][0] if result['pass'] else {"kaist_male": 0, "kaist_female": 0, "other_male": 0, "other_female": 0, "total": 0}
+            fail_count = result['fail'][0]['count'] if result['fail'] else 0
+            pending_count = result['pending'][0]['count'] if result['pending'] else 0
+            total_count = result['all'][0]['count'] if result['all'] else 0
             response_data = {
                 'success': True,
                 'message': f'Status updated to {status}',
                 'statistics': {
-                    'total': total_participants,
-                    'pass': pass_count,
+                    'total': pass_stats['total'],
+                    'pass': pass_stats['total'],
                     'fail': fail_count,
                     'pending': pending_count,
-                    'kaist_male': kaist_male,
-                    'kaist_female': kaist_female,
-                    'other_male': other_male,
-                    'other_female': other_female
+                    'kaist_male': pass_stats['kaist_male'],
+                    'kaist_female': pass_stats['kaist_female'],
+                    'other_male': pass_stats['other_male'],
+                    'other_female': pass_stats['other_female']
                 }
             }
-            
             print(f"Sending response: {response_data}")
             return jsonify(response_data)
         else:
             return jsonify({'success': False, 'error': 'Participant not found'}), 404
-            
     except Exception as e:
         print(f"Error in update_status: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500

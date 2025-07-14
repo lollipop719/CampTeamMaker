@@ -4,24 +4,151 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>등록된 지원자 목록</title>
+    <!-- Import SF Pro Display font -->
+    <link href="https://stagnansi.github.io/sfp/ff.css" rel="stylesheet">
     <style>
         html, body, * {
             box-sizing: border-box;
+            font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', Arial, sans-serif !important;
+            color: #222 !important;
         }
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
-        h1 { text-align: center; color: #333; margin-bottom: 25px; }
+        body {
+            margin: 0;
+            background: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1124&q=100') no-repeat center center fixed, linear-gradient(120deg, #274b74 0%, #3a7bd5 50%, #232526 100%);
+            background-size: cover, cover;
+        }
+        h1, h2, h3, h4, h5, h6, label, p, span, th, td, button, a, input, select, textarea, strong, .section-header, .toggle-details-btn, .action-btn, .status-btn, .current-status, .legend-item, .modal-btns button {
+            color: #fff !important;
+            font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', Arial, sans-serif !important;
+            font-weight: 600 !important;
+        }
+        /* Override specific elements for glassmorphism look */
+        /*
+        .participant-card, .floating-stats {
+            background: linear-gradient(120deg, rgba(30,34,54,0.45) 0%, rgba(126,203,255,0.13) 100%) !important;
+            color: #fff !important;
+            border: 1px solid #bbb !important;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18) !important;
+            backdrop-filter: blur(28px) !important;
+            -webkit-backdrop-filter: blur(28px) !important;
+            border-radius: 24px !important;
+            padding: 32px !important;
+        }
+        */
+        .participant-card, .floating-stats {
+            background-color: rgba(17, 25, 40, 0.60) !important;
+            color: #fff !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(255, 255, 255, 0.125) !important;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18) !important;
+            backdrop-filter: blur(2px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(2px) saturate(180%) !important;
+            padding: 32px !important;
+        }
+        .participant-card h3 {
+            color: #7ecbff !important;
+        }
+        .section-header {
+            color: #7ecbff !important;
+            border-bottom: 1px dashed #7ecbff !important;
+        }
+        .current-status.pass {
+            background-color: rgba(40,167,69,0.18) !important;
+            color: #b6ffb6 !important;
+            border: 1px solid #28a745 !important;
+        }
+        .current-status.fail {
+            background-color: rgba(220,53,69,0.18) !important;
+            color: #ffb6b6 !important;
+            border: 1px solid #dc3545 !important;
+        }
+        .current-status.pending {
+            background-color: rgba(108,117,125,0.18) !important;
+            color: #e2e3e5 !important;
+            border: 1px solid #6c757d !important;
+        }
+        .stats-table th, .stats-table td {
+            
+            background: rgba(58,123,213,0.10) !important;
+            border: 1px solid #7ecbff !important;
+        }
+        .pie-legend .legend-color {
+            border: 1px solid #fff !important;
+        }
+        .toggle-details-btn {
+            background: rgba(255,255,255,0.10) !important;
+            color: #fff !important;
+            border: 1px solid #7ecbff !important;
+        }
+        .toggle-details-btn:hover {
+            background: rgba(58,123,213,0.22) !important;
+            color: #fff !important;
+        }
+        .action-btn, .organize-btn, .status-btn, .modal-btns button {
+            background: rgba(25,118,210,0.18) !important;
+            color: #fff !important;
+            border: 1.5px solid rgba(25,118,210,0.6) !important;
+            opacity: 1 !important;
+        }
+        .action-btn.delete {
+            background: rgba(220,53,69,0.18) !important;
+            border: 1.5px solid rgba(220,53,69,0.6) !important;
+        }
+        .action-btn:hover, .organize-btn:hover, .status-btn:hover, .modal-btns button:hover {
+            background: rgba(58,123,213,0.35) !important;
+            border: 1.5px solid #fff !important;
+        }
+        .status-btn.pass {
+            background: rgba(40,167,69,0.18) !important;
+            border: 1.5px solid rgba(40,167,69,0.6) !important;
+        }
+        .status-btn.fail {
+            background: rgba(220,53,69,0.18) !important;
+            border: 1.5px solid rgba(220,53,69,0.6) !important;
+        }
+        .status-btn.pending {
+            background: rgba(108,117,125,0.18) !important;
+            border: 1.5px solid rgba(108,117,125,0.6) !important;
+        }
+        /* Inputs and selects */
+        input, select, textarea {
+            background: rgba(255,255,255,0.10) !important;
+            color: #fff !important;
+            border: 1.5px solid #7ecbff !important;
+        }
+        input::placeholder, textarea::placeholder {
+            color: #e0e0e0 !important;
+            opacity: 1;
+        }
+        /* Toast notification */
+        .toast-notification {
+            background-color: rgba(58,123,213,0.85) !important;
+            color: #fff !important;
+        }
+        /* Overlay */
+        .overlay {
+            background: rgba(0,0,0,0.5) !important;
+        }
         .participant-card {
-            border: 1px solid #e0e0e0;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            position: relative;
+            border: 1.5px solid rgba(255,255,255,0.25);
+            border-radius: 24px;
+            background: rgba(255,255,255,0.12);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            margin-bottom: 24px;
             max-width: 900px;
             width: 100%;
-            margin: 0 auto 24px auto;
+            margin: 0 auto 32px auto;
             overflow-x: auto;
+            transition: box-shadow 0.3s, border 0.3s;
+            padding: 32px !important;
+            position: relative;
+            padding-bottom: 8px !important;
+        }
+        .participant-card:hover {
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.22);
+            border: 1.5px solid rgba(255,255,255,0.55);
         }
         .participant-card h3 {
             margin-top: 0;
@@ -190,12 +317,13 @@
         .participant-info-card {
             display: flex;
             flex-direction: row;
-            align-items: center;
-            justify-content: flex-start;
+            align-items: flex-start;
+            justify-content: center;
             gap: 0;
             max-width: 100%;
             width: 100%;
             box-sizing: border-box;
+            position: relative;
         }
         .participant-details {
             flex: 1;
@@ -203,30 +331,46 @@
             flex-direction: column;
             align-items: flex-start;
             text-align: left;
+            padding: 0 16px !important;
         }
         .profile-photo-container {
-            order: 2;
-            flex: 0 0 140px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-width: 120px;
             max-width: 140px;
-            margin-left: 0;
-            margin-right: 0;
+            margin: 0 32px;
+            flex: 0 0 160px;
         }
         .actions {
-            order: 3;
-            flex: 0 0 90px;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: stretch;
             gap: 10px;
-            margin-left: 32px;
+            margin-left: 0;
             margin-top: 0;
             background: none;
             border: none;
+            min-width: 110px;
+        }
+        .actions .action-btn,
+        .actions .status-btn {
+            width: 100%;
+            min-width: 0;
+            margin: 0;
+            border-radius: 8px !important;
+            font-size: 15px;
+            padding: 10px 0;
+        }
+        .actions .status-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .actions .current-status {
+            margin-top: 10px;
         }
         .reason-text {
             display: none;
@@ -241,22 +385,24 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            width: 300px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 320px;
+            background: rgba(255,255,255,0.18);
+            border: 1.5px solid rgba(255,255,255,0.35);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             z-index: 1000;
-            padding: 20px;
+            padding: 28px 24px 20px 24px;
             max-height: 95vh;
             overflow-y: auto;
+            transition: box-shadow 0.3s, border 0.3s;
         }
         
         .floating-stats h3 {
-            margin-top: 0;
-            color: #333;
+            color: #fff;
             text-align: center;
-            border-bottom: 2px solid #007bff;
+            border-bottom: 2px solid #3a7bd5;
             padding-bottom: 10px;
             margin-bottom: 15px;
         }
@@ -481,16 +627,24 @@
             z-index: 1200;
             width: 56px;
             height: 56px;
-            background: #1976d2;
+            background: rgba(255,255,255,0.13);
             border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+            box-shadow: 0 2px 12px 0 rgba(31,38,135,0.10);
+            border: 1.5px solid rgba(255,255,255,0.65);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s, border 0.2s;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
         }
         .floating-settings-btn svg { width: 28px; height: 28px; }
+        .floating-settings-btn:hover {
+            background: rgba(255,255,255,0.22);
+            border: 1.5px solid #fff;
+            box-shadow: 0 4px 24px 0 rgba(31,38,135,0.16);
+        }
         .settings-modal-overlay {
             position: fixed; left:0; top:0; width:100vw; height:100vh;
             background: rgba(0,0,0,0.5); z-index: 2000; display: none;
@@ -521,6 +675,127 @@
         @keyframes fadeOut {
             from { opacity: 1; }
             to { opacity: 0; }
+        }
+        .accent-bg {
+            background: rgba(255,255,255,0.30) !important;
+            border-radius: 40px !important;
+        }
+        .floating-stats, .floating-stats * {
+            color: #fff !important;
+        }
+        .settings-modal, .settings-modal * {
+            color: #111 !important;
+        }
+        .toggle-reason-btn {
+            display: inline-block !important;
+            float: right !important;
+            margin-left: 12px !important;
+            padding: 3px 12px !important;
+            border-radius: 7px !important;
+            border: 1.5px solid #7ecbff !important;
+            background: rgba(17, 25, 40, 0.55) !important;
+            color: #7ecbff !important;
+            font-weight: 600 !important;
+            font-size: 0.98em !important;
+            letter-spacing: 0.01em !important;
+            cursor: pointer !important;
+            box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.10) !important;
+            transition: background 0.18s, color 0.18s, border 0.18s !important;
+            border-style: solid !important;
+            min-width: 0 !important;
+            min-height: 0 !important;
+            line-height: 1.2 !important;
+        }
+        .toggle-reason-btn:hover, .toggle-reason-btn:focus {
+            background: rgba(30, 80, 180, 0.55) !important;
+            color: #fff !important;
+            border-color: #fff !important;
+        }
+        .toggle-reason-btn:disabled {
+            opacity: 0.5 !important;
+            background: rgba(200,200,200,0.12) !important;
+            color: #fff !important;
+            border-color: #bbb !important;
+            cursor: not-allowed !important;
+        }
+        .status-segmented-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 0;
+          padding: 0;
+          width: 320px;
+          height: 48px;
+          background: linear-gradient(90deg, rgba(168, 213, 160, 0.4) 0%, rgba(244, 199, 171, 0.4) 50%, rgba(244, 168, 168, 0.4) 100%), rgba(255, 255, 255, 0.02);
+          box-shadow: inset 0px -2px 6px rgba(0, 0, 0, 0.2), inset 0px 2px 8px rgba(255, 255, 255, 0.4);
+          border-radius: 60px;
+          margin: 18px auto 18px auto;
+        }
+        .status-segment {
+          flex: 1 1 0;
+          height: 37px;
+          margin: 0;
+          border: none;
+          outline: none;
+          background: transparent;
+          color: #fff;
+          font-family: 'SF Pro', 'Inter', sans-serif;
+          font-style: normal;
+          font-weight: 590;
+          font-size: 14px;
+          line-height: 17px;
+          cursor: pointer;
+          transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+          border-radius: 60px;
+          position: relative;
+          z-index: 1;
+        }
+        .status-segment.active {
+          background: rgba(168, 213, 160, 0.6);
+          box-shadow: 0 4px 12px 0 rgba(168, 213, 160, 0.18), 0 2px 8px 0 rgba(255,255,255,0.18);
+          color: #fff;
+          z-index: 2;
+        }
+        .status-segment.pending.active {
+          background: rgba(255, 255, 255, 0.25);
+          box-shadow: 0 2px 8px 0 rgba(255, 255, 255, 0.15), 0 1px 4px 0 rgba(255,255,255,0.10);
+        }
+        .status-segment.fail.active {
+          background: rgba(244, 168, 168, 0.7);
+          box-shadow: 0 4px 12px 0 rgba(244, 168, 168, 0.18), 0 2px 8px 0 rgba(255,255,255,0.18);
+        }
+        .status-segment:not(.active):hover {
+          background: rgba(255,255,255,0.08);
+        }
+        .segmented-actions-wrapper {
+            position: absolute;
+            right: 20px;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            z-index: 2;
+        }
+        .gemini-segment-btn {
+            border: none;
+            outline: none;
+            border-radius: 60px;
+            background: linear-gradient(90deg, rgba(30, 120, 255, 0.22) 0%, rgba(30, 120, 255, 0.13) 100%);
+            color: #7ecbff;
+            font-family: 'SF Pro', 'Inter', sans-serif;
+            font-weight: 590;
+            font-size: 15px;
+            padding: 10px 28px;
+            margin: 0;
+            cursor: pointer;
+            box-shadow: 0 2px 8px 0 rgba(30, 120, 255, 0.10), 0 1px 4px 0 rgba(255,255,255,0.10);
+            transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+            letter-spacing: 0.01em;
+        }
+        .gemini-segment-btn:hover {
+            background: linear-gradient(90deg, rgba(30, 120, 255, 0.32) 0%, rgba(30, 120, 255, 0.18) 100%);
+            color: #fff;
         }
     </style>
 </head>
@@ -564,29 +839,29 @@ function toggleDetails(btn) {
         </div>
         
         <!-- Gender/University Table -->
-        <table class="stats-table">
+        <table class="stats-table" style="color:#fff;">
             <thead>
                 <tr>
-                    <th></th>
-                    <th>남자</th>
-                    <th>여자</th>
+                    <th style="color:#fff;"> </th>
+                    <th style="color:#fff;">남자</th>
+                    <th style="color:#fff;">여자</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td><strong>카이스트</strong></td>
-                    <td>{{ statistics.kaist_male }}</td>
-                    <td>{{ statistics.kaist_female }}</td>
+                    <td style="color:#fff;"><strong>카이스트</strong></td>
+                    <td id="kaist-male" style="color:#fff;">{{ statistics.kaist_male }}</td>
+                    <td id="kaist-female" style="color:#fff;">{{ statistics.kaist_female }}</td>
                 </tr>
                 <tr>
-                    <td><strong>타대생</strong></td>
-                    <td>{{ statistics.other_male }}</td>
-                    <td>{{ statistics.other_female }}</td>
+                    <td style="color:#fff;"><strong>타대생</strong></td>
+                    <td id="other-male" style="color:#fff;">{{ statistics.other_male }}</td>
+                    <td id="other-female" style="color:#fff;">{{ statistics.other_female }}</td>
                 </tr>
             </tbody>
         </table>
         
-        <div id="total-count" style="text-align: center; margin-top: 15px; font-size: 14px; color: #666;">
+        <div id="total-count" style="text-align: center; margin-top: 15px; font-size: 14px; color: #fff;">
             총 {{ statistics.total }}명
         </div>
         
@@ -605,12 +880,12 @@ function toggleDetails(btn) {
     </div>
 
     <div class="participants-list-wrapper">
-    <h1>등록된 지원자 목록</h1>
-    <div style="text-align:center; margin-bottom: 20px;">
-    <input type="text" id="participantSearch" placeholder="이름으로 검색" style="padding:8px; width:220px; border-radius:6px; border:1px solid #bbb;">
-</div>
+    <div style="text-align:center; margin-bottom: 20px; margin-top: 32px;">
+        <h1 style="margin-bottom: 18px;">등록된 지원자 목록</h1>
+        <input type="text" id="participantSearch" placeholder="이름으로 검색" style="padding:8px; width:220px; border-radius:6px; border:1px solid #bbb;">
+    </div>
 {% if ungraded_participants %}
-    <div style="margin-bottom:16px; text-align:center; color:#ff9800; font-weight:bold;">아직 Gemini 점수 미부여 지원자</div>
+    <div style="margin-bottom:16px; text-align:center; color:#fff !important; font-weight:bold;">아직 Gemini 점수 미부여 지원자</div>
     {% for participant in ungraded_participants %}
         <div class="participant-card" data-participant-id="{{ participant._id }}" data-name="{{ participant.name }}">
             <div class="participant-info-card">
@@ -629,17 +904,12 @@ function toggleDetails(btn) {
                         <img src="{{ url_for('static', filename='images/default_profile.png') }}" alt="Default Profile Photo" class="profile-photo">
                     {% endif %}
                 </div>
-                <div class="actions">
-                    <a href="{{ url_for('edit_participant', participant_id=participant._id) }}" class="action-btn">수정</a>
-                    <button onclick="confirmDelete('{{ participant._id }}', '{{ participant.name }}')" class="action-btn delete">삭제</button>
-                    <button class="action-btn" style="background:#ff9800; color:#fff;" onclick="categorizeParticipant(this, '{{ participant._id }}')">Gemini 재분류</button>
-                    <div class="status-buttons">
-                        <button class="status-btn pass {% if participant.status == '합격' %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '합격')" {% if participant.status == '합격' %}disabled{% endif %}>합격</button>
-                        <button class="status-btn fail {% if participant.status == '불합격' %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '불합격')" {% if participant.status == '불합격' %}disabled{% endif %}>불합격</button>
-                        <button class="status-btn pending {% if participant.status == '미정' or not participant.status %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '미정')" {% if participant.status == '미정' or not participant.status %}disabled{% endif %}>미정</button>
-                    </div>
-                    <div class="current-status {% if participant.status == '합격' %}pass{% elif participant.status == '불합격' %}fail{% else %}pending{% endif %}" style="text-align:center;">
-                        {% if participant.status %}{{ participant.status }}{% else %}미정{% endif %}
+                <div class="segmented-actions-wrapper">
+                    <button class="gemini-segment-btn" onclick="categorizeParticipant(this, '{{ participant._id }}')">Gemini 재분류</button>
+                    <div class="status-segmented-container" style="width: 200px; height: 40px; position: static; margin-top: 6px;">
+                      <button class="status-segment pass {% if participant.status == '합격' %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ participant._id }}', '합격')">합격</button>
+                      <button class="status-segment pending {% if participant.status == '미정' or not participant.status %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ participant._id }}', '미정')">미정</button>
+                      <button class="status-segment fail {% if participant.status == '불합격' %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ participant._id }}', '불합격')">불합격</button>
                     </div>
                 </div>
             </div>
@@ -723,7 +993,7 @@ function toggleDetails(btn) {
     <hr style="margin:32px 0; border:1px dashed #bbb;">
 {% endif %}
 {% if graded_participants %}
-    <div style="margin-bottom:16px; text-align:center; color:#1976d2; font-weight:bold;">Gemini 점수 부여 지원자</div>
+    <div style="margin-bottom:16px; text-align:center; color:#fff !important; font-weight:bold;">Gemini 점수 부여 지원자</div>
     {% for participant in graded_participants %}
         <div class="participant-card" data-participant-id="{{ participant._id }}" data-name="{{ participant.name }}">
             <div class="participant-info-card">
@@ -742,17 +1012,12 @@ function toggleDetails(btn) {
                         <img src="{{ url_for('static', filename='images/default_profile.png') }}" alt="Default Profile Photo" class="profile-photo">
                     {% endif %}
                 </div>
-                <div class="actions">
-                    <a href="{{ url_for('edit_participant', participant_id=participant._id) }}" class="action-btn">수정</a>
-                    <button onclick="confirmDelete('{{ participant._id }}', '{{ participant.name }}')" class="action-btn delete">삭제</button>
-                    <button class="action-btn" style="background:#ff9800; color:#fff;" onclick="categorizeParticipant(this, '{{ participant._id }}')">Gemini 재분류</button>
-                    <div class="status-buttons">
-                        <button class="status-btn pass {% if participant.status == '합격' %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '합격')" {% if participant.status == '합격' %}disabled{% endif %}>합격</button>
-                        <button class="status-btn fail {% if participant.status == '불합격' %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '불합격')" {% if participant.status == '불합격' %}disabled{% endif %}>불합격</button>
-                        <button class="status-btn pending {% if participant.status == '미정' or not participant.status %}active{% endif %}" onclick="updateStatus('{{ participant._id }}', '미정')" {% if participant.status == '미정' or not participant.status %}disabled{% endif %}>미정</button>
-                    </div>
-                    <div class="current-status {% if participant.status == '합격' %}pass{% elif participant.status == '불합격' %}fail{% else %}pending{% endif %}" style="text-align:center;">
-                        {% if participant.status %}{{ participant.status }}{% else %}미정{% endif %}
+                <div class="segmented-actions-wrapper">
+                    <button class="gemini-segment-btn" onclick="categorizeParticipant(this, '{{ participant._id }}')">Gemini 재분류</button>
+                    <div class="status-segmented-container" style="width: 200px; height: 40px; position: static; margin-top: 6px;">
+                      <button class="status-segment pass {% if participant.status == '합격' %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ participant._id }}', '합격')">합격</button>
+                      <button class="status-segment pending {% if participant.status == '미정' or not participant.status %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ participant._id }}', '미정')">미정</button>
+                      <button class="status-segment fail {% if participant.status == '불합격' %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ participant._id }}', '불합격')">불합격</button>
                     </div>
                 </div>
             </div>
@@ -931,15 +1196,19 @@ function toggleDetails(btn) {
                     // Update the UI for the specific participant
                     const participantCard = document.querySelector(`[data-participant-id="${participantId}"]`);
                     if (participantCard) {
-                        // Update button states
-                        const buttons = participantCard.querySelectorAll('.status-btn');
-                        buttons.forEach(btn => btn.classList.remove('active'));
-                        participantCard.querySelector(`.status-btn.${status === '합격' ? 'pass' : status === '불합격' ? 'fail' : 'pending'}`).classList.add('active');
-                        
-                        // Update status display
-                        const statusDisplay = participantCard.querySelector('.current-status');
-                        statusDisplay.textContent = status;
-                        statusDisplay.className = `current-status ${status === '합격' ? 'pass' : status === '불합격' ? 'fail' : 'pending'}`;
+                        // Update segmented control - remove active from all segments
+                        const segmentedContainer = participantCard.querySelector('.status-segmented-container');
+                        if (segmentedContainer) {
+                            segmentedContainer.querySelectorAll('.status-segment').forEach(segment => {
+                                segment.classList.remove('active');
+                            });
+                            
+                            // Add active to the correct segment
+                            const activeSegment = segmentedContainer.querySelector(`.status-segment.${status === '합격' ? 'pass' : status === '불합격' ? 'fail' : 'pending'}`);
+                            if (activeSegment) {
+                                activeSegment.classList.add('active');
+                            }
+                        }
                     }
                     
                     // Update pie chart
@@ -954,15 +1223,15 @@ function toggleDetails(btn) {
                         // Update legend numbers with null checks
                         updateLegend(data.statistics);
                         
-                        // Update table with null checks
-                        const tableCells = document.querySelectorAll('.stats-table tbody tr td');
-                        if (tableCells.length >= 6) {
-                            tableCells[1].textContent = data.statistics.kaist_male;
-                            tableCells[2].textContent = data.statistics.kaist_female;
-                            tableCells[4].textContent = data.statistics.other_male;
-                            tableCells[5].textContent = data.statistics.other_female;
-                        }
-                        
+                        // Update table with null checks using IDs
+                        const kaistMale = document.getElementById('kaist-male');
+                        const kaistFemale = document.getElementById('kaist-female');
+                        const otherMale = document.getElementById('other-male');
+                        const otherFemale = document.getElementById('other-female');
+                        if (kaistMale) kaistMale.textContent = data.statistics.kaist_male;
+                        if (kaistFemale) kaistFemale.textContent = data.statistics.kaist_female;
+                        if (otherMale) otherMale.textContent = data.statistics.other_male;
+                        if (otherFemale) otherFemale.textContent = data.statistics.other_female;
                         // Update total count with null check
                         const totalElement = document.getElementById('total-count');
                         if (totalElement) {
@@ -1234,6 +1503,21 @@ function categorizeParticipant(btn, participantId) {
         btn.disabled = false;
         btn.textContent = origText;
     });
+}
+</script>
+<script>
+function setSegmentedStatus(btn, participantId, status) {
+  const container = btn.parentElement;
+  
+  // Check if the clicked status is already active
+  if (btn.classList.contains('active')) {
+    return; // Don't do anything if clicking the same status
+  }
+  
+  container.querySelectorAll('.status-segment').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Call the backend updateStatus function to actually change the participant status
+  updateStatus(participantId, status);
 }
 </script>
 <script>
