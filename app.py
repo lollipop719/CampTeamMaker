@@ -956,28 +956,29 @@ def organize_page():
         'kaist_female': 0,
         'other_male': 0,
         'other_female': 0,
-        'total': len(participants)
+        'total': 0
     }
     for p in participants:
         status = p.get('status', '미정') or '미정'
         if status == '합격':
             statistics['pass'] += 1
+            univ = p.get('university', '')
+            gender = p.get('gender', '')
+            if univ == '카이스트':
+                if gender == '남자':
+                    statistics['kaist_male'] += 1
+                elif gender == '여자':
+                    statistics['kaist_female'] += 1
+            else:
+                if gender == '남자':
+                    statistics['other_male'] += 1
+                elif gender == '여자':
+                    statistics['other_female'] += 1
+            statistics['total'] += 1
         elif status == '불합격':
             statistics['fail'] += 1
         else:
             statistics['pending'] += 1
-        univ = p.get('university', '')
-        gender = p.get('gender', '')
-        if univ == '카이스트':
-            if gender == '남자':
-                statistics['kaist_male'] += 1
-            elif gender == '여자':
-                statistics['kaist_female'] += 1
-        else:
-            if gender == '남자':
-                statistics['other_male'] += 1
-            elif gender == '여자':
-                statistics['other_female'] += 1
     return render_template('organize.html', participants=participants, pass_limit=pass_limit, statistics=statistics, 합격자_count=합격자_count, num_groups=num_groups)
 
 @app.route('/get_mail_recipients')

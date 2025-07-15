@@ -9,38 +9,44 @@
         html, body, * {
             box-sizing: border-box;
             font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', Arial, sans-serif !important;
-            color: #fff !important;
+            color: #ffffff !important;
         }
         body {
             margin: 0;
-            background: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1124&q=100') no-repeat center center fixed, linear-gradient(120deg, #274b74 0%, #3a7bd5 50%, #232526 100%);
+            background: url('{{ url_for('uploaded_file', filename='background_image.png') }}') no-repeat center center fixed, linear-gradient(120deg, #274b74 0%, #3a7bd5 50%, #232526 100%);
             background-size: cover, cover;
         }
-        h1, h2, h3, h4, h5, h6, label, p, span, th, td, button, a, input, select, textarea, strong, .section-header, .toggle-details-btn, .action-btn, .status-btn, .current-status, .legend-item, .modal-btns button {
-            color: #fff !important;
+        h1, h2, h3, h4, h5, h6, label, span, th, td, button, p, a, input, select, textarea, strong, .section-header, .toggle-details-btn, .action-btn, .status-btn, .current-status, .legend-item, .modal-btns button {
+            color: #ffffff !important;
             font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', Arial, sans-serif !important;
             font-weight: 600 !important;
         }
+        h2 {
+            text-align: center;
+        }
         .organize-container {
             display: flex;
-            gap: 24px;
+            gap: 20px;
             width: 100%;
-            height: 80vh;
-            margin-top: 32px;
+            height: calc(80vh - 6px);
+            margin-top: 0 !important;
+            justify-content: center;
         }
         .column {
             flex: 1;
+            max-width: 480px;
+            min-width: 220px;
+            padding: 10px 8px !important;
             display: flex;
             flex-direction: column;
-            background-color: rgba(17, 25, 40, 0.75) !important;
+            background-color: rgba(184, 197, 221, 0.507) !important;
             color: #fff !important;
             border-radius: 12px !important;
             border: 1px solid rgba(255, 255, 255, 0.125) !important;
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18) !important;
             backdrop-filter: blur(2px) saturate(180%) !important;
             -webkit-backdrop-filter: blur(2px) saturate(180%) !important;
-            padding: 16px !important;
-            min-width: 0;
+            min-height: calc(80vh - 120px);
         }
         .scroll-area {
             flex: 1 1 0;
@@ -48,6 +54,7 @@
             min-height: 0;
             max-height: calc(80vh - 120px);
             padding-bottom: 8px;
+            padding-top: 0;
         }
         .pass-column { border: 2px solid #007bff; }
         .fail-column { border: 2px solid #dc3545; }
@@ -62,14 +69,20 @@
             background: #fff; border-radius: 10px; box-shadow: 0 2px 16px rgba(0,0,0,0.2);
             padding: 32px; z-index: 2100; min-width: 350px; max-width: 90vw;
         }
+        .mail-popup, .mail-popup * {
+            color: #000000 !important;
+        }
+        .mail-popup h3, .mail-popup h4, .mail-popup label, .mail-popup input, .mail-popup textarea, .mail-popup button {
+            color: #000000 !important;
+        }
         .mail-popup textarea { width: 100%; min-height: 120px; margin-top: 12px; }
         .mail-popup .popup-btns { margin-top: 16px; text-align: right; }
         .mail-popup .popup-btns button { margin-left: 8px; }
         .participant-card {
             border: 1.5px solid rgba(255,255,255,0.18);
             border-radius: 24px;
-            background: rgba(17, 25, 40, 0.75);
-            color: #fff !important;
+            background: rgba(17, 25, 41, 0.486);
+            color: #ffffff !important;
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
             backdrop-filter: blur(8px) saturate(180%);
             -webkit-backdrop-filter: blur(8px) saturate(180%);
@@ -80,7 +93,7 @@
             transition: box-shadow 0.3s, border 0.3s;
             padding: 32px !important;
             position: relative;
-            padding-bottom: 80px !important;
+            padding-bottom: 20px !important;
         }
         .participant-card:hover {
             box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.22);
@@ -90,7 +103,7 @@
             color: #7ecbff !important;
         }
         .participant-details strong {
-            color: #1976d2;
+            color: #fff !important;
             font-size: 1.13em;
             margin-bottom: 2px;
         }
@@ -98,9 +111,9 @@
             margin-bottom: 1px;
         }
         .section-header {
-            color: #7ecbff !important;
-            border-bottom: 1px dashed #7ecbff;
-            margin-top: 18px;
+            color: rgb(177, 203, 255) !important;
+            border-bottom: 1px dashed rgb(177, 203, 255);
+            margin-top: 0px;
             margin-bottom: 8px;
             font-size: 1.08em;
             font-weight: bold;
@@ -111,13 +124,15 @@
             margin-top: 12px;
             padding: 18px 12px 10px 12px;
             font-size: 15px;
-            background: rgba(17, 25, 40, 0.75);
-            border-radius: 0 0 18px 18px;
-            color: #fff !important;
+            background: rgba(17, 25, 41, 0.486);
+            border-radius: 24px; /* Make all corners rounded */
+            color: #ffffff !important;
             box-shadow: 0 2px 12px 0 rgba(31, 38, 135, 0.10);
             backdrop-filter: blur(8px) saturate(180%);
             -webkit-backdrop-filter: blur(8px) saturate(180%);
             padding-bottom: 36px !important;
+            max-width: 400px;
+            line-height: 1.6;
         }
         .participant-extra-details div {
             margin-bottom: 4px;
@@ -156,7 +171,7 @@
             justify-content: center;
             min-width: 48px;
             max-width: 60px;
-            margin: 0 8px 0 0;
+            margin: 0 30px 0 0px;
         }
         .card-actions {
             display: flex;
@@ -245,8 +260,8 @@
             margin-bottom: 16px;
         }
         .profile-photo {
-            width: 60px;
-            height: 60px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             object-fit: cover;
             border: 1px solid #b6d0f7;
@@ -259,8 +274,8 @@
             padding: 3px 12px !important;
             border-radius: 7px !important;
             border: 1.5px solid #7ecbff !important;
-            background: rgba(17, 25, 40, 0.55) !important;
-            color: #7ecbff !important;
+            background: rgba(255,255,255,0.10) !important;
+            color: #ffffff !important;
             font-weight: 600 !important;
             font-size: 0.98em !important;
             letter-spacing: 0.01em !important;
@@ -273,7 +288,7 @@
             line-height: 1.2 !important;
         }
         .toggle-details-btn:hover, .toggle-details-btn:focus {
-            background: rgba(30, 80, 180, 0.55) !important;
+            background: rgba(58,123,213,0.22) !important;
             color: #fff !important;
             border-color: #fff !important;
         }
@@ -283,6 +298,39 @@
             color: #fff !important;
             border-color: #bbb !important;
             cursor: not-allowed !important;
+        }
+        .toggle-reason-btn {
+            display: inline-block !important;
+            float: right !important;
+            margin-left: 12px !important;
+            padding: 3px 12px !important;
+            border-radius: 7px !important;
+            font-weight: 600 !important;
+            font-size: 0.8em !important;
+            letter-spacing: 0.01em !important;
+            cursor: pointer !important;
+            box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.10) !important;
+            transition: background 0.18s, color 0.18s, border 0.18s !important;
+            border-style: solid !important;
+            min-width: 0 !important;
+            min-height: 0 !important;
+            line-height: 1.2 !important;
+            border: 1px solid #7ecbff !important;
+            color: #fff !important;
+            background: rgba(255,255,255,0.10) !important;
+            transition: background 0.2s, color 0.2s;
+        }
+        .toggle-reason-btn:hover, .toggle-reason-btn:focus {
+            background: rgba(58,123,213,0.22) !important;
+            color: #fff !important;
+        }
+        .toggle-reason-btn:disabled {
+            opacity: 0.5 !important;
+            background: rgba(200,200,200,0.12) !important;
+            color: #fff !important;
+            border-color: #bbb !important;
+            cursor: not-allowed !important;
+            
         }
         .univ-filter-options, .univ-filter-options label, .univ-filter-options input, .univ-filter-btn {
             color: #222 !important;
@@ -306,7 +354,7 @@
           background: linear-gradient(90deg, rgba(168, 213, 160, 0.4) 0%, rgba(244, 199, 171, 0.4) 50%, rgba(244, 168, 168, 0.4) 100%), rgba(255, 255, 255, 0.02);
           box-shadow: inset 0px -2px 6px rgba(0, 0, 0, 0.2), inset 0px 2px 8px rgba(255, 255, 255, 0.4);
           border-radius: 60px;
-          margin: 18px auto 18px auto;
+          margin: 10px auto -3px auto;
         }
         .status-segment {
           flex: 1 1 0;
@@ -328,21 +376,36 @@
           z-index: 1;
         }
         .status-segment.active {
-          background: rgba(168, 213, 160, 0.6);
-          box-shadow: 0 4px 12px 0 rgba(168, 213, 160, 0.18), 0 2px 8px 0 rgba(255,255,255,0.18);
+          background: rgba(167, 218, 159, 0.466);
           color: #fff;
+          box-shadow: 0 4px 12px 0 rgba(168, 213, 160, 0.18), 0 2px 8px 0 rgba(255,255,255,0.18);
           z-index: 2;
         }
         .status-segment.pending.active {
-          background: rgba(255, 255, 255, 0.25);
+          background: rgba(255, 255, 255, 0.336);
           box-shadow: 0 2px 8px 0 rgba(255, 255, 255, 0.15), 0 1px 4px 0 rgba(255,255,255,0.10);
         }
         .status-segment.fail.active {
-          background: rgba(244, 168, 168, 0.7);
+          background: rgba(244, 168, 168, 0.548);
           box-shadow: 0 4px 12px 0 rgba(244, 168, 168, 0.18), 0 2px 8px 0 rgba(255,255,255,0.18);
         }
         .status-segment:not(.active):hover {
-          background: rgba(255,255,255,0.08);
+          background: rgba(255,255,255,0.28);
+        }
+        .status-segment.pass:hover:not(.active) {
+          background-color: #64bb7752 !important;
+          color: #fff !important;
+          box-shadow: 0 0 0 2px #21883833;
+        }
+        .status-segment.fail:hover:not(.active) {
+          background-color: #f3a5ad52 !important;
+          color: #fff !important;
+          box-shadow: 0 0 0 2px #c8233333;
+        }
+        .status-segment.pending:hover:not(.active) {
+          background-color: #ced4d865 !important;
+          color: #fff !important;
+          box-shadow: 0 0 0 2px #5a626833;
         }
     </style>
     <style>
@@ -431,8 +494,8 @@
         backdrop-filter: blur(4px);
     }
     .scroll-area::-webkit-scrollbar-thumb:hover {
-        background: rgba(126, 203, 255, 0.55);
-        border: 2px solid #7ecbff;
+        background: rgba(108, 196, 255, 0.55);
+        border: 2px solid #4eb6fc;
     }
     /* For Firefox */
     .scroll-area {
@@ -458,26 +521,56 @@
     outline: none;
 }
 #send-pass-mail {
-    background: linear-gradient(90deg, rgba(30, 120, 255, 0.32) 0%, rgba(30, 120, 255, 0.18) 100%);
+    background: linear-gradient(90deg, rgba(30, 120, 255, 0.452) 0%, rgba(30, 120, 255, 0.274) 100%);
 }
 #send-fail-mail {
-    background: linear-gradient(90deg, rgba(220, 53, 69, 0.32) 0%, rgba(220, 53, 69, 0.18) 100%);
+    background: linear-gradient(90deg, rgba(220, 53, 70, 0.459) 0%, rgba(220, 53, 70, 0.315) 100%);
 }
 #send-pass-mail:hover, #send-fail-mail:hover {
-    background: linear-gradient(90deg, rgba(30, 120, 255, 0.45) 0%, rgba(30, 120, 255, 0.28) 100%);
+    background: linear-gradient(90deg, rgba(30, 120, 255, 0.568) 0%, rgba(30, 120, 255, 0.384) 100%);
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
 }
 #send-fail-mail:hover {
-    background: linear-gradient(90deg, rgba(220, 53, 69, 0.45) 0%, rgba(220, 53, 69, 0.28) 100%);
+    background: linear-gradient(90deg, rgba(220, 53, 70, 0.575) 0%, rgba(220, 53, 70, 0.404) 100%);
 }
 #send-pass-mail:disabled, #send-fail-mail:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 </style>
+<style>
+.column-search {
+  color: #111111c5 !important;
+  background: #fff !important;
+  font-weight: normal !important;
+}
+</style>
+<style>
+.page-title-wrapper {
+  text-align: center;
+  width: 100%;
+  margin: 0 auto;
+}
+h1 {
+  display: inline-block;
+  margin-bottom: 4px !important;
+}
+</style>
+<style>
+.loading-title {
+    color: #1976d2 !important;
+    display: block !important;
+}
+.loading-message {
+    color: #666 !important;
+    display: block !important;
+}
+</style>  
 </head>
 <body>
-    <h1>정리 페이지</h1>
+    <div class="page-title-wrapper">
+      <h1 style="color: #000000 !important;">정리 페이지</h1>
+    </div>
     
     <!-- Floating Bubble Button -->
     <div id="floating-bubble" style="position:fixed;bottom:32px;right:32px;z-index:1200;width:56px;height:56px;background:#1976d2;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s;">
@@ -494,15 +587,15 @@
         </div>
         <div class="pie-legend">
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #6c757d;"></div>
+                <div class="legend-color" style="background-color: rgb(177, 165, 165);"></div>
                 <span id="legend-pending">미정 ({{ statistics.pending }})</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #007bff;"></div>
+                <div class="legend-color" style="background-color: rgb(117, 197, 104);"></div>
                 <span id="legend-pass">합격 ({{ statistics.pass }})</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #dc3545;"></div>
+                <div class="legend-color" style="background-color: rgb(240, 151, 151) ;"></div>
                 <span id="legend-fail">불합격 ({{ statistics.fail }})</span>
             </div>
         </div>
@@ -532,7 +625,7 @@
         </div>
         <div style="margin-top:20px;display:flex;align-items:center;gap:8px;">
             <label for="pass-limit-input" style="font-weight:bold;">합격자 수 관리</label>
-            <input type="number" id="pass-limit-input" min="1" max="{{ statistics.total }}" value="{{ statistics.pass }}" style="width:60px;">
+            <input type="number" id="pass-limit-input" min="1" value="{{ statistics.pass }}" style="width:60px;">
             <button id="pass-limit-confirm" style="padding:2px 10px;font-size:13px;border-radius:4px;border:1px solid #1976d2;background:#fafdff;color:#1976d2;cursor:pointer;">적용</button>
         </div>
         <button id="close-floating-stats" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:20px;color:#888;cursor:pointer;">&times;</button>
@@ -551,7 +644,7 @@
         <div class="column pass-column">
             <h2>합격</h2>
             <div class="search-filter-bar" style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
-                <input type="text" class="column-search" placeholder="이름 검색" style="padding:6px; border-radius:5px; border:1px solid #bbb; width:120px;">
+                <input type="text" class="column-search" placeholder="이름 검색" style="padding:6px; border-radius:5px; border:1px solid #bbb; width:120px; margin-left:32px;">
                 <div class="univ-filter-dropdown" style="position:relative;">
                     <button type="button" class="univ-filter-btn" style="padding:6px 12px; border-radius:5px; border:1px solid #bbb; background:#f8f9fa; cursor:pointer;">대학교 필터 ▼</button>
                     <div class="univ-filter-options" style="display:none; position:absolute; left:0; top:110%; background:#fff; border:1px solid #bbb; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.08); z-index:10; min-width:140px; padding:8px; max-height:200px; overflow-y:auto;">
@@ -566,30 +659,27 @@
             </div>
             <div class="scroll-area" id="pass-list">
                 {% for p in participants if p.status == '합격' %}
-                <div class="participant-card" data-participant-id="{{ p._id }}" data-name="{{ p.name }}" data-university="{{ p.university }}">
+                <div class="participant-card-wrapper">
+                  <div class="participant-card" data-participant-id="{{ p._id }}" data-name="{{ p.name }}" data-university="{{ p.university }}">
                     <div class="card-main-content">
-                        <div class="profile-photo-container">
-                            {% if p.profile_photo_filename %}
-                                <img src="{{ url_for('uploaded_file', filename=p.profile_photo_filename) }}" alt="Profile Photo" class="profile-photo">
-                            {% else %}
-                                <img src="{{ url_for('static', filename='images/default_profile.png') }}" alt="Default Profile Photo" class="profile-photo">
-                            {% endif %}
-                        </div>
-                        <div class="participant-details">
-                            <strong>{{ p.name }}</strong>
-                            <div>성별: {{ p.gender if p.gender else 'N/A' }}</div>
-                            <div>대학교: {{ p.university if p.university else 'N/A' }}</div>
-                            <div>전공: {{ p.major if p.major else 'N/A' }}</div>
-                            <div>나이: {{ p.age if p.age else 'N/A' }}</div>
-                            <div>학기 수: {{ p.semester if p.semester else 'N/A' }}</div>
-                        </div>
-                        <div class="card-actions">
-                            <div class="status-buttons">
-                                <button class="status-btn pass {% if p.status == '합격' %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '합격', this)" {% if p.status == '합격' %}disabled{% endif %}>합격</button>
-                                <button class="status-btn fail {% if p.status == '불합격' %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '불합격', this)" {% if p.status == '불합격' %}disabled{% endif %}>불합격</button>
-                                <button class="status-btn pending {% if p.status == '미정' or not p.status %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '미정', this)" {% if p.status == '미정' or not p.status %}disabled{% endif %}>미정</button>
-                            </div>
-                        </div>
+                      <div class="participant-details">
+                        <strong>{{ p.name }}</strong>
+                        <div>성별 : {{ p.gender if p.gender else 'N/A' }}</div>
+                        <div>대학교 : {{ p.university if p.university else 'N/A' }}</div>
+                        <div>전공 : {{ p.major if p.major else 'N/A' }}</div>
+                        <div>나이 : {{ p.age if p.age else 'N/A' }}</div>
+                        <div>학기 수 : {{ p.semester if p.semester else 'N/A' }}</div>
+                      </div>
+                      <div class="card-actions">
+                        <!-- status-buttons removed -->
+                      </div>
+                      <div class="profile-photo-container">
+                        {% if p.profile_photo_filename %}
+                            <img src="{{ url_for('uploaded_file', filename=p.profile_photo_filename) }}" alt="Profile Photo" class="profile-photo">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/default_profile.png') }}" alt="Default Profile Photo" class="profile-photo">
+                        {% endif %}
+                      </div>
                     </div>
                     <button class="toggle-details-btn" onclick="toggleDetails(this)">▼ 더보기</button>
                     <div class="status-segmented-container" style="position: absolute; bottom: 20px; right: 20px; width: 200px; height: 36px;">
@@ -597,28 +687,28 @@
                       <button class="status-segment pending {% if p.status == '미정' or not p.status %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ p._id }}', '미정')">미정</button>
                       <button class="status-segment fail {% if p.status == '불합격' %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ p._id }}', '불합격')">불합격</button>
                     </div>
-                </div>
-                <div class="participant-extra-details" style="display:none;">
+                  </div>
+                  <div class="participant-extra-details" style="display:none;">
                     <div class="section-header">개인정보</div>
-                    <div>연락처: {{ p.contact if p.contact else 'N/A' }}</div>
-                    <div>이메일: {{ p.email if p.email else 'N/A' }}</div>
-                    <div>MBTI: {{ p.mbti if p.mbti else 'N/A' }}</div>
-                    <div>고등학교: {{ p.high_school_type if p.high_school_type else 'N/A' }}</div>
-                    <div>학번: {{ p.student_id if p.student_id else 'N/A' }}</div>
-                    <div>군대: {{ p.military_service if p.military_service else 'N/A' }}</div>
-                    <div>현재 졸업학기 및 휴학 여부: {{ p.graduation_leave if p.graduation_leave else 'N/A' }}</div>
-                    <div>재수여부: {{ p.re_exam if p.re_exam else 'N/A' }}</div>
-                    <div>재지원 여부: {{ p.reapply if p.reapply else 'N/A' }}</div>
+                    <div><strong>연락처 :</strong> {{ p.contact if p.contact else 'N/A' }}</div>
+                    <div><strong>이메일 :</strong> {{ p.email if p.email else 'N/A' }}</div>
+                    <div><strong>MBTI :</strong> {{ p.mbti if p.mbti else 'N/A' }}</div>
+                    <div><strong>고등학교 :</strong> {{ p.high_school_type if p.high_school_type else 'N/A' }}</div>
+                    <div><strong>학번 :</strong> {{ p.student_id if p.student_id else 'N/A' }}</div>
+                    <div><strong>군대 :</strong> {{ p.military_service if p.military_service else 'N/A' }}</div>
+                    <div><strong>현재 졸업학기 및 휴학 여부 :</strong> {{ p.graduation_leave if p.graduation_leave else 'N/A' }}</div>
+                    <div><strong>재수여부 :</strong> {{ p.re_exam if p.re_exam else 'N/A' }}</div>
+                    <div><strong>재지원 여부 :</strong> {{ p.reapply if p.reapply else 'N/A' }}</div>
                     <div class="section-header">대학생활</div>
-                    <div>주요 전산과목: {% if p.major_cs_courses %}{{ p.major_cs_courses | join(', ') }}{% else %}N/A{% endif %}</div>
-                    <div>열정적 방학: {{ p.passion_vacation if p.passion_vacation else 'N/A' }}</div>
-                    <div>활동 동아리: {{ p.active_club if p.active_club else 'N/A' }}</div>
-                    <div>휴학 기간/활동: {{ p.leave_period_work if p.leave_period_work else 'N/A' }}</div>
-                    <div>인턴 경험 상세: {{ p.intern_exp_details if p.intern_exp_details else 'N/A' }}</div>
-                    <div>개인 프로젝트: {{ p.personal_project_details if p.personal_project_details else 'N/A' }}</div>
+                    <div><strong>주요 전산과목 :</strong> {% if p.major_cs_courses %}{{ p.major_cs_courses | join(', ') }}{% else %}N/A{% endif %}</div>
+                    <div><strong>열정적 방학 :</strong> {{ p.passion_vacation if p.passion_vacation else 'N/A' }}</div>
+                    <div><strong>활동 동아리 :</strong> {{ p.active_club if p.active_club else 'N/A' }}</div>
+                    <div><strong>휴학 기간/활동 :</strong> {{ p.leave_period_work if p.leave_period_work else 'N/A' }}</div>
+                    <div><strong>인턴 경험 상세 :</strong> {{ p.intern_exp_details if p.intern_exp_details else 'N/A' }}</div>
+                    <div><strong>개인 프로젝트 :</strong> {{ p.personal_project_details if p.personal_project_details else 'N/A' }}</div>
                     <div class="section-header">기타</div>
                     {% if p.self_video_url %}
-                    <div>본인 동영상 URL: <a href="{{ p.self_video_url }}" target="_blank">{{ p.self_video_url }}</a></div>
+                    <div><strong>본인 동영상 URL :</strong> <a href="{{ p.self_video_url }}" target="_blank">{{ p.self_video_url }}</a></div>
                     {% set video_url = p.self_video_url %}
                     {% if 'youtube.com/' in video_url or 'youtu.be/' in video_url %}
                         {% set video_id = video_url.split('v=')[-1].split('&')[0] if 'v=' in video_url else video_url.split('/')[-1].split('?')[0] %}
@@ -634,166 +724,46 @@
                         <div><em>(임베드할 수 없는 동영상 URL 형식입니다. 링크를 클릭하여 시청해주세요.)</em></div>
                     {% endif %}
                     {% else %}
-                    <div>본인 동영상 URL: N/A</div>
+                    <div><strong>본인 동영상 URL :</strong> N/A</div>
                     {% endif %}
-                    <div>해외 생활: {{ p.overseas_life if p.overseas_life else 'N/A' }}</div>
-                    <div>수상 경력: {{ p.awards_competitions if p.awards_competitions else 'N/A' }}</div>
-                    <div>특별한 취미: {{ p.unique_hobby if p.unique_hobby else 'N/A' }}</div>
-                    <div>지원 동기: {{ p.application_motive if p.application_motive else 'N/A' }}</div>
-                    <div>추가 코멘트: {{ p.additional_comments if p.additional_comments else 'N/A' }}</div>
+                    <div><strong>해외 생활 :</strong> {{ p.overseas_life if p.overseas_life else 'N/A' }}</div>
+                    <div><strong>수상 경력 :</strong> {{ p.awards_competitions if p.awards_competitions else 'N/A' }}</div>
+                    <div><strong>특별한 취미 :</strong> {{ p.unique_hobby if p.unique_hobby else 'N/A' }}</div>
+                    <div><strong>지원 동기 :</strong> {{ p.application_motive if p.application_motive else 'N/A' }}</div>
+                    <div><strong>추가 코멘트 :</strong> {{ p.additional_comments if p.additional_comments else 'N/A' }}</div>
                     <div class="section-header">점수 분석</div>
                     <div id="dev-score-{{ p._id }}">
-                        <strong>개발 점수:</strong> {{ p.dev_score if p.dev_score is not none else 'N/A' }}
+                        <strong>개발 점수 : </strong> {{ p.dev_score if p.dev_score is not none else 'N/A' }}
                         <button class="toggle-reason-btn" data-target="dev-reason-{{ p._id }}">이유 보기</button>
                     </div>
                     <div class="reason-text" id="dev-reason-{{ p._id }}">
                         {{ p.dev_score_reason if p.dev_score_reason else 'N/A' }}
                     </div>
                     <div id="personality-score-{{ p._id }}">
-                        <strong>개성 점수:</strong> {{ p.personality_score if p.personality_score is not none else 'N/A' }}
+                        <strong>개성 점수 : </strong> {{ p.personality_score if p.personality_score is not none else 'N/A' }}
                         <button class="toggle-reason-btn" data-target="personality-reason-{{ p._id }}">이유 보기</button>
                     </div>
                     <div class="reason-text" id="personality-reason-{{ p._id }}">
                         {{ p.personality_score_reason if p.personality_score_reason else 'N/A' }}
                     </div>
                     <div id="passion-score-{{ p._id }}">
-                        <strong>열정 점수:</strong> {{ p.passion_score if p.passion_score is not none else 'N/A' }}
+                        <strong>열정 점수 : </strong> {{ p.passion_score if p.passion_score is not none else 'N/A' }}
                         <button class="toggle-reason-btn" data-target="passion-reason-{{ p._id }}">이유 보기</button>
                     </div>
                     <div class="reason-text" id="passion-reason-{{ p._id }}">
                         {{ p.passion_score_reason if p.passion_score_reason else 'N/A' }}
                     </div>
-                    <div id="avg-score-{{ p._id }}"><strong>평균 점수:</strong> {{ p.avg_score if p.avg_score is not none else 'N/A' }}</div>
+                    <div id="avg-score-{{ p._id }}"><strong>평균 점수 : </strong> {{ p.avg_score if p.avg_score is not none else 'N/A' }}</div>
+                  </div>
                 </div>
                 {% endfor %}
             </div>
             <button id="send-pass-mail" disabled>합격자 메일 보내기</button>
         </div>
-        <div class="column fail-column">
-            <h2>불합</h2>
-            <div class="search-filter-bar" style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
-                <input type="text" class="column-search" placeholder="이름 검색" style="padding:6px; border-radius:5px; border:1px solid #bbb; width:120px;">
-                <div class="univ-filter-dropdown" style="position:relative;">
-                    <button type="button" class="univ-filter-btn" style="padding:6px 12px; border-radius:5px; border:1px solid #bbb; background:#f8f9fa; cursor:pointer;">대학교 필터 ▼</button>
-                    <div class="univ-filter-options" style="display:none; position:absolute; left:0; top:110%; background:#fff; border:1px solid #bbb; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.08); z-index:10; min-width:140px; padding:8px; max-height:200px; overflow-y:auto;">
-                        {% set universities = participants | map(attribute='university') | list | unique %}
-                        {% for univ in universities %}
-                        <label style="display:block; margin-bottom:4px;">
-                            <input type="checkbox" class="univ-filter-checkbox" value="{{ univ }}"> {{ univ }}
-                        </label>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            <div class="scroll-area" id="fail-list">
-                {% for p in participants if p.status == '불합격' %}
-                <div class="participant-card" data-participant-id="{{ p._id }}" data-name="{{ p.name }}" data-university="{{ p.university }}">
-                    <div class="card-main-content">
-                        <div class="profile-photo-container">
-                            {% if p.profile_photo_filename %}
-                                <img src="{{ url_for('uploaded_file', filename=p.profile_photo_filename) }}" alt="Profile Photo" class="profile-photo">
-                            {% else %}
-                                <img src="{{ url_for('static', filename='images/default_profile.png') }}" alt="Default Profile Photo" class="profile-photo">
-                            {% endif %}
-                        </div>
-                        <div class="participant-details">
-                            <strong>{{ p.name }}</strong>
-                            <div>성별: {{ p.gender if p.gender else 'N/A' }}</div>
-                            <div>대학교: {{ p.university if p.university else 'N/A' }}</div>
-                            <div>전공: {{ p.major if p.major else 'N/A' }}</div>
-                            <div>나이: {{ p.age if p.age else 'N/A' }}</div>
-                            <div>학기 수: {{ p.semester if p.semester else 'N/A' }}</div>
-                        </div>
-                        <div class="card-actions">
-                            <div class="status-buttons">
-                                <button class="status-btn pass {% if p.status == '합격' %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '합격', this)" {% if p.status == '합격' %}disabled{% endif %}>합격</button>
-                                <button class="status-btn fail {% if p.status == '불합격' %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '불합격', this)" {% if p.status == '불합격' %}disabled{% endif %}>불합격</button>
-                                <button class="status-btn pending {% if p.status == '미정' or not p.status %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '미정', this)" {% if p.status == '미정' or not p.status %}disabled{% endif %}>미정</button>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="toggle-details-btn" onclick="toggleDetails(this)">▼ 더보기</button>
-                    <div class="status-segmented-container" style="position: absolute; bottom: 20px; right: 20px; width: 200px; height: 36px;">
-                      <button class="status-segment pass {% if p.status == '합격' %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ p._id }}', '합격')">합격</button>
-                      <button class="status-segment pending {% if p.status == '미정' or not p.status %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ p._id }}', '미정')">미정</button>
-                      <button class="status-segment fail {% if p.status == '불합격' %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ p._id }}', '불합격')">불합격</button>
-                    </div>
-                </div>
-                <div class="participant-extra-details" style="display:none;">
-                    <div class="section-header">개인정보</div>
-                    <div>연락처: {{ p.contact if p.contact else 'N/A' }}</div>
-                    <div>이메일: {{ p.email if p.email else 'N/A' }}</div>
-                    <div>MBTI: {{ p.mbti if p.mbti else 'N/A' }}</div>
-                    <div>고등학교: {{ p.high_school_type if p.high_school_type else 'N/A' }}</div>
-                    <div>학번: {{ p.student_id if p.student_id else 'N/A' }}</div>
-                    <div>군대: {{ p.military_service if p.military_service else 'N/A' }}</div>
-                    <div>현재 졸업학기 및 휴학 여부: {{ p.graduation_leave if p.graduation_leave else 'N/A' }}</div>
-                    <div>재수여부: {{ p.re_exam if p.re_exam else 'N/A' }}</div>
-                    <div>재지원 여부: {{ p.reapply if p.reapply else 'N/A' }}</div>
-                    <div class="section-header">대학생활</div>
-                    <div>주요 전산과목: {% if p.major_cs_courses %}{{ p.major_cs_courses | join(', ') }}{% else %}N/A{% endif %}</div>
-                    <div>열정적 방학: {{ p.passion_vacation if p.passion_vacation else 'N/A' }}</div>
-                    <div>활동 동아리: {{ p.active_club if p.active_club else 'N/A' }}</div>
-                    <div>휴학 기간/활동: {{ p.leave_period_work if p.leave_period_work else 'N/A' }}</div>
-                    <div>인턴 경험 상세: {{ p.intern_exp_details if p.intern_exp_details else 'N/A' }}</div>
-                    <div>개인 프로젝트: {{ p.personal_project_details if p.personal_project_details else 'N/A' }}</div>
-                    <div class="section-header">기타</div>
-                    {% if p.self_video_url %}
-                    <div>본인 동영상 URL: <a href="{{ p.self_video_url }}" target="_blank">{{ p.self_video_url }}</a></div>
-                    {% set video_url = p.self_video_url %}
-                    {% if 'youtube.com/' in video_url or 'youtu.be/' in video_url %}
-                        {% set video_id = video_url.split('v=')[-1].split('&')[0] if 'v=' in video_url else video_url.split('/')[-1].split('?')[0] %}
-                        <div class="video-embed-container" style="max-width:120px;">
-                            <iframe width="120" height="68" src="https://www.youtube.com/embed/{{ video_id }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        </div>
-                    {% elif 'vimeo.com/' in video_url %}
-                        {% set video_id = video_url.split('vimeo.com/')[-1].split('?')[0] %}
-                        <div class="video-embed-container" style="max-width:120px;">
-                            <iframe width="120" height="68" src="https://player.vimeo.com/video/{{ video_id }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
-                        </div>
-                    {% else %}
-                        <div><em>(임베드할 수 없는 동영상 URL 형식입니다. 링크를 클릭하여 시청해주세요.)</em></div>
-                    {% endif %}
-                    {% else %}
-                    <div>본인 동영상 URL: N/A</div>
-                    {% endif %}
-                    <div>해외 생활: {{ p.overseas_life if p.overseas_life else 'N/A' }}</div>
-                    <div>수상 경력: {{ p.awards_competitions if p.awards_competitions else 'N/A' }}</div>
-                    <div>특별한 취미: {{ p.unique_hobby if p.unique_hobby else 'N/A' }}</div>
-                    <div>지원 동기: {{ p.application_motive if p.application_motive else 'N/A' }}</div>
-                    <div>추가 코멘트: {{ p.additional_comments if p.additional_comments else 'N/A' }}</div>
-                    <div class="section-header">점수 분석</div>
-                    <div id="dev-score-{{ p._id }}">
-                        <strong>개발 점수:</strong> {{ p.dev_score if p.dev_score is not none else 'N/A' }}
-                        <button class="toggle-reason-btn" data-target="dev-reason-{{ p._id }}">이유 보기</button>
-                    </div>
-                    <div class="reason-text" id="dev-reason-{{ p._id }}">
-                        {{ p.dev_score_reason if p.dev_score_reason else 'N/A' }}
-                    </div>
-                    <div id="personality-score-{{ p._id }}">
-                        <strong>개성 점수:</strong> {{ p.personality_score if p.personality_score is not none else 'N/A' }}
-                        <button class="toggle-reason-btn" data-target="personality-reason-{{ p._id }}">이유 보기</button>
-                    </div>
-                    <div class="reason-text" id="personality-reason-{{ p._id }}">
-                        {{ p.personality_score_reason if p.personality_score_reason else 'N/A' }}
-                    </div>
-                    <div id="passion-score-{{ p._id }}">
-                        <strong>열정 점수:</strong> {{ p.passion_score if p.passion_score is not none else 'N/A' }}
-                        <button class="toggle-reason-btn" data-target="passion-reason-{{ p._id }}">이유 보기</button>
-                    </div>
-                    <div class="reason-text" id="passion-reason-{{ p._id }}">
-                        {{ p.passion_score_reason if p.passion_score_reason else 'N/A' }}
-                    </div>
-                    <div id="avg-score-{{ p._id }}"><strong>평균 점수:</strong> {{ p.avg_score if p.avg_score is not none else 'N/A' }}</div>
-                </div>
-                {% endfor %}
-            </div>
-            <button id="send-fail-mail" disabled>불합격자 메일 보내기</button>
-        </div>
         <div class="column pending-column">
             <h2>미정</h2>
             <div class="search-filter-bar" style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
-                <input type="text" class="column-search" placeholder="이름 검색" style="padding:6px; border-radius:5px; border:1px solid #bbb; width:120px;">
+                <input type="text" class="column-search" placeholder="이름 검색" style="padding:6px; border-radius:5px; border:1px solid #bbb; width:120px;  margin-left:32px;">
                 <div class="univ-filter-dropdown" style="position:relative;">
                     <button type="button" class="univ-filter-btn" style="padding:6px 12px; border-radius:5px; border:1px solid #bbb; background:#f8f9fa; cursor:pointer;">대학교 필터 ▼</button>
                     <div class="univ-filter-options" style="display:none; position:absolute; left:0; top:110%; background:#fff; border:1px solid #bbb; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.08); z-index:10; min-width:140px; padding:8px; max-height:200px; overflow-y:auto;">
@@ -808,30 +778,28 @@
             </div>
             <div class="scroll-area" id="pending-list">
                 {% for p in participants if not p.status or p.status == '미정' %}
-                <div class="participant-card" data-participant-id="{{ p._id }}" data-name="{{ p.name }}" data-university="{{ p.university }}">
+                <div class="participant-card-wrapper">
+                  <div class="participant-card" data-participant-id="{{ p._id }}" data-name="{{ p.name }}" data-university="{{ p.university }}">
                     <div class="card-main-content">
-                        <div class="profile-photo-container">
-                            {% if p.profile_photo_filename %}
-                                <img src="{{ url_for('uploaded_file', filename=p.profile_photo_filename) }}" alt="Profile Photo" class="profile-photo">
-                            {% else %}
-                                <img src="{{ url_for('static', filename='images/default_profile.png') }}" alt="Default Profile Photo" class="profile-photo">
-                            {% endif %}
-                        </div>
-                        <div class="participant-details">
-                            <strong>{{ p.name }}</strong>
-                            <div>성별: {{ p.gender if p.gender else 'N/A' }}</div>
-                            <div>대학교: {{ p.university if p.university else 'N/A' }}</div>
-                            <div>전공: {{ p.major if p.major else 'N/A' }}</div>
-                            <div>나이: {{ p.age if p.age else 'N/A' }}</div>
-                            <div>학기 수: {{ p.semester if p.semester else 'N/A' }}</div>
-                        </div>
-                        <div class="card-actions">
-                            <div class="status-buttons">
-                                <button class="status-btn pass {% if p.status == '합격' %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '합격', this)" {% if p.status == '합격' %}disabled{% endif %}>합격</button>
-                                <button class="status-btn fail {% if p.status == '불합격' %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '불합격', this)" {% if p.status == '불합격' %}disabled{% endif %}>불합격</button>
-                                <button class="status-btn pending {% if p.status == '미정' or not p.status %}active{% endif %}" onclick="updateStatusOrganize('{{ p._id }}', '미정', this)" {% if p.status == '미정' or not p.status %}disabled{% endif %}>미정</button>
-                            </div>
-                        </div>
+                      
+                      <div class="participant-details">
+                        <strong>{{ p.name }}</strong>
+                        <div>성별 : {{ p.gender if p.gender else 'N/A' }}</div>
+                        <div>대학교 : {{ p.university if p.university else 'N/A' }}</div>
+                        <div>전공 : {{ p.major if p.major else 'N/A' }}</div>
+                        <div>나이 : {{ p.age if p.age else 'N/A' }}</div>
+                        <div>학기 수 : {{ p.semester if p.semester else 'N/A' }}</div>
+                      </div>
+                      <div class="card-actions">
+                        <!-- status-buttons removed -->
+                      </div>
+                      <div class="profile-photo-container">
+                        {% if p.profile_photo_filename %}
+                            <img src="{{ url_for('uploaded_file', filename=p.profile_photo_filename) }}" alt="Profile Photo" class="profile-photo">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/default_profile.png') }}" alt="Default Profile Photo" class="profile-photo">
+                        {% endif %}
+                      </div>
                     </div>
                     <button class="toggle-details-btn" onclick="toggleDetails(this)">▼ 더보기</button>
                     <div class="status-segmented-container" style="position: absolute; bottom: 20px; right: 20px; width: 200px; height: 36px;">
@@ -839,28 +807,28 @@
                       <button class="status-segment pending {% if p.status == '미정' or not p.status %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ p._id }}', '미정')">미정</button>
                       <button class="status-segment fail {% if p.status == '불합격' %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ p._id }}', '불합격')">불합격</button>
                     </div>
-                </div>
-                <div class="participant-extra-details" style="display:none;">
+                  </div>
+                  <div class="participant-extra-details" style="display:none;">
                     <div class="section-header">개인정보</div>
-                    <div>연락처: {{ p.contact if p.contact else 'N/A' }}</div>
-                    <div>이메일: {{ p.email if p.email else 'N/A' }}</div>
-                    <div>MBTI: {{ p.mbti if p.mbti else 'N/A' }}</div>
-                    <div>고등학교: {{ p.high_school_type if p.high_school_type else 'N/A' }}</div>
-                    <div>학번: {{ p.student_id if p.student_id else 'N/A' }}</div>
-                    <div>군대: {{ p.military_service if p.military_service else 'N/A' }}</div>
-                    <div>현재 졸업학기 및 휴학 여부: {{ p.graduation_leave if p.graduation_leave else 'N/A' }}</div>
-                    <div>재수여부: {{ p.re_exam if p.re_exam else 'N/A' }}</div>
-                    <div>재지원 여부: {{ p.reapply if p.reapply else 'N/A' }}</div>
+                    <div><strong>연락처 :</strong> {{ p.contact if p.contact else 'N/A' }}</div>
+                    <div><strong>이메일 :</strong> {{ p.email if p.email else 'N/A' }}</div>
+                    <div><strong>MBTI :</strong> {{ p.mbti if p.mbti else 'N/A' }}</div>
+                    <div><strong>고등학교 :</strong> {{ p.high_school_type if p.high_school_type else 'N/A' }}</div>
+                    <div><strong>학번 :</strong> {{ p.student_id if p.student_id else 'N/A' }}</div>
+                    <div><strong>군대 :</strong> {{ p.military_service if p.military_service else 'N/A' }}</div>
+                    <div><strong>현재 졸업학기 및 휴학 여부 :</strong> {{ p.graduation_leave if p.graduation_leave else 'N/A' }}</div>
+                    <div><strong>재수여부 :</strong> {{ p.re_exam if p.re_exam else 'N/A' }}</div>
+                    <div><strong>재지원 여부 :</strong> {{ p.reapply if p.reapply else 'N/A' }}</div>
                     <div class="section-header">대학생활</div>
-                    <div>주요 전산과목: {% if p.major_cs_courses %}{{ p.major_cs_courses | join(', ') }}{% else %}N/A{% endif %}</div>
-                    <div>열정적 방학: {{ p.passion_vacation if p.passion_vacation else 'N/A' }}</div>
-                    <div>활동 동아리: {{ p.active_club if p.active_club else 'N/A' }}</div>
-                    <div>휴학 기간/활동: {{ p.leave_period_work if p.leave_period_work else 'N/A' }}</div>
-                    <div>인턴 경험 상세: {{ p.intern_exp_details if p.intern_exp_details else 'N/A' }}</div>
-                    <div>개인 프로젝트: {{ p.personal_project_details if p.personal_project_details else 'N/A' }}</div>
+                    <div><strong>주요 전산과목 :</strong> {% if p.major_cs_courses %}{{ p.major_cs_courses | join(', ') }}{% else %}N/A{% endif %}</div>
+                    <div><strong>열정적 방학 :</strong> {{ p.passion_vacation if p.passion_vacation else 'N/A' }}</div>
+                    <div><strong>활동 동아리 :</strong> {{ p.active_club if p.active_club else 'N/A' }}</div>
+                    <div><strong>휴학 기간/활동 :</strong> {{ p.leave_period_work if p.leave_period_work else 'N/A' }}</div>
+                    <div><strong>인턴 경험 상세 :</strong> {{ p.intern_exp_details if p.intern_exp_details else 'N/A' }}</div>
+                    <div><strong>개인 프로젝트 :</strong> {{ p.personal_project_details if p.personal_project_details else 'N/A' }}</div>
                     <div class="section-header">기타</div>
                     {% if p.self_video_url %}
-                    <div>본인 동영상 URL: <a href="{{ p.self_video_url }}" target="_blank">{{ p.self_video_url }}</a></div>
+                    <div><strong>본인 동영상 URL :</strong> <a href="{{ p.self_video_url }}" target="_blank">{{ p.self_video_url }}</a></div>
                     {% set video_url = p.self_video_url %}
                     {% if 'youtube.com/' in video_url or 'youtu.be/' in video_url %}
                         {% set video_id = video_url.split('v=')[-1].split('&')[0] if 'v=' in video_url else video_url.split('/')[-1].split('?')[0] %}
@@ -876,47 +844,168 @@
                         <div><em>(임베드할 수 없는 동영상 URL 형식입니다. 링크를 클릭하여 시청해주세요.)</em></div>
                     {% endif %}
                     {% else %}
-                    <div>본인 동영상 URL: N/A</div>
+                    <div><strong>본인 동영상 URL :</strong> N/A</div>
                     {% endif %}
-                    <div>해외 생활: {{ p.overseas_life if p.overseas_life else 'N/A' }}</div>
-                    <div>수상 경력: {{ p.awards_competitions if p.awards_competitions else 'N/A' }}</div>
-                    <div>특별한 취미: {{ p.unique_hobby if p.unique_hobby else 'N/A' }}</div>
-                    <div>지원 동기: {{ p.application_motive if p.application_motive else 'N/A' }}</div>
-                    <div>추가 코멘트: {{ p.additional_comments if p.additional_comments else 'N/A' }}</div>
+                    <div><strong>해외 생활 :</strong> {{ p.overseas_life if p.overseas_life else 'N/A' }}</div>
+                    <div><strong>수상 경력 :</strong> {{ p.awards_competitions if p.awards_competitions else 'N/A' }}</div>
+                    <div><strong>특별한 취미 :</strong> {{ p.unique_hobby if p.unique_hobby else 'N/A' }}</div>
+                    <div><strong>지원 동기 :</strong> {{ p.application_motive if p.application_motive else 'N/A' }}</div>
+                    <div><strong>추가 코멘트 :</strong> {{ p.additional_comments if p.additional_comments else 'N/A' }}</div>
                     <div class="section-header">점수 분석</div>
                     <div id="dev-score-{{ p._id }}">
-                        <strong>개발 점수:</strong> {{ p.dev_score if p.dev_score is not none else 'N/A' }}
+                        <strong>개발 점수 : </strong> {{ p.dev_score if p.dev_score is not none else 'N/A' }}
                         <button class="toggle-reason-btn" data-target="dev-reason-{{ p._id }}">이유 보기</button>
                     </div>
                     <div class="reason-text" id="dev-reason-{{ p._id }}">
                         {{ p.dev_score_reason if p.dev_score_reason else 'N/A' }}
                     </div>
                     <div id="personality-score-{{ p._id }}">
-                        <strong>개성 점수:</strong> {{ p.personality_score if p.personality_score is not none else 'N/A' }}
+                        <strong>개성 점수 : </strong> {{ p.personality_score if p.personality_score is not none else 'N/A' }}
                         <button class="toggle-reason-btn" data-target="personality-reason-{{ p._id }}">이유 보기</button>
                     </div>
                     <div class="reason-text" id="personality-reason-{{ p._id }}">
                         {{ p.personality_score_reason if p.personality_score_reason else 'N/A' }}
                     </div>
                     <div id="passion-score-{{ p._id }}">
-                        <strong>열정 점수:</strong> {{ p.passion_score if p.passion_score is not none else 'N/A' }}
+                        <strong>열정 점수 : </strong> {{ p.passion_score if p.passion_score is not none else 'N/A' }}
                         <button class="toggle-reason-btn" data-target="passion-reason-{{ p._id }}">이유 보기</button>
                     </div>
                     <div class="reason-text" id="passion-reason-{{ p._id }}">
                         {{ p.passion_score_reason if p.passion_score_reason else 'N/A' }}
                     </div>
-                    <div id="avg-score-{{ p._id }}"><strong>평균 점수:</strong> {{ p.avg_score if p.avg_score is not none else 'N/A' }}</div>
+                    <div id="avg-score-{{ p._id }}"><strong>평균 점수 :</strong> {{ p.avg_score if p.avg_score is not none else 'N/A' }}</div>
+                  </div>
                 </div>
                 {% endfor %}
             </div>
         </div>
+        <div class="column fail-column">
+            <h2>불합격</h2>
+            <div class="search-filter-bar" style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
+                <input type="text" class="column-search" placeholder="이름 검색" style="padding:6px; border-radius:5px; border:1px solid #bbb; width:120px;  margin-left:32px;">
+                <div class="univ-filter-dropdown" style="position:relative;">
+                    <button type="button" class="univ-filter-btn" style="padding:6px 12px; border-radius:5px; border:1px solid #bbb; background:#f8f9fa; cursor:pointer;">대학교 필터 ▼</button>
+                    <div class="univ-filter-options" style="display:none; position:absolute; left:0; top:110%; background:#fff; border:1px solid #bbb; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.08); z-index:10; min-width:140px; padding:8px; max-height:200px; overflow-y:auto;">
+                        {% set universities = participants | map(attribute='university') | list | unique %}
+                        {% for univ in universities %}
+                        <label style="display:block; margin-bottom:4px;">
+                            <input type="checkbox" class="univ-filter-checkbox" value="{{ univ }}"> {{ univ }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-area" id="fail-list">
+                {% for p in participants if p.status == '불합격' %}
+                <div class="participant-card-wrapper">
+                  <div class="participant-card" data-participant-id="{{ p._id }}" data-name="{{ p.name }}" data-university="{{ p.university }}">
+                    <div class="card-main-content">
+                      
+                      <div class="participant-details">
+                        <strong>{{ p.name }}</strong>
+                        <div>성별 : {{ p.gender if p.gender else 'N/A' }}</div>
+                        <div>대학교 : {{ p.university if p.university else 'N/A' }}</div>
+                        <div>전공 : {{ p.major if p.major else 'N/A' }}</div>
+                        <div>나이 : {{ p.age if p.age else 'N/A' }}</div>
+                        <div>학기 수 : {{ p.semester if p.semester else 'N/A' }}</div>
+                      </div>
+                      <div class="card-actions">
+                        <!-- status-buttons removed -->
+                      </div>
+                      <div class="profile-photo-container">
+                        {% if p.profile_photo_filename %}
+                            <img src="{{ url_for('uploaded_file', filename=p.profile_photo_filename) }}" alt="Profile Photo" class="profile-photo">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/default_profile.png') }}" alt="Default Profile Photo" class="profile-photo">
+                        {% endif %}
+                      </div>
+                    </div>
+                    <button class="toggle-details-btn" onclick="toggleDetails(this)">▼ 더보기</button>
+                    <div class="status-segmented-container" style="position: absolute; bottom: 20px; right: 20px; width: 200px; height: 36px;">
+                      <button class="status-segment pass {% if p.status == '합격' %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ p._id }}', '합격')">합격</button>
+                      <button class="status-segment pending {% if p.status == '미정' or not p.status %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ p._id }}', '미정')">미정</button>
+                      <button class="status-segment fail {% if p.status == '불합격' %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ p._id }}', '불합격')">불합격</button>
+                    </div>
+                  </div>
+                  <div class="participant-extra-details" style="display:none;">
+                    <div class="section-header">개인정보</div>
+                    <div><strong>연락처 :</strong> {{ p.contact if p.contact else 'N/A' }}</div>
+                    <div><strong>이메일 :</strong> {{ p.email if p.email else 'N/A' }}</div>
+                    <div><strong>MBTI :</strong> {{ p.mbti if p.mbti else 'N/A' }}</div>
+                    <div><strong>고등학교 :</strong> {{ p.high_school_type if p.high_school_type else 'N/A' }}</div>
+                    <div><strong>학번 :</strong> {{ p.student_id if p.student_id else 'N/A' }}</div>
+                    <div><strong>군대 :</strong> {{ p.military_service if p.military_service else 'N/A' }}</div>
+                    <div><strong>현재 졸업학기 및 휴학 여부 :</strong> {{ p.graduation_leave if p.graduation_leave else 'N/A' }}</div>
+                    <div><strong>재수여부 :</strong> {{ p.re_exam if p.re_exam else 'N/A' }}</div>
+                    <div><strong>재지원 여부 :</strong> {{ p.reapply if p.reapply else 'N/A' }}</div>
+                    <div class="section-header">대학생활</div>
+                    <div><strong>주요 전산과목 :</strong> {% if p.major_cs_courses %}{{ p.major_cs_courses | join(', ') }}{% else %}N/A{% endif %}</div>
+                    <div><strong>열정적 방학 :</strong> {{ p.passion_vacation if p.passion_vacation else 'N/A' }}</div>
+                    <div><strong>활동 동아리 :</strong> {{ p.active_club if p.active_club else 'N/A' }}</div>
+                    <div><strong>휴학 기간/활동 :</strong> {{ p.leave_period_work if p.leave_period_work else 'N/A' }}</div>
+                    <div><strong>인턴 경험 상세 :</strong> {{ p.intern_exp_details if p.intern_exp_details else 'N/A' }}</div>
+                    <div><strong>개인 프로젝트 :</strong> {{ p.personal_project_details if p.personal_project_details else 'N/A' }}</div>
+                    <div class="section-header">기타</div>
+                    {% if p.self_video_url %}
+                    <div><strong>본인 동영상 URL :</strong> <a href="{{ p.self_video_url }}" target="_blank">{{ p.self_video_url }}</a></div>
+                    {% set video_url = p.self_video_url %}
+                    {% if 'youtube.com/' in video_url or 'youtu.be/' in video_url %}
+                        {% set video_id = video_url.split('v=')[-1].split('&')[0] if 'v=' in video_url else video_url.split('/')[-1].split('?')[0] %}
+                        <div class="video-embed-container" style="max-width:120px;">
+                            <iframe width="120" height="68" src="https://www.youtube.com/embed/{{ video_id }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    {% elif 'vimeo.com/' in video_url %}
+                        {% set video_id = video_url.split('vimeo.com/')[-1].split('?')[0] %}
+                        <div class="video-embed-container" style="max-width:120px;">
+                            <iframe width="120" height="68" src="https://player.vimeo.com/video/{{ video_id }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    {% else %}
+                        <div><em>(임베드할 수 없는 동영상 URL 형식입니다. 링크를 클릭하여 시청해주세요.)</em></div>
+                    {% endif %}
+                    {% else %}
+                    <div><strong>본인 동영상 URL :</strong> N/A</div>
+                    {% endif %}
+                    <div><strong>해외 생활 :</strong> {{ p.overseas_life if p.overseas_life else 'N/A' }}</div>
+                    <div><strong>수상 경력 :</strong> {{ p.awards_competitions if p.awards_competitions else 'N/A' }}</div>
+                    <div><strong>특별한 취미 :</strong> {{ p.unique_hobby if p.unique_hobby else 'N/A' }}</div>
+                    <div><strong>지원 동기 :</strong> {{ p.application_motive if p.application_motive else 'N/A' }}</div>
+                    <div><strong>추가 코멘트 :</strong> {{ p.additional_comments if p.additional_comments else 'N/A' }}</div>
+                    <div class="section-header">점수 분석</div>
+                    <div id="dev-score-{{ p._id }}">
+                        <strong>개발 점수 :</strong> {{ p.dev_score if p.dev_score is not none else 'N/A' }}
+                        <button class="toggle-reason-btn" data-target="dev-reason-{{ p._id }}">이유 보기</button>
+                    </div>
+                    <div class="reason-text" id="dev-reason-{{ p._id }}">
+                        {{ p.dev_score_reason if p.dev_score_reason else 'N/A' }}
+                    </div>
+                    <div id="personality-score-{{ p._id }}">
+                        <strong>개성 점수 :</strong> {{ p.personality_score if p.personality_score is not none else 'N/A' }}
+                        <button class="toggle-reason-btn" data-target="personality-reason-{{ p._id }}">이유 보기</button>
+                    </div>
+                    <div class="reason-text" id="personality-reason-{{ p._id }}">
+                        {{ p.personality_score_reason if p.personality_score_reason else 'N/A' }}
+                    </div>
+                    <div id="passion-score-{{ p._id }}">
+                        <strong>열정 점수 :</strong> {{ p.passion_score if p.passion_score is not none else 'N/A' }}
+                        <button class="toggle-reason-btn" data-target="passion-reason-{{ p._id }}">이유 보기</button>
+                    </div>
+                    <div class="reason-text" id="passion-reason-{{ p._id }}">
+                        {{ p.passion_score_reason if p.passion_score_reason else 'N/A' }}
+                    </div>
+                    <div id="avg-score-{{ p._id }}"><strong>평균 점수 :</strong> {{ p.avg_score if p.avg_score is not none else 'N/A' }}</div>
+                  </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button id="send-fail-mail" disabled>불합격자 메일 보내기</button>
+        </div>
     </div>
     <div style="margin: 18px 0; text-align: center;">
-        <span style="font-size: 1.1em; font-weight: bold; color: #1976d2;">현재 합격자 수: {{ 합격자_count }}명</span>
-        &nbsp;|&nbsp;
-        <span style="font-size: 1.1em; font-weight: bold; color: #1976d2;">분반 수: {{ num_groups }}개</span>
-        &nbsp;|&nbsp;
-        <a href="{{ url_for('divide_groups') }}" class="btn" style="background:#007bff; color:#fff; padding:10px 24px; border-radius:7px; font-size:1.1em; font-weight:bold; text-decoration:none; margin-left:10px;">분반 나누기</a>
+        <span id="pass-count" style="font-size: 1.1em; font-weight: bold; color: #686868 !important;">현재 합격자 수: {{ statistics.pass }}명</span>
+        <span style="color: #686868 !important;">&nbsp;|&nbsp;</span>
+        <span style="font-size: 1.1em; font-weight: bold; color: #686868 !important;">분반 수: {{ num_groups }}개</span>
+        <span style="color: #686868 !important;">&nbsp;|&nbsp;</span>
+        <a href="{{ url_for('divide_groups') }}" class="btn" style="background:#9ecf96fa; color:#fff; padding:10px 24px; border-radius:7px; font-size:1.1em; font-weight:bold; text-decoration:none; margin-left:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">분반 나누기</a>
     </div>
     <div class="mail-popup-overlay" id="mail-popup-overlay"></div>
     <div class="mail-popup" id="mail-popup" style="display:none;">
@@ -1016,6 +1105,7 @@ function updateFloatingStats(statistics) {
     document.getElementById('other-male').textContent = statistics.other_male;
     document.getElementById('other-female').textContent = statistics.other_female;
     document.getElementById('total-count').textContent = `총 ${statistics.total}명`;
+    
 }
 
 // --- Mail Progress and BCC Logic ---
@@ -1056,7 +1146,18 @@ window.sendMail = function(type) {
         }).then(res => res.json()).then(data => {
             showMailProgress(1, 1, true);
             alert(data.message);
-        });
+            // Update floating stats
+            if (data.statistics) updateFloatingStats(data.statistics);
+            // Update mail buttons
+            updateMailButtons();
+            // Update pass count with server data
+            if (data.statistics) {
+                const passCountSpan = document.getElementById('pass-count');
+                if (passCountSpan) {
+                    passCountSpan.textContent = `현재 합격자 수: ${data.statistics.pass}명`;
+                }
+            }
+        }, 300);
     } else {
         fetch(`/get_mail_recipients?type=${type}`)
         .then(res => res.json())
@@ -1092,7 +1193,8 @@ window.sendMail = function(type) {
 }
 function updateStatusOrganize(participantId, status, btn) {
             const card = btn.closest('.participant-card');
-            if (!card) return;
+            const wrapper = card.closest('.participant-card-wrapper');
+            if (!card || !wrapper) return;
             fetch(`/update_status/${participantId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1116,17 +1218,17 @@ function updateStatusOrganize(participantId, status, btn) {
                     }
                     
                     // Fade out, move, fade in
-                    card.classList.remove('fade-in');
-                    card.classList.add('fade-out');
+                    wrapper.classList.remove('fade-in');
+                    wrapper.classList.add('fade-out');
                     setTimeout(() => {
-                        // Move card to new column
+                        // Move entire wrapper to new column
                         let targetList;
                         if (status === '합격') targetList = document.getElementById('pass-list');
                         else if (status === '불합격') targetList = document.getElementById('fail-list');
                         else targetList = document.getElementById('pending-list');
-                        targetList.appendChild(card);
-                        card.classList.remove('fade-out');
-                        card.classList.add('fade-in');
+                        targetList.appendChild(wrapper);
+                        wrapper.classList.remove('fade-out');
+                        wrapper.classList.add('fade-in');
                         // Optionally, scroll to top of new column
                         targetList.scrollTop = 0;
                         // Update floating stats
@@ -1200,9 +1302,9 @@ function updateStatusOrganize(participantId, status, btn) {
                             {{ statistics.fail|default(0)|tojson }}
                         ],
                         backgroundColor: [
-                            '#6c757d',
-                            '#007bff',
-                            '#dc3545'
+                            'rgb(177, 165, 165)',
+                            'rgb(117, 197, 104)',
+                            'rgb(240, 151, 151)'
                         ],
                         borderWidth: 2,
                         borderColor: '#fff'
@@ -1226,6 +1328,40 @@ function updateStatusOrganize(participantId, status, btn) {
             if (isNaN(val) || val < 1) val = 1;
             passLimit = val;
             input.value = passLimit;
+            
+            // Save pass limit to backend using the same endpoint as participants_list.html
+            fetch('/api/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    pass_limit: passLimit,
+                    open_time: '{{ settings.open_time if settings else "always" }}',
+                    close_time: '{{ settings.close_time if settings else "always" }}'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success feedback
+                    const button = document.getElementById('pass-limit-confirm');
+                    const originalText = button.textContent;
+                    button.textContent = '저장됨!';
+                    button.style.background = '#4caf50';
+                    button.style.color = 'white';
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.background = '#fafdff';
+                        button.style.color = '#1976d2';
+                    }, 1000);
+                } else {
+                    alert('설정 저장에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving pass limit:', error);
+                alert('설정 저장 중 오류가 발생했습니다.');
+            });
+            
             updateMailButtons();
         });
     </script>
@@ -1246,7 +1382,133 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    document.querySelectorAll('.scroll-area').forEach(function(area) {
+        const searchInput = area.parentElement.querySelector('.column-search');
+        const filterBtn = area.parentElement.querySelector('.univ-filter-btn');
+        const filterOptions = area.parentElement.querySelector('.univ-filter-options');
+        const checkboxes = area.parentElement.querySelectorAll('.univ-filter-checkbox');
+        const cards = area.querySelectorAll('.participant-card');
+
+        // Name search
+        searchInput.addEventListener('input', filter);
+        
+        // University filter dropdown toggle
+        filterBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent event bubbling
+            filterOptions.style.display = filterOptions.style.display === 'block' ? 'none' : 'block';
+        });
+        
+        // University filter
+        checkboxes.forEach(cb => cb.addEventListener('change', filter));
+
+        function filter() {
+            const nameQuery = searchInput.value.trim().toLowerCase();
+            const checkedUnivs = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+            let anyVisible = false;
+            cards.forEach(card => {
+                const wrapper = card.closest('.participant-card-wrapper');
+                const name = (card.getAttribute('data-name') || '').toLowerCase();
+                const univ = card.getAttribute('data-university');
+                const nameMatch = name.includes(nameQuery);
+                const univMatch = checkedUnivs.length === 0 || checkedUnivs.includes(univ);
+                if (nameMatch && univMatch) {
+                    wrapper.style.display = '';
+                    anyVisible = true;
+                } else {
+                    wrapper.style.display = 'none';
+                }
+            });
+            // Show/hide the 'no results' message
+            let noResult = area.querySelector('.noResultMsg');
+            if (!noResult) {
+                noResult = document.createElement('p');
+                noResult.className = 'noResultMsg';
+                noResult.style.textAlign = 'center';
+                noResult.style.color = '#dc3545';
+                noResult.style.fontWeight = 'bold';
+                noResult.textContent = '해당 지원자가 없습니다!';
+                area.appendChild(noResult);
+            }
+            noResult.style.display = anyVisible ? 'none' : '';
+        }
+    });
+    
+    // Global click handler to close all dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        const allFilterOptions = document.querySelectorAll('.univ-filter-options');
+        const allFilterBtns = document.querySelectorAll('.univ-filter-btn');
+        
+        let clickedOnFilter = false;
+        allFilterBtns.forEach(btn => {
+            if (btn.contains(e.target)) {
+                clickedOnFilter = true;
+            }
+        });
+        
+        allFilterOptions.forEach(options => {
+            if (options.contains(e.target)) {
+                clickedOnFilter = true;
+            }
+        });
+        
+        if (!clickedOnFilter) {
+            allFilterOptions.forEach(options => {
+                options.style.display = 'none';
+            });
+        }
+    });
 });
+
+// --- Loading popup functions ---
+function showLoadingPopup(title, message) {
+    document.getElementById('loading-title').textContent = title;
+    document.getElementById('loading-message').textContent = message;
+    document.getElementById('loading-spinner').style.display = 'block';
+    document.getElementById('loading-overlay').style.display = 'flex';
+}
+
+function showSuccessPopup(title, message) {
+    document.getElementById('loading-title').textContent = title;
+    document.getElementById('loading-message').textContent = message;
+    document.getElementById('loading-spinner').style.display = 'none';
+    document.getElementById('loading-popup').innerHTML = `
+        <div class="success-icon">✓</div>
+        <div class="loading-title">${title}</div>
+        <div class="loading-message">${message}</div>
+    `;
+}
+
+function hideLoadingPopup() {
+    setTimeout(() => {
+        document.getElementById('loading-overlay').style.display = 'none';
+        // Reset the popup content for next use
+        document.getElementById('loading-popup').innerHTML = `
+            <div class="loading-spinner" id="loading-spinner"></div>
+            <div class="loading-title" id="loading-title">분반 나누기 중...</div>
+            <div class="loading-message" id="loading-message">유전 알고리즘을 실행하여 최적의 분반을 찾고 있습니다.</div>
+        `;
+    }, 2000); // Show success message for 2 seconds
+}
+
+// --- Handle 분반 나누기 link click ---
+document.addEventListener('DOMContentLoaded', function() {
+    const divideGroupsLink = document.querySelector('a[href*="divide_groups"]');
+    if (divideGroupsLink) {
+        divideGroupsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Show loading popup
+            showLoadingPopup('분반 나누기 중...', '유전 알고리즘을 실행하여 최적의 분반을 찾고 있습니다.');
+            
+            // Navigate to the divide_groups page after a short delay
+            setTimeout(() => {
+                window.location.href = this.href;
+            }, 500); // Small delay to show the loading popup
+        });
+    }
+    });
+
+
 </script>
 <style>
 .reason-text {
@@ -1266,5 +1528,33 @@ function setSegmentedStatus(btn, participantId, status) {
   updateStatusOrganize(participantId, status, btn);
 }
 </script>
+<style>
+.participant-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto 18px auto;
+}
+.participant-extra-details {
+  width: 100%;
+  border-radius: 24px;
+  margin-top: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+</style>
+<style>
+.btn:hover {
+    background: linear-gradient(45deg, rgba(98, 184, 134, 0.9) 0%, rgba(60, 156, 100, 0.671) 100%) !important;
+    color: #fff !important;
+    transform: translateY(-2px) scale(1.02) !important;
+    box-shadow: 0 8px 25px 0 rgba(30, 120, 255, 0.25), 0 4px 12px 0 rgba(255,255,255,0.15) !important;
+}
+.btn:active {
+    transform: translateY(0px) scale(0.98);
+    transition: all 0.1s;
+}
+</style>
 </body>
 </html>

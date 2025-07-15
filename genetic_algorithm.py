@@ -23,6 +23,13 @@ applicants = list(collection.find({"status": "합격"}))
 # 전처리: _id를 str로 변환 (genetic algorithm에서 쓰기 편하게)
 for a in applicants:
     a["_id"] = str(a["_id"])
+    # Ensure all categorized fields exist
+    a.setdefault('categorized_abroad_exp', '기타')
+    a.setdefault('categorized_club_exp', '기타')
+    a.setdefault('categorized_hobbies', '기타')
+    a.setdefault('categorized_immersion_exp', '기타')
+    a.setdefault('categorized_intern_exp', '기타')
+    a.setdefault('categorized_major', '기타')
 
 # 예시 출력
 print(f"불러온 합격자 수: {len(applicants)}")

@@ -14,13 +14,18 @@
         }
         body {
             margin: 0;
-            background: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1124&q=100') no-repeat center center fixed, linear-gradient(120deg, #274b74 0%, #3a7bd5 50%, #232526 100%);
+            background: url('{{ url_for('uploaded_file', filename='background_image.png') }}') no-repeat center center fixed, linear-gradient(120deg, #274b74 0%, #3a7bd5 50%, #232526 100%); 
             background-size: cover, cover;
         }
-        h1, h2, h3, h4, h5, h6, label, p, span, th, td, button, a, input, select, textarea, strong, .section-header, .toggle-details-btn, .action-btn, .status-btn, .current-status, .legend-item, .modal-btns button {
+        h1, h2, h3, h4, h5, h6, label, span, th, td, button, input, select, textarea, strong, .section-header, .toggle-details-btn, .action-btn, .status-btn, .current-status, .legend-item, .modal-btns button {
             color: #fff !important;
             font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', Arial, sans-serif !important;
             font-weight: 600 !important;
+        }
+
+        p, a {
+            color : #fff !important;
+            font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', Arial, sans-serif !important;
         }
         /* Override specific elements for glassmorphism look */
         /*
@@ -79,15 +84,16 @@
             background: rgba(255,255,255,0.10) !important;
             color: #fff !important;
             border: 1px solid #7ecbff !important;
+            margin-bottom: 10px !important;
         }
         .toggle-details-btn:hover {
             background: rgba(58,123,213,0.22) !important;
             color: #fff !important;
         }
         .action-btn, .organize-btn, .status-btn, .modal-btns button {
-            background: rgba(25,118,210,0.18) !important;
+            background: rgba(25, 118, 210, 0.726) !important;
             color: #fff !important;
-            border: 1.5px solid rgba(25,118,210,0.6) !important;
+            border: 1.5px solid rgba(25,118,210,0.8) !important;
             opacity: 1 !important;
         }
         .action-btn.delete {
@@ -95,7 +101,7 @@
             border: 1.5px solid rgba(220,53,69,0.6) !important;
         }
         .action-btn:hover, .organize-btn:hover, .status-btn:hover, .modal-btns button:hover {
-            background: rgba(58,123,213,0.35) !important;
+            background: rgb(58, 123, 213) !important;
             border: 1.5px solid #fff !important;
         }
         .status-btn.pass {
@@ -136,15 +142,15 @@
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             max-width: 900px;
             width: 100%;
-            margin: 0 auto 32px auto;
+            margin: 0 auto 20px auto;
             overflow-x: auto;
             transition: box-shadow 0.3s, border 0.3s;
-            padding: 32px !important;
+            padding: 25px !important;
             position: relative;
-            padding-bottom: 8px !important;
+            padding-bottom: 0px !important;
         }
         .participant-card:hover {
             box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.22);
@@ -305,14 +311,23 @@
         }
         .profile-photo-container {
             margin-bottom: 10px;
+            margin-right:60px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            min-width: 120px;
+            max-width: 140px;
+            flex: 0 0 160px;
         }
         .profile-photo-container img {
             max-width: 250px;
             height: auto;
             border-radius: 5px;
-            border: 1px solid #ddd;
+            border: 10px solid #ddd;
             display: block;
             margin-top: 5px;
+            margin-right : 30px;
         }
         .participant-info-card {
             display: flex;
@@ -332,16 +347,6 @@
             align-items: flex-start;
             text-align: left;
             padding: 0 16px !important;
-        }
-        .profile-photo-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-width: 120px;
-            max-width: 140px;
-            margin: 0 32px;
-            flex: 0 0 160px;
         }
         .actions {
             display: flex;
@@ -568,7 +573,7 @@
         }
         .toggle-details-btn {
             display: block;
-            margin: 10px auto 0 auto;
+            margin: -10px auto 0 auto;
             padding: 4px 16px;
             font-size: 13px;
             border-radius: 4px;
@@ -591,12 +596,15 @@
             align-items: flex-start;
         }
         .profile-photo-container img.profile-photo {
-            max-width: 120px;
+            max-width: 180px;
             height: auto;
-            border-radius: 5px;
-            border: 1px solid #ddd;
+            border-radius: 50%;
+            border: 3px solid #fff;
             display: block;
-            margin: 0 auto;
+            margin: 0;
+            object-fit: cover;
+            width: 180px;
+            height: 180px;
         }
         .organize-btn {
             width: 100%;
@@ -690,13 +698,11 @@
             display: inline-block !important;
             float: right !important;
             margin-left: 12px !important;
+            margin-top: 3px !important;
             padding: 3px 12px !important;
             border-radius: 7px !important;
-            border: 1.5px solid #7ecbff !important;
-            background: rgba(17, 25, 40, 0.55) !important;
-            color: #7ecbff !important;
             font-weight: 600 !important;
-            font-size: 0.98em !important;
+            font-size: 0.8em !important;
             letter-spacing: 0.01em !important;
             cursor: pointer !important;
             box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.10) !important;
@@ -705,11 +711,14 @@
             min-width: 0 !important;
             min-height: 0 !important;
             line-height: 1.2 !important;
+            border: 1px solid #7ecbff !important;
+            color: #fff !important;
+            background: rgba(255,255,255,0.10) !important;
+            transition: background 0.2s, color 0.2s;
         }
         .toggle-reason-btn:hover, .toggle-reason-btn:focus {
-            background: rgba(30, 80, 180, 0.55) !important;
+            background: rgba(58,123,213,0.22) !important;
             color: #fff !important;
-            border-color: #fff !important;
         }
         .toggle-reason-btn:disabled {
             opacity: 0.5 !important;
@@ -717,6 +726,7 @@
             color: #fff !important;
             border-color: #bbb !important;
             cursor: not-allowed !important;
+            
         }
         .status-segmented-container {
           display: flex;
@@ -729,7 +739,8 @@
           background: linear-gradient(90deg, rgba(168, 213, 160, 0.4) 0%, rgba(244, 199, 171, 0.4) 50%, rgba(244, 168, 168, 0.4) 100%), rgba(255, 255, 255, 0.02);
           box-shadow: inset 0px -2px 6px rgba(0, 0, 0, 0.2), inset 0px 2px 8px rgba(255, 255, 255, 0.4);
           border-radius: 60px;
-          margin: 18px auto 18px auto;
+          margin-bottom: 13px;
+          margin-right: -10px;
         }
         .status-segment {
           flex: 1 1 0;
@@ -765,37 +776,82 @@
           box-shadow: 0 4px 12px 0 rgba(244, 168, 168, 0.18), 0 2px 8px 0 rgba(255,255,255,0.18);
         }
         .status-segment:not(.active):hover {
-          background: rgba(255,255,255,0.08);
+          background: rgba(255,255,255,0.25);
+          box-shadow: 0 4px 12px 0 rgba(255,255,255,0.2), 0 2px 8px 0 rgba(255,255,255,0.15);
+          transform: translateY(-1px);
+          transition: all 0.2s ease;
+        }
+        .status-segment.pass:not(.active):hover {
+          background: rgba(168, 213, 160, 0.4);
+          box-shadow: 0 4px 12px 0 rgba(168, 213, 160, 0.25), 0 2px 8px 0 rgba(255,255,255,0.15);
+          transform: translateY(-1px);
+          transition: all 0.2s ease;
+        }
+        .status-segment.fail:not(.active):hover {
+          background: rgba(244, 168, 168, 0.4);
+          box-shadow: 0 4px 12px 0 rgba(244, 168, 168, 0.25), 0 2px 8px 0 rgba(255,255,255,0.15);
+          transform: translateY(-1px);
+          transition: all 0.2s ease;
         }
         .segmented-actions-wrapper {
             position: absolute;
             right: 20px;
             bottom: 0;
             display: flex;
-            flex-direction: column;
-            align-items: flex-end;
+            flex-direction: row;
+            align-items: center;
             gap: 10px;
             z-index: 2;
         }
         .gemini-segment-btn {
             border: none;
             outline: none;
-            border-radius: 60px;
-            background: linear-gradient(90deg, rgba(30, 120, 255, 0.22) 0%, rgba(30, 120, 255, 0.13) 100%);
+            border-radius: 20px;
+            background: linear-gradient(45deg, rgba(30, 120, 255, 0.801) 0%,rgba(204, 154, 250, 0.555) 50%, rgba(86, 154, 255, 0.658) 100%);
             color: #7ecbff;
             font-family: 'SF Pro', 'Inter', sans-serif;
             font-weight: 590;
             font-size: 15px;
-            padding: 10px 28px;
-            margin: 0;
+            padding: 10px 16px;
+            width: 150px;
+            height: 35px;
             cursor: pointer;
             box-shadow: 0 2px 8px 0 rgba(30, 120, 255, 0.10), 0 1px 4px 0 rgba(255,255,255,0.10);
-            transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             letter-spacing: 0.01em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .gemini-segment-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
         }
         .gemini-segment-btn:hover {
-            background: linear-gradient(90deg, rgba(30, 120, 255, 0.32) 0%, rgba(30, 120, 255, 0.18) 100%);
+            background: linear-gradient(45deg, rgba(25, 116, 253, 0.9) 0%,rgba(185, 128, 238, 0.8) 50%, rgba(77, 148, 255, 0.8) 100%);
             color: #fff;
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px 0 rgba(30, 120, 255, 0.25), 0 4px 12px 0 rgba(255,255,255,0.15);
+        }
+        .gemini-segment-btn:hover::before {
+            left: 100%;
+        }
+        .gemini-segment-btn:active {
+            transform: translateY(0px) scale(0.98);
+            transition: all 0.1s;
+        }
+        #participantSearch::placeholder {
+            color: #8d8d8d !important;
+            font-weight: 500 !important;
+            opacity: 1 !important;
         }
     </style>
 </head>
@@ -825,15 +881,15 @@ function toggleDetails(btn) {
         <!-- Pie Chart Legend -->
         <div class="pie-legend">
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #6c757d;"></div>
+                <div class="legend-color" style="background-color: rgb(177, 165, 165);"></div>
                 <span>미정 ({{ statistics.pending }})</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #007bff;"></div>
+                <div class="legend-color" style="background-color: rgb(117, 197, 104)"></div>
                 <span>합격 ({{ statistics.pass }})</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #dc3545;"></div>
+                <div class="legend-color" style="background-color: rgb(240, 151, 151);"></div>
                 <span>불합격 ({{ statistics.fail }})</span>
             </div>
         </div>
@@ -881,21 +937,22 @@ function toggleDetails(btn) {
 
     <div class="participants-list-wrapper">
     <div style="text-align:center; margin-bottom: 20px; margin-top: 32px;">
-        <h1 style="margin-bottom: 18px;">등록된 지원자 목록</h1>
-        <input type="text" id="participantSearch" placeholder="이름으로 검색" style="padding:8px; width:220px; border-radius:6px; border:1px solid #bbb;">
+        <h1 style="margin-bottom: 18px; color : #180101 !important;">몰입캠프 지원자 목록</h1>
+        <input type="text" id="participantSearch" placeholder="이름으로 검색" style="padding:8px; width:220px; border-radius:6px; border:2px solid; background: rgba(255, 255, 255, 0.623); color: #727272 !important; font-weight: 100 !important; font-size: 14px;">
     </div>
 {% if ungraded_participants %}
-    <div style="margin-bottom:16px; text-align:center; color:#fff !important; font-weight:bold;">아직 Gemini 점수 미부여 지원자</div>
+    <div style="max-width:900px; width:100%; margin:0 auto 16px auto; color:#180101 !important; font-weight:bold; text-align:left;">AI 미채점자</div>
     {% for participant in ungraded_participants %}
         <div class="participant-card" data-participant-id="{{ participant._id }}" data-name="{{ participant.name }}">
             <div class="participant-info-card">
                 <div class="participant-details" style="flex:2;">
                     <h3>{{ participant.name }}</h3>
-                    <p><strong>성별:</strong> {{ participant.gender if participant.gender else 'N/A' }}</p>
-                    <p><strong>대학교:</strong> {{ participant.university if participant.university else 'N/A' }}</p>
-                    <p><strong>전공:</strong> {{ participant.major if participant.major else 'N/A' }}</p>
-                    <p><strong>나이:</strong> {{ participant.age if participant.age else 'N/A' }}</p>
-                    <p><strong>학기 수:</strong> {{ participant.semester if participant.semester else 'N/A' }}</p>
+                    <p><strong>성별:</strong> <strong>{{ participant.gender if participant.gender else 'N/A' }}</strong></p>
+                    <p><strong>대학교:</strong> <strong>{{ participant.university if participant.university else 'N/A' }}</strong></p>
+                    <p><strong>전공:</strong> <strong>{{ participant.major if participant.major else 'N/A' }}</strong></p>
+                    <p><strong>나이:</strong> <strong>{{ participant.age if participant.age else 'N/A' }}</strong></p>
+                    <p><strong>학기 수:</strong> <strong>{{ participant.semester if participant.semester else 'N/A' }}</strong></p>
+                    <button class="gemini-segment-btn" onclick="categorizeParticipant(this, '{{ participant._id }}')" style="margin-top: 15px;">AI 채점하기 →</button>
                 </div>
                 <div class="profile-photo-container">
                     {% if participant.profile_photo_filename %}
@@ -905,7 +962,6 @@ function toggleDetails(btn) {
                     {% endif %}
                 </div>
                 <div class="segmented-actions-wrapper">
-                    <button class="gemini-segment-btn" onclick="categorizeParticipant(this, '{{ participant._id }}')">Gemini 재분류</button>
                     <div class="status-segmented-container" style="width: 200px; height: 40px; position: static; margin-top: 6px;">
                       <button class="status-segment pass {% if participant.status == '합격' %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ participant._id }}', '합격')">합격</button>
                       <button class="status-segment pending {% if participant.status == '미정' or not participant.status %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ participant._id }}', '미정')">미정</button>
@@ -917,17 +973,17 @@ function toggleDetails(btn) {
             <div class="participant-extra-details" style="display:none;">
                 <!-- All the rest of the info goes here (copy from the previous card body, except the above fields) -->
                 <div class="section-header">개인정보</div>
-                <p><strong>연락처:</strong> {{ participant.contact if participant.contact else 'N/A' }}</p>
-                <p><strong>이메일:</strong> {{ participant.email if participant.email else 'N/A' }}</p>
-                <p><strong>MBTI:</strong> {{ participant.mbti if participant.mbti else 'N/A' }}</p>
-                <p><strong>고등학교:</strong> {{ participant.high_school_type if participant.high_school_type else 'N/A' }}</p>
-                <p><strong>학번:</strong> {{ participant.student_id if participant.student_id else 'N/A' }}</p>
-                <p><strong>군대:</strong> {{ participant.military_service if participant.military_service else 'N/A' }}</p>
-                <p><strong>현재 졸업학기 및 휴학 여부:</strong> {{ participant.graduation_leave if participant.graduation_leave else 'N/A' }}</p>
-                <p><strong>재수여부:</strong> {{ participant.re_exam if participant.re_exam else 'N/A' }}</p>
-                <p><strong>재지원 여부:</strong> {{ participant.reapply if participant.reapply else 'N/A' }}</p>
+                <p><strong>연락처:</strong> <strong>{{ participant.contact if participant.contact else 'N/A' }}</strong></p>
+                <p><strong>이메일:</strong> <strong>{{ participant.email if participant.email else 'N/A' }}</strong></p>
+                <p><strong>MBTI:</strong> <strong>{{ participant.mbti if participant.mbti else 'N/A' }}</strong></p>
+                <p><strong>고등학교:</strong> <strong>{{ participant.high_school_type if participant.high_school_type else 'N/A' }}</strong></p>
+                <p><strong>학번:</strong> <strong>{{ participant.student_id if participant.student_id else 'N/A' }}</strong></p>
+                <p><strong>군대:</strong> <strong>{{ participant.military_service if participant.military_service else 'N/A' }}</strong></p>
+                <p><strong>현재 졸업학기 및 휴학 여부:</strong> <strong>{{ participant.graduation_leave if participant.graduation_leave else 'N/A' }}</strong></p>
+                <p><strong>재수여부:</strong> <strong>{{ participant.re_exam if participant.re_exam else 'N/A' }}</strong></p>
+                <p><strong>재지원 여부:</strong> <strong>{{ participant.reapply if participant.reapply else 'N/A' }}</strong></p>
                 <div class="section-header">대학생활</div>
-                <p><strong>주요 전산과목:</strong>
+                <p><strong>주요 전산과목:</strong> 
                 {% if participant.major_cs_courses %}
                     {{ participant.major_cs_courses | join(', ') }}
                 {% else %}
@@ -993,17 +1049,18 @@ function toggleDetails(btn) {
     <hr style="margin:32px 0; border:1px dashed #bbb;">
 {% endif %}
 {% if graded_participants %}
-    <div style="margin-bottom:16px; text-align:center; color:#fff !important; font-weight:bold;">Gemini 점수 부여 지원자</div>
+    <div style="max-width:900px; width:100%; margin:0 auto 16px auto; color:#180101 !important; font-weight:bold; text-align:left;">AI 채점 완료자</div>
     {% for participant in graded_participants %}
         <div class="participant-card" data-participant-id="{{ participant._id }}" data-name="{{ participant.name }}">
             <div class="participant-info-card">
                 <div class="participant-details" style="flex:2;">
                     <h3>{{ participant.name }}</h3>
-                    <p><strong>성별:</strong> {{ participant.gender if participant.gender else 'N/A' }}</p>
-                    <p><strong>대학교:</strong> {{ participant.university if participant.university else 'N/A' }}</p>
-                    <p><strong>전공:</strong> {{ participant.major if participant.major else 'N/A' }}</p>
-                    <p><strong>나이:</strong> {{ participant.age if participant.age else 'N/A' }}</p>
-                    <p><strong>학기 수:</strong> {{ participant.semester if participant.semester else 'N/A' }}</p>
+                    <p><strong>성별:</strong> <strong>{{ participant.gender if participant.gender else 'N/A' }}</strong></p>
+                    <p><strong>대학교:</strong> <strong>{{ participant.university if participant.university else 'N/A' }}</strong></p>
+                    <p><strong>전공:</strong> <strong>{{ participant.major if participant.major else 'N/A' }}</strong></p>
+                    <p><strong>나이:</strong> <strong>{{ participant.age if participant.age else 'N/A' }}</strong></p>
+                    <p><strong>학기 수:</strong> <strong>{{ participant.semester if participant.semester else 'N/A' }}</strong></p>
+                    <button class="gemini-segment-btn" onclick="categorizeParticipant(this, '{{ participant._id }}')" style="margin-top: 15px;">AI 채점하기 →</button>
                 </div>
                 <div class="profile-photo-container">
                     {% if participant.profile_photo_filename %}
@@ -1013,7 +1070,6 @@ function toggleDetails(btn) {
                     {% endif %}
                 </div>
                 <div class="segmented-actions-wrapper">
-                    <button class="gemini-segment-btn" onclick="categorizeParticipant(this, '{{ participant._id }}')">Gemini 재분류</button>
                     <div class="status-segmented-container" style="width: 200px; height: 40px; position: static; margin-top: 6px;">
                       <button class="status-segment pass {% if participant.status == '합격' %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ participant._id }}', '합격')">합격</button>
                       <button class="status-segment pending {% if participant.status == '미정' or not participant.status %}active{% endif %}" onclick="setSegmentedStatus(this, '{{ participant._id }}', '미정')">미정</button>
@@ -1025,15 +1081,15 @@ function toggleDetails(btn) {
             <div class="participant-extra-details" style="display:none;">
                 <!-- All the rest of the info goes here (copy from the previous card body, except the above fields) -->
                 <div class="section-header">개인정보</div>
-                <p><strong>연락처:</strong> {{ participant.contact if participant.contact else 'N/A' }}</p>
-                <p><strong>이메일:</strong> {{ participant.email if participant.email else 'N/A' }}</p>
-                <p><strong>MBTI:</strong> {{ participant.mbti if participant.mbti else 'N/A' }}</p>
-                <p><strong>고등학교:</strong> {{ participant.high_school_type if participant.high_school_type else 'N/A' }}</p>
-                <p><strong>학번:</strong> {{ participant.student_id if participant.student_id else 'N/A' }}</p>
-                <p><strong>군대:</strong> {{ participant.military_service if participant.military_service else 'N/A' }}</p>
-                <p><strong>현재 졸업학기 및 휴학 여부:</strong> {{ participant.graduation_leave if participant.graduation_leave else 'N/A' }}</p>
-                <p><strong>재수여부:</strong> {{ participant.re_exam if participant.re_exam else 'N/A' }}</p>
-                <p><strong>재지원 여부:</strong> {{ participant.reapply if participant.reapply else 'N/A' }}</p>
+                <p><strong>연락처:</strong> <strong>{{ participant.contact if participant.contact else 'N/A' }}</strong></p>
+                <p><strong>이메일:</strong> <strong>{{ participant.email if participant.email else 'N/A' }}</strong></p>
+                <p><strong>MBTI:</strong> <strong>{{ participant.mbti if participant.mbti else 'N/A' }}</strong></p>
+                <p><strong>고등학교:</strong> <strong>{{ participant.high_school_type if participant.high_school_type else 'N/A' }}</strong></p>
+                <p><strong>학번:</strong> <strong>{{ participant.student_id if participant.student_id else 'N/A' }}</strong></p>
+                <p><strong>군대:</strong> <strong>{{ participant.military_service if participant.military_service else 'N/A' }}</strong></p>
+                <p><strong>현재 졸업학기 및 휴학 여부:</strong> <strong>{{ participant.graduation_leave if participant.graduation_leave else 'N/A' }}</strong></p>
+                <p><strong>재수여부:</strong> <strong>{{ participant.re_exam if participant.re_exam else 'N/A' }}</strong></p>
+                <p><strong>재지원 여부:</strong> <strong>{{ participant.reapply if participant.reapply else 'N/A' }}</strong></p>
                 <div class="section-header">대학생활</div>
                 <p><strong>주요 전산과목:</strong>
                 {% if participant.major_cs_courses %}
@@ -1138,9 +1194,14 @@ function toggleDetails(btn) {
                             {{ statistics.fail|tojson }}
                         ],
                         backgroundColor: [
-                            '#6c757d',  // Grey for pending
-                            '#007bff',  // Blue for pass
-                            '#dc3545'   // Red for fail
+                            'rgb(177, 165, 165)',  // Grey for pending
+                            'rgb(117, 197, 104)',  // Blue for pass
+                            'rgb(240, 151, 151)'   // Red for fail
+                        ],
+                        hoverBackgroundColor: [
+                            'rgb(180, 170, 170)',  // Darker grey for pending hover
+                            'rgb(120, 200, 110)',  // Darker green for pass hover
+                            'rgb(230, 130, 130)'   // Darker red for fail hover
                         ],
                         borderWidth: 2,
                         borderColor: '#fff'
@@ -1383,15 +1444,15 @@ function toggleDetails(btn) {
             if (!legend) return;
             legend.innerHTML = `
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: #6c757d;"></div>
+                    <div class="legend-color" style="background-color: rgb(206, 195, 195);"></div>
                     <span>미정 (${statistics.pending ?? 0})</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: #007bff;"></div>
+                    <div class="legend-color" style="background-color: rgb(155, 223, 144);"></div>
                     <span>합격 (${statistics.pass ?? 0})</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: #dc3545;"></div>
+                    <div class="legend-color" style="background-color: rgb(253, 151, 151);"></div>
                     <span>불합격 (${statistics.fail ?? 0})</span>
                 </div>
             `;
@@ -1493,7 +1554,7 @@ function categorizeParticipant(btn, participantId) {
                 }, 500);
             }
         } else {
-            showToast(data.error || 'Gemini 분류 실패', 'error');
+            showToast(data.error || 'AI 채점 실패', 'error');
         }
     })
     .catch(e => {

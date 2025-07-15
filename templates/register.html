@@ -5,15 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>새 참가자 등록</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
-        h1 { text-align: center; color: #333; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: url('{{ url_for('uploaded_file', filename='background_image.png') }}') no-repeat center center fixed, linear-gradient(120deg, #274b74 0%, #3a7bd5 50%, #232526 100%); 
+            background-size: cover, cover;
+        }
+        h1 { text-align: center; color: #000000ce !important; }
         form {
             max-width: 700px;
             margin: 20px auto;
             padding: 30px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: rgba(184, 197, 221, 0.507) !important;
+            color: #fff !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(255, 255, 255, 0.125) !important;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18) !important;
+            backdrop-filter: blur(2px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(2px) saturate(180%) !important;
+            min-height: calc(80vh - 120px);
+        
+
         }
         .form-section {
             margin-bottom: 25px;
@@ -21,10 +33,16 @@
             border: 1px solid #e0e0e0;
             border-radius: 6px;
             background-color: #fdfdfd;
+            border: 1.5px solid rgba(255,255,255,0.18);
+            background: #fff;
+            color: #ffffff !important;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            backdrop-filter: blur(8px) saturate(180%);
+            -webkit-backdrop-filter: blur(8px) saturate(180%);
         }
         .form-section h2 {
             margin-top: 0;
-            color: #555;
+            color: #3a96d3;
             border-bottom: 1px solid #eee;
             padding-bottom: 10px;
             margin-bottom: 15px;
@@ -33,7 +51,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
-            color: #444;
+            color: #000000;
         }
         input[type="text"],
         input[type="number"],
@@ -49,6 +67,8 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 1em;
+            background: rgba(255, 255, 255, 0.685) !important;
+            color: #3d3c3c !important;
         }
         select[multiple] { /* Style for multi-select */
             height: auto;
@@ -81,7 +101,7 @@
             margin-left: 3px;
         }
         button[type="submit"] {
-            background-color: #28a745;
+            background-color: #29af49b4;
             color: white;
             padding: 12px 25px;
             border: none;
@@ -93,7 +113,7 @@
             box-sizing: border-box;
         }
         button[type="submit"]:hover {
-            background-color: #218838;
+            background-color: #279940;
         }
         .back-link {
             display: block;
@@ -277,27 +297,27 @@
         <div class="form-section">
             <h2>대학생활</h2>
             <div class="form-group">
-                <label for="passion_vacation">가장 열정적으로 보냈던 방학과 그 이유:</label>
+                <label for="passion_vacation">1. 가장 열정적으로 보냈던 방학과 그 이유 (200자 이하):</label>
                 <textarea id="passion_vacation" name="passion_vacation" rows="4">{{ participant.passion_vacation if participant else '' }}</textarea>
             </div>
 
             <div class="form-group">
-                <label for="active_club">활발하게 활동한 동아리:</label>
+                <label for="active_club">2. 활발하게 활동한 동아리 (200자 이하):</label>
                 <textarea id="active_club" name="active_club" rows="4">{{ participant.active_club if participant else '' }}</textarea>
             </div>
 
             <div class="form-group">
-                <label for="leave_period_work">휴학했다면 그 기간과 기간 중에 한 일:</label>
+                <label for="leave_period_work">3. 휴학했다면 그 기간과 기간 중에 한 일 (200자 이하):</label>
                 <textarea id="leave_period_work" name="leave_period_work" rows="4">{{ participant.leave_period_work if participant else '' }}</textarea>
             </div>
 
             <div class="form-group">
-                <label for="intern_exp_details">인턴 경험이 있다면 그 기간과 어디에서 어떤 업무를 했나요?:</label>
+                <label for="intern_exp_details">4. 인턴 경험이 있다면 그 기간과 어디에서 어떤 업무를 했나요? (200자 이하):</label>
                 <textarea id="intern_exp_details" name="intern_exp_details" rows="4">{{ participant.intern_exp_details if participant else '' }}</textarea>
             </div>
 
             <div class="form-group">
-                <label for="personal_project_details">학과 프로젝트 이외에 본인이 별도의 프로그램이나 앱을 개발한 경험이 있다면, 간략히 프로젝트 내용을 설명해 주세요.:</label>
+                <label for="personal_project_details">5. 학과 프로젝트 이외에 본인이 별도의 프로그램이나 앱을 개발한 경험이 있다면, 간략히 프로젝트 내용을 설명해 주세요. (200자 이하):</label>
                 <textarea id="personal_project_details" name="personal_project_details" rows="4">{{ participant.personal_project_details if participant else '' }}</textarea>
             </div>
         </div>
@@ -305,39 +325,39 @@
         <div class="form-section">
             <h2>기타</h2>
             <div class="form-group">
-                <label for="profile_photo">본인 사진 업로드 (선택):</label>
+                <label for="profile_photo">1. 본인 사진 업로드 (선택):</label>
                 <input type="file" id="profile_photo" name="profile_photo" accept="image/*">
                 <span class="help-text">얼굴이 잘 나온 사진을 업로드해주세요.</span>
             </div>
 
             <div class="form-group">
-                <label for="self_video_url">60초 본인 동영상 URL (필수)<span class="required-asterisk">*</span>:</label>
+                <label for="self_video_url">2. 60초 본인 동영상 URL (필수)<span class="required-asterisk">*</span>:</label>
                 <input type="url" id="self_video_url" name="self_video_url" placeholder="예: https://youtube.com/my_video" value="{{ participant.self_video_url if participant else '' }}" required>
                 <span class="help-text">YouTube, Vimeo 등 동영상 링크를 입력해주세요.</span>
             </div>
 
             <div class="form-group">
-                <label for="overseas_life">1년 이상 해외생활을 했다면, 그 기간과 어디에서 무엇을 했나요? (200자 이하):</label>
+                <label for="overseas_life">3. 1년 이상 해외생활을 했다면, 그 기간과 어디에서 무엇을 했나요? (200자 이하):</label>
                 <textarea id="overseas_life" name="overseas_life" rows="3" maxlength="200">{{ participant.overseas_life if participant else '' }}</textarea>
             </div>
 
             <div class="form-group">
-                <label for="awards_competitions">공모전 및 대회 수상 경력이 있으면 적어주세요. (200자 이하):</label>
+                <label for="awards_competitions">4. 공모전 및 대회 수상 경력이 있으면 적어주세요. (200자 이하):</label>
                 <textarea id="awards_competitions" name="awards_competitions" rows="3" maxlength="200">{{ participant.awards_competitions if participant else '' }}</textarea>
             </div>
 
             <div class="form-group">
-                <label for="unique_hobby">남들과 다른 특별한 취미가 있으면 적어주세요. (200자 이하):</label>
+                <label for="unique_hobby">5. 남들과 다른 특별한 취미가 있으면 적어주세요. (200자 이하):</label>
                 <textarea id="unique_hobby" name="unique_hobby" rows="3" maxlength="200">{{ participant.unique_hobby if participant else '' }}</textarea>
             </div>
 
             <div class="form-group">
-                <label for="application_motive">지원 동기 (200자 이하):</label>
+                <label for="application_motive">6. 지원 동기 (200자 이하):</label>
                 <textarea id="application_motive" name="application_motive" rows="3" maxlength="200">{{ participant.application_motive if participant else '' }}</textarea>
             </div>
 
             <div class="form-group">
-                <label for="additional_comments">추가로 더 하고 싶은 이야기가 있으면 적어주세요. (200자 이하):</label>
+                <label for="additional_comments">7. 추가로 더 하고 싶은 이야기가 있으면 적어주세요. (200자 이하):</label>
                 <textarea id="additional_comments" name="additional_comments" rows="3" maxlength="200">{{ participant.additional_comments if participant else '' }}</textarea>
             </div>
         </div>

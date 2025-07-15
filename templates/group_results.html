@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>분반 결과</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f7fb; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: url('{{ url_for('uploaded_file', filename='background_image.png') }}') no-repeat center center fixed, linear-gradient(120deg, #274b74 0%, #3a7bd5 50%, #232526 100%); 
+            margin: 0; padding: 0; }
         h1 { text-align: center; color: #1976d2; margin-top: 32px; }
         .groups-container {
             display: flex;
@@ -14,9 +15,14 @@
             max-width: 1400px;
         }
         .group-column {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            background-color: rgba(207, 217, 235, 0.75) !important;
+            color: #fff !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(255, 255, 255, 0.125) !important;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18) !important;
+            backdrop-filter: blur(2px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(2px) saturate(180%) !important;
+            border-radius: 12px;;
             padding: 18px 12px 18px 12px;
             min-width: 260px;
             flex: 1;
@@ -29,15 +35,17 @@
             margin-bottom: 18px;
         }
         .student-card {
-            background: #f7faff;
-            border: 1px solid #e3eafc;
+            background: rgba(239, 238, 250, 0.548);
+            color: #ffffff !important;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            backdrop-filter: blur(8px) saturate(180%);
+            -webkit-backdrop-filter: blur(8px) saturate(180%);
             border-radius: 8px;
             margin-bottom: 14px;
             padding: 12px 10px;
             display: flex;
             align-items: center;
             gap: 12px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
         }
         .student-photo {
             width: 60px;
@@ -249,7 +257,7 @@
         {% endfor %}
     </div>
     <div style="text-align:center; margin:32px 0;">
-        <a href="{{ url_for('organize_page') }}" style="background:#1976d2; color:#fff; padding:10px 24px; border-radius:7px; font-size:1.1em; font-weight:bold; text-decoration:none;">← 정리 페이지로 돌아가기</a>
+        <a href="{{ url_for('organize_page') }}" style="background:#398fe6d5; color:#fff; padding:10px 24px; border-radius:7px; font-size:1.1em; font-weight:bold; text-decoration:none;">← 정리 페이지로 돌아가기</a>
     </div>
     
     <!-- Loading popup -->
