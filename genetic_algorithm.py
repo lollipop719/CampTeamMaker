@@ -303,7 +303,7 @@ def tournament_selection(scored_population, k=3):
     return competitors[0][0]  # 상위 개체의 grouping만 반환
 
 ### ✅ 유전 알고리즘 실행 함수
-def genetic_algorithm(applicants, weights, generations=50, population_size=50, elite_size=5, mutation_rate=0.3, num_groups=4):
+def genetic_algorithm(applicants, weights, generations=40, population_size=40, elite_size=5, mutation_rate=0.3, num_groups=4):
     # 사전 처리
     applicants_dict = {a["_id"]: a for a in applicants}
 
