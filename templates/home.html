@@ -99,7 +99,7 @@
             -webkit-backdrop-filter: blur(2px) saturate(180%) !important;
             padding: 26px !important;
             margin-bottom: 1.6rem;
-            transition: box-shadow 0.3s, border 0.3s;
+            transition: box-shadow 0.3s, border 0.3s;-
         }
         .stat-card {
             padding: 1.6rem !important;
@@ -384,7 +384,7 @@
             border: 1.5px solid #fff;
         }
         .main-content {
-            margin-top: 80px;
+            margin-top: 40px;
         }
         @media (max-width: 700px) {
             .top-navbar {
@@ -408,7 +408,10 @@
     {% if user %}
     <!-- Logged in user navbar -->
     <nav class="navbar">
-        <div class="logo">🏕️ Camp Team Maker</div>
+        <div class="navbar-logo">
+          <img src="{{ url_for('uploaded_file', filename='moll.png') }}" alt="몰입캠프" class="logo-image">
+          <span class="navbar-title">Mad Camp</span>
+        </div>
         <div class="user-info">
             <div class="user-details">
                 <div class="user-name">{{ user.name }}</div>

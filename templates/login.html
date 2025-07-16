@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, rgba(132, 168, 228, 0.726), rgba(132, 151, 175, 0.7), rgba(98, 145, 219, 0.726)), url('{{ url_for('uploaded_file', filename='background_image.png') }}');
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -123,8 +123,8 @@
 </head>
 <body>
     <div class="login-container">
-        <div class="logo">🏕️ Camp Team Maker</div>
-        <div class="subtitle">캠프 팀 선발 관리 시스템</div>
+        <div class="logo">🏕️ 몰입캠프 🏕️</div>
+        <div class="subtitle">캠프 지원 시스템</div>
         
         <a href="{{ url_for('google_login') }}" class="google-btn">
             <svg class="google-icon" viewBox="0 0 24 24">
@@ -138,7 +138,7 @@
 
         <div class="info-box">
             <h3>📋 시스템 안내</h3>
-            <p>Google 계정으로 로그인하여 캠프 팀 선발 관리 시스템을 이용하실 수 있습니다.</p>
+            <p>Google 계정으로 로그인하여 몰입캠프 지원 시스템을 이용하실 수 있습니다.</p>
         </div>
 
         <div class="role-info">

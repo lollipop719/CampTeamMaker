@@ -16,13 +16,17 @@
             background: url('{{ url_for('uploaded_file', filename='background_image.png') }}') no-repeat center center fixed, linear-gradient(120deg, #274b74 0%, #3a7bd5 50%, #232526 100%);
             background-size: cover, cover;
         }
-        h1, h2, h3, h4, h5, h6, label, span, th, td, button, p, a, input, select, textarea, strong, .section-header, .toggle-details-btn, .action-btn, .status-btn, .current-status, .legend-item, .modal-btns button {
+        h1, h3, h4, h5, h6, label, span, th, td, button, p, a, input, select, textarea, strong, .section-header, .toggle-details-btn, .action-btn, .status-btn, .current-status, .legend-item, .modal-btns button {
             color: #ffffff !important;
             font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', Arial, sans-serif !important;
             font-weight: 600 !important;
         }
         h2 {
+            color: #4f79b8d5 !important;
             text-align: center;
+            font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', Arial, sans-serif !important;
+            font-weight: 600 !important;
+
         }
         .organize-container {
             display: flex;
@@ -332,7 +336,12 @@
             cursor: not-allowed !important;
             
         }
-        .univ-filter-options, .univ-filter-options label, .univ-filter-options input, .univ-filter-btn {
+
+        .univ-filter-options label {
+            color: #000000 !important;
+            font-weight: 200 !important;
+        }
+        .univ-filter-options, .univ-filter-options input, .univ-filter-btn {
             color: #222 !important;
             background: #fff !important;
         }
@@ -406,6 +415,13 @@
           background-color: #ced4d865 !important;
           color: #fff !important;
           box-shadow: 0 0 0 2px #5a626833;
+        }
+        .univ-filter-options {
+            min-width: 200px !important;
+            padding: 12px !important;
+        }
+        .univ-filter-btn {
+            min-width: 120px !important;
         }
     </style>
     <style>
@@ -761,7 +777,7 @@ h1 {
             <button id="send-pass-mail" disabled>합격자 메일 보내기</button>
         </div>
         <div class="column pending-column">
-            <h2>미정</h2>
+            <h2 style="color: #d3ad45d5 !important;">미정</h2>
             <div class="search-filter-bar" style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
                 <input type="text" class="column-search" placeholder="이름 검색" style="padding:6px; border-radius:5px; border:1px solid #bbb; width:120px;  margin-left:32px;">
                 <div class="univ-filter-dropdown" style="position:relative;">
@@ -880,7 +896,7 @@ h1 {
             </div>
         </div>
         <div class="column fail-column">
-            <h2>불합격</h2>
+            <h2 style="color: #d15a56d5 !important;">불합격</h2>
             <div class="search-filter-bar" style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
                 <input type="text" class="column-search" placeholder="이름 검색" style="padding:6px; border-radius:5px; border:1px solid #bbb; width:120px;  margin-left:32px;">
                 <div class="univ-filter-dropdown" style="position:relative;">
