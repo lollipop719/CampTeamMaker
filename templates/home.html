@@ -517,35 +517,43 @@
           <div class="svg-anim-container">
             <img src="{{ url_for('uploaded_file', filename='arrow_down.svg') }}" alt="아래로 화살표" class="floating-svg" id="scroll-arrow" />
           </div>
-          <div class="intro-block intro-welcome from-bottom">
-            <p id="intro-scroll-target">학생들이 자율적으로 집중개발을 경험하는 프로그래밍 캠프입니다!</p>
-          </div>
           <div class="intro-image">
             <img src="{{ url_for('uploaded_file', filename='campMAD_together.jpg') }}" alt="MAD Camp Together">
           </div>
+          <div class="intro-block intro-welcome from-bottom">
+            <p id="intro-scroll-target">학생들이 자율적으로 집중개발을 경험하는 프로그래밍 캠프입니다!</p>
+          </div>
           
-          <div class="intro-block from-left">
-            <h2>🚀 Project-based Learning</h2>
-            <p>Work in teams to design, develop, and launch your own apps. Learn by doing, with mentorship from experienced instructors and industry professionals.</p>
+          <div class="intro-block from-left" style="margin-top: 300px !important;">
+            <h2>🚀 몰입캠프란? </h2>
+            <p style = "font-weight:350 !important;">공대생들은 치열한 경쟁 속에서 지치지만, 기업들은 여전히 좋은 개발자를 찾기 어렵습니다.
+                몰입캠프는 다양한 학생들과 함께 <strong>자율적으로 개발</strong>하며 실력을 키우고, <strong>스스로의 성장</strong>을 경험할 수 있는 기회를 제공합니다.
+                스타트업 창업자들의 강연을 통해 <strong>새로운 삶의 방향</strong>을 고민하고, 개발을 넘어 인생을 돌아볼 수 있는 시간이 될 것입니다.
+                같은 교육이 아닌 다양한 경험과 사고방식이 더 큰 가치를 만드는 시대—지금, 몰입캠프에서 시작해보세요.</p>
+          </div>
+          
+          <div class="intro-block from-right collab-networking" style="margin-top: 200px !important;">
+            <h2>🤝 협업 & 네트워킹</h2>
+            <p style = "font-weight:350 !important;">이 코스는 참가자의 성장과 네트워킹을 목표로 합니다.
+                2~3명이 팀을 이루어 앱(서비스)을 기획·개발하며, 협업과 자기주도 학습을 통해 실전 개발 경험을 쌓습니다.
+                또한, 스타트업 창업자들과의 특강과 교류를 통해 자신의 태도와 삶을 돌아보는 기회를 제공합니다.</p>
+          </div>
+
+          <div class="intro-block from-left" style="margin-top: 200px !important;">
+            <h2>❔ 왜 해야하는가 </h2>
           </div>
           <div class="intro-image from-right">
-            <img src="{{ url_for('uploaded_file', filename='whyMadCamp.png') }}" alt="Why MAD Camp">
-          </div>
-          
-          <div class="intro-block from-right collab-networking">
-            <h2>🤝 Collaboration & Networking</h2>
-            <p>Meet passionate peers, form lasting friendships, and connect with alumni and tech leaders. MAD Camp is more than a class—it's a community.</p>
+            <p style = "font-family: 'Comic Sans MS', 'SF Pro', 'Inter', sans-serif; font-weight:600 !important; font-size: 1.5rem; margin-bottom: 10px; margin-top: 50px; color: #222 !important ;">함께하는 즐거움 👩🏼‍🤝‍👩🏻</p>
+            <img src="{{ url_for('uploaded_file', filename='whyMadCamp.png') }}" alt="Why MAD Camp" style = "margin-bottom : 30px " >
           </div>
           <div class="intro-image from-left collab-img">
-            <img src="{{ url_for('uploaded_file', filename='whyMadCamp2.jpg') }}" alt="Collaboration at MAD Camp">
+            <p style = "font-family: 'Comic Sans MS', 'SF Pro', 'Inter', sans-serif; font-weight:600 !important; font-size: 1.5rem; margin-bottom: 10px; margin-top: 50px; color: #222 !important;">몰입하는 즐거움 💻</p>
+            <img src="{{ url_for('uploaded_file', filename='whyMadCamp2.jpg') }}" alt="Collaboration at MAD Camp" style = "margin-bottom : 30px " >
           </div>
           
-          <div class="intro-block from-left">
-            <h2>🎉 Demo Day & Awards</h2>
-            <p>Showcase your project at Demo Day, get feedback from experts, and compete for exciting prizes. Many MAD Camp projects have become real startups!</p>
-          </div>
           <div class="intro-image from-right">
-            <img src="{{ url_for('uploaded_file', filename='whyMadCamp3.png') }}" alt="Demo Day">
+            <p style = "font-family: 'Comic Sans MS', 'SF Pro', 'Inter', sans-serif; font-weight:600 !important; font-size: 1.5rem; margin-bottom: 10px; margin-top: 50px; color: #222 !important;">삶의 한 형태를 경험 💭</p>
+            <img src="{{ url_for('uploaded_file', filename='whyMadCamp3.png') }}" alt="Demo Day" style = "margin-bottom : 30px " >
           </div>
           
           <div class="intro-block testimonials-block">
@@ -554,7 +562,7 @@
               <iframe width="560" height="315" src="https://www.youtube.com/embed/m8WQJrnEg0Y" title="MAD Camp Experience" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
             <div class="testimonials-grid">
-              <div class="testimonial">
+              <div class="testimonial from-bottom">
                 <p>"인생에서 이렇게 다시 열심히 살 수 있을까 생각한 한달이었습니다. [...]캠프를 통해 많은 지식을 배운 것도 있지만, 무엇보다 그런 지식을 배우는 법을 배워가는 것 같습니다. 특히 프로그래밍같은 분야는 새로운 것을 얼마나 빠르게 받아들이느냐가 가장 중요한 척도라고 생각을 하는데 그런 면에 있어서 스스로 성장하는 법을 배워간 것 같습니다."</p>
                 <div class="testimonial-author">윤OO<br><span>KAIST 19학번</span></div>
               </div>
@@ -583,7 +591,7 @@
           
           <div class="intro-block intro-journey">
             <h2>Ready to join the journey?</h2>
-            <p>Scroll down and start your journey with MAD Camp now.</p>
+            <p>Click the button below to apply for MAD Camp.</p>
             <a href="{{ url_for('login') }}" class="login-btn intro-login-btn">몰입캠프 지원하기 →</a>
           </div>
         </section>
@@ -592,7 +600,7 @@
     <script>
     // Intersection Observer for intro animation
     document.addEventListener('DOMContentLoaded', function() {
-      const blocks = document.querySelectorAll('.camp-intro .intro-block, .camp-intro .intro-image');
+      const blocks = document.querySelectorAll('.camp-intro .intro-block, .camp-intro .intro-image, .camp-intro .testimonial');
       const observer = new window.IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
@@ -721,7 +729,7 @@
       opacity: 0;
       transform: translateY(40px) scale(0.95);
       transition: opacity 0.8s cubic-bezier(.4,0,.2,1), transform 0.8s cubic-bezier(.4,0,.2,1);
-      margin-bottom: 80px;
+      margin-bottom: 40px;
       text-align: center;
     }
     .camp-intro .intro-image.visible {
@@ -729,7 +737,7 @@
       transform: translateY(0) scale(1);
     }
     .camp-intro .intro-image img {
-      max-width: 100%;
+      max-width: 90%;
       height: auto;
       border-radius: 20px;
       box-shadow: 0 16px 48px 0 rgba(31, 38, 135, 0.2);
@@ -776,6 +784,29 @@
       backdrop-filter: blur(8px);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       text-align: left;
+      opacity: 0;
+      transform: translateY(60px);
+      transition: opacity 1.3s cubic-bezier(.4,0,.2,1), transform 1.3s cubic-bezier(.4,0,.2,1), box-shadow 0.3s ease;
+    }
+    .testimonial.from-left {
+      transform: translateX(-60px);
+      text-align: left;
+      margin-right: auto;
+    }
+    .testimonial.from-right {
+      transform: translateX(60px);
+      text-align: right;
+      margin-left: auto;
+    }
+    .testimonial.from-bottom {
+      transform: translateY(60px);
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .testimonial.visible {
+      opacity: 1;
+      transform: translateX(0) translateY(0);
     }
     .testimonial:hover {
       transform: translateY(-4px);
@@ -896,6 +927,9 @@
   opacity: 0;
   transform: translateY(40px);
   transition: none;
+  margin-top: 0px;
+  margin-bottom: 100px;
+  font-size: 1.6rem;
 }
 .camp-intro .intro-block.intro-welcome.visible p {
   animation: fadeUpIn 1.1s cubic-bezier(.4,0,.2,1);
